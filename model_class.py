@@ -6,35 +6,14 @@ import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 
 
-def weight_variable(shape):
-
-    initial = tf.truncated_normal(shape, stddev=0.1)
-    return tf.Variable(initial)
-
-
-def bias_variable(shape):
-
-    initial = tf.constant(0.1, shape=shape)
-    return tf.Variable(initial)
-
-
-def conv2d(x, W):
-
-    return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='SAME')
-
-
-def max_pool_2x2(x):
-
-    return tf.nn.max_pool(x, ksize=[1, 2, 2, 1],
-                          strides=[1, 2, 2, 1], padding='SAME')
-
-
 def segmentation_layer(prev_layer):
     # Conv layer to generate the 2 score classes
     with tf.name_scope('Score_classes'):
-        W_score_classes = tf.Variable(tf.truncated_normal(
-            [1, 1, 300, 2], stddev=0.1, dtype=tf.float32),
-            name='W_score_classes')
+
+        W_score_classes = tf.Variable(tf.truncated_normal([1, 1, 300, 2],
+                                                          stddev=0.1,
+                                                          dtype=tf.float32),
+                                      name='W_score_classes')
 
         print_tensor_shape(W_score_classes, 'W_score_classes_shape')
 
@@ -42,20 +21,24 @@ def segmentation_layer(prev_layer):
                                              strides=[1, 1, 1, 1],
                                              padding='SAME',
                                              name='score_classes_conv_op')
+
         print_tensor_shape(score_classes_conv_op, 'score_conv_op shape')
 
     # Upscore the results to 256x256x2 image
     with tf.name_scope('Upscore'):
+
         W_upscore = tf.Variable(tf.truncated_normal([31, 31, 2, 2],
                                                     stddev=0.1,
                                                     dtype=tf.float32),
                                 name='W_upscore')
         print_tensor_shape(W_upscore, 'W_upscore shape')
 
-        upscore_conv_op = tf.nn.conv2d_transpose(
-            score_classes_conv_op,
-            W_upscore, output_shape=[1, 256, 256, 2],
-            strides=[1, 16, 16, 1], padding='SAME', name='upscore_conv_op')
+        upscore_conv_op = tf.nn.conv2d_transpose(score_classes_conv_op,
+                                                 W_upscore,
+                                                 output_shape=[1, 256, 256, 2],
+                                                 strides=[1, 16, 16, 1],
+                                                 padding='SAME',
+                                                 name='upscore_conv_op')
 
         print_tensor_shape(upscore_conv_op, 'upscore_conv_op shape')
 
@@ -125,6 +108,49 @@ class Model:
         self.optimize
         self.error
 
+    def variable_summaries(self, var):
+            """Attach a lot of summaries to a Tensor
+            (for TensorBoard visualization)."""
+
+            with tf.name_scope('summaries'):
+
+                mean = tf.reduce_mean(var)
+
+                tf.summary.scalar('mean', mean)
+
+                with tf.name_scope('stddev'):
+
+                    stddev = tf.sqrt(tf.reduce_mean(tf.square(var - mean)))
+
+                tf.summary.scalar('stddev', stddev)
+
+                tf.summary.scalar('max', tf.reduce_max(var))
+
+                tf.summary.scalar('min', tf.reduce_min(var))
+
+                tf.summary.histogram('histogram', var)
+
+    def weight_variable(self, shape):
+
+        initial = tf.truncated_normal(shape, stddev=0.1)
+        self.variable_summaries(initial)
+        return tf.Variable(initial)
+
+    def bias_variable(self, shape):
+
+        initial = tf.constant(0.1, shape=shape)
+        self.variable_summaries(initial)
+        return tf.Variable(initial)
+
+    def conv2d(self, x, W):
+
+        return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='SAME')
+
+    def max_pool_2x2(self, x):
+
+        return tf.nn.max_pool(x, ksize=[1, 2, 2, 1],
+                              strides=[1, 2, 2, 1], padding='SAME')
+
     @define_scope(initializer=tf.contrib.slim.xavier_initializer())
     def inference(self, input=None):
         '''
@@ -132,48 +158,55 @@ class Model:
         output: tensor of computed logits
         '''
 
-        print_tensor_shape(self.image, 'images shape inference')
-        print_tensor_shape(self.label, 'label shape inference')
+        print_tensor_shape(self.image, 'images shape')
+        print_tensor_shape(self.label, 'label shape')
 
         # resize the image tensors to add channels, 1 in this case
         # required to pass the images to various layers upcoming in the graph
         images_re = tf.reshape(self.image, [-1, 28, 28, 1])
-        print_tensor_shape(images_re, 'images shape inference')
+        print_tensor_shape(images_re, 'reshaped images shape')
 
         # Convolution layer.
         with tf.name_scope('Conv1'):
 
             # weight variable 4d tensor, first two dims are patch (kernel) size
             # 3rd dim is number of input channels, 4th dim is output channels
-            W_conv1 = weight_variable([5, 5, 1, 32])
-            b_conv1 = bias_variable([32])
-            h_conv1 = tf.nn.relu(conv2d(images_re, W_conv1) + b_conv1)
+            W_conv1 = self.weight_variable([5, 5, 1, 32])
+            b_conv1 = self.bias_variable([32])
+            h_conv1 = tf.nn.relu(self.conv2d(images_re, W_conv1) + b_conv1)
+            print_tensor_shape(h_conv1, 'Conv1 shape')
 
         # Pooling layer.
         with tf.name_scope('Pool1'):
 
-            h_pool1 = max_pool_2x2(h_conv1)
+            h_pool1 = self.max_pool_2x2(h_conv1)
+            print_tensor_shape(h_pool1, 'MaxPool1 shape')
 
         # Conv layer.
         with tf.name_scope('Conv2'):
 
-            W_conv2 = weight_variable([5, 5, 32, 64])
-            b_conv2 = bias_variable([64])
-            h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2) + b_conv2)
+            W_conv2 = self.weight_variable([5, 5, 32, 64])
+            b_conv2 = self.bias_variable([64])
+            h_conv2 = tf.nn.relu(self.conv2d(h_pool1, W_conv2) + b_conv2)
+            print_tensor_shape(h_conv2, 'Conv2 shape')
 
         # Pooling layer.
         with tf.name_scope('Pool2'):
 
-            h_pool2 = max_pool_2x2(h_conv2)
+            h_pool2 = self.max_pool_2x2(h_conv2)
+            print_tensor_shape(h_pool2, 'MaxPool2 shape')
 
         # Fully-connected layer.
         with tf.name_scope('fully_connected1'):
 
-            W_fc1 = weight_variable([7 * 7 * 64, 1024])
-            b_fc1 = bias_variable([1024])
-
             h_pool2_flat = tf.reshape(h_pool2, [-1, 7 * 7 * 64])
+            print_tensor_shape(h_pool2_flat, 'MaxPool2_flat shape')
+
+            W_fc1 = self.weight_variable([7 * 7 * 64, 1024])
+            b_fc1 = self.bias_variable([1024])
+
             h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
+            print_tensor_shape(h_fc1, 'FullyConnected1 shape')
 
         # Dropout layer.
         with tf.name_scope('dropout'):
@@ -183,8 +216,8 @@ class Model:
         # Output layer (will be transformed via stable softmax)
         with tf.name_scope('readout'):
 
-            W_fc2 = weight_variable([1024, 10])
-            b_fc2 = bias_variable([10])
+            W_fc2 = self.weight_variable([1024, 10])
+            b_fc2 = self.bias_variable([10])
 
             readout = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
             print_tensor_shape(readout, 'readout shape')
@@ -232,10 +265,8 @@ def train():
     # Notional contraction loops would occur here.
     tf.summary.scalar('error', model.error)
 
-    # Merge all the summaries and write them out
-    # to /tmp/tensorflow/mnist/logs/mnist_with_summaries (by default)
+    # Merge all the summaries and instantiate the writers
     merged = tf.summary.merge_all()
-
     train_writer = tf.summary.FileWriter(FLAGS.log_dir + '/train', sess.graph)
     test_writer = tf.summary.FileWriter(FLAGS.log_dir + '/test')
 
@@ -268,7 +299,7 @@ def train():
             summary, _ = sess.run([merged, model.optimize],
                                   {image: images,
                                    label: labels,
-                                   keep_prob: 0.5})
+                                   keep_prob: 0.8})
 
             train_writer.add_summary(summary, i)
 
