@@ -1,0 +1,426 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"data",
+				"data_sets\tstatement"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "model_class_supervisor_queue.py",
+			"settings":
+			{
+				"buffer_size": 16130,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "convert_to_records.py",
+			"settings":
+			{
+				"buffer_size": 3832,
+				"encoding": "UTF-8",
+				"line_ending": "Unix",
+				"name": "# Copyright 2015 The TensorFlow Authors. All Right"
+			}
+		},
+		{
+			"file": "/home/justin/research/tfsa/sa_experiment.py",
+			"settings":
+			{
+				"buffer_size": 16952,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "DEBUG images shape (?, 784)\nDEBUG label shape (?, 10)\nDEBUG reshaped images shape (?, 28, 28, 1)\nDEBUG Conv1 shape (?, 28, 28, 32)\nDEBUG MaxPool1 shape (?, 14, 14, 32)\nDEBUG Conv2 shape (?, 14, 14, 64)\nDEBUG MaxPool2 shape (?, 7, 7, 64)\nDEBUG MaxPool2_flat shape (?, 3136)\nDEBUG FullyConnected1 shape (?, 1024)\nDEBUG readout shape (?, 10)\nExtracting ./mnist/train-images-idx3-ubyte.gz\nExtracting ./mnist/train-labels-idx1-ubyte.gz\nExtracting ./mnist/t10k-images-idx3-ubyte.gz\nExtracting ./mnist/t10k-labels-idx1-ubyte.gz\n2017-07-01 17:12:44.034534: W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use SSE4.1 instructions, but these are available on your machine and could speed up CPU computations.\n2017-07-01 17:12:44.034582: W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use SSE4.2 instructions, but these are available on your machine and could speed up CPU computations.\n2017-07-01 17:12:44.034595: W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use AVX instructions, but these are available on your machine and could speed up CPU computations.\n2017-07-01 17:12:44.460101: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:893] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero\n2017-07-01 17:12:44.460645: I tensorflow/core/common_runtime/gpu/gpu_device.cc:940] Found device 0 with properties: \nname: GeForce GTX 1060 6GB\nmajor: 6 minor: 1 memoryClockRate (GHz) 1.7085\npciBusID 0000:05:00.0\nTotal memory: 5.93GiB\nFree memory: 4.59GiB\n2017-07-01 17:12:44.460676: I tensorflow/core/common_runtime/gpu/gpu_device.cc:961] DMA: 0 \n2017-07-01 17:12:44.460687: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971] 0:   Y \n2017-07-01 17:12:44.460702: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1030] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GTX 1060 6GB, pci bus id: 0000:05:00.0)\n2017-07-01 17:12:45.939303: W tensorflow/core/common_runtime/bfc_allocator.cc:217] Allocator (GPU_0_bfc) ran out of memory trying to allocate 2.59GiB. The caller indicates that this is not a failure, but may mean that there could be performance gains if more memory is available.\n2017-07-01 17:12:46.269118: W tensorflow/core/common_runtime/bfc_allocator.cc:217] Allocator (GPU_0_bfc) ran out of memory trying to allocate 3.90GiB. The caller indicates that this is not a failure, but may mean that there could be performance gains if more memory is available.\nTest error @0:  89.90%\nTest error @10:  76.98%\nTest error @20:  54.22%\nTest error @30:  39.89%\nTest error @40:  28.31%\nTest error @50:  21.91%\nTest error @60:  20.61%\nTest error @70:  16.92%\nTest error @80:  15.16%\nTest error @90:  13.57%\nTest error @100:  12.74%\nTest error @110:  11.37%\nTest error @120:  10.85%\nTest error @130:   9.90%\nTest error @140:  10.06%\nTest error @150:   9.04%\nTest error @160:   8.92%\nTest error @170:   8.67%\nTest error @180:   8.28%\nTest error @190:   7.63%\nTest error @200:   7.72%\nTest error @210:   7.35%\nTest error @220:   7.19%\nTest error @230:   7.15%\nTest error @240:   6.72%\nTest error @250:   6.55%\nTest error @260:   6.62%\nTest error @270:   6.32%\nTest error @280:   6.36%\nTest error @290:   6.18%\nTest error @300:   5.89%\nTest error @310:   6.56%\nTest error @320:   5.74%\nTest error @330:   5.56%\nTest error @340:   5.62%\nTest error @350:   5.79%\nTest error @360:   5.49%\nTest error @370:   5.65%\nTest error @380:   5.15%\nTest error @390:   5.09%\nTest error @400:   5.15%\nTest error @410:   4.90%\nTest error @420:   4.75%\nTest error @430:   5.05%\nTest error @440:   4.98%\nTest error @450:   4.55%\nTest error @460:   4.64%\nTest error @470:   4.72%\nTest error @480:   4.60%\nTest error @490:   4.65%\nTest error @500:   4.41%\nTest error @510:   4.50%\nTest error @520:   4.66%\nTest error @530:   4.36%\nTest error @540:   4.13%\nTest error @550:   4.15%\nTest error @560:   4.07%\nTest error @570:   4.04%\nTest error @580:   4.07%\nTest error @590:   4.13%\nTest error @600:   3.97%\nTest error @610:   3.85%\nTest error @620:   4.09%\nTest error @630:   3.83%\nTest error @640:   3.67%\nTest error @650:   3.88%\nTest error @660:   3.64%\nTest error @670:   3.71%\nTest error @680:   3.70%\nTest error @690:   3.70%\nTest error @700:   3.54%\nTest error @710:   3.47%\nTest error @720:   3.50%\nTest error @730:   3.49%\nTest error @740:   3.48%\nTest error @750:   3.56%\nTest error @760:   3.36%\nTest error @770:   3.35%\nTest error @780:   3.64%\nTest error @790:   3.27%\nTest error @800:   3.46%\nTest error @810:   3.42%\nTest error @820:   3.24%\nTest error @830:   3.26%\nTest error @840:   3.40%\nTest error @850:   3.37%\nTest error @860:   3.09%\nTest error @870:   3.06%\nTest error @880:   3.22%\nTest error @890:   3.40%\nTest error @900:   3.07%\nTest error @910:   3.09%\nTest error @920:   3.05%\nTest error @930:   3.13%\nTest error @940:   3.08%\nTest error @950:   3.04%\nTest error @960:   3.06%\nTest error @970:   2.88%\nTest error @980:   2.96%\nTest error @990:   2.88%\n[Finished in 47.6s]",
+			"settings":
+			{
+				"buffer_size": 5108,
+				"line_ending": "Unix",
+				"name": "Build output",
+				"scratch": true
+			}
+		}
+	],
+	"build_system": "Packages/Python/Python.sublime-build",
+	"build_system_choices":
+	[
+		[
+			[
+				[
+					"Packages/Python/Python.sublime-build",
+					""
+				],
+				[
+					"Packages/Python/Python.sublime-build",
+					"Syntax Check"
+				]
+			],
+			[
+				"Packages/Python/Python.sublime-build",
+				""
+			]
+		]
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 92.0,
+		"last_filter": "install",
+		"selected_items":
+		[
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"pack",
+				"Install Package Control"
+			]
+		],
+		"width": 411.0
+	},
+	"console":
+	{
+		"height": 126.0,
+		"history":
+		[
+			"l =1",
+			"ls",
+			"return()",
+			"quit()",
+			"exit()",
+			"ls",
+			"export LD_LIBRARY_PATH=/usr/local/cuda/lib64/",
+			"exit()",
+			"export LD_LIBRARY_PATH=/usr/local/cuda/lib64/"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/home/justin/research/tensorflow-zoo"
+	],
+	"file_history":
+	[
+		"/home/justin/research/model-contraction/tf_model_class.py",
+		"/home/justin/.config/sublime-text-3/Packages/User/python-anaconda-36.sublime-build"
+	],
+	"find":
+	{
+		"height": 0.0
+	},
+	"find_in_files":
+	{
+		"height": 90.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": false,
+		"use_buffer2": false,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "model_class_supervisor_queue.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 16130,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2164,
+								2164
+							]
+						],
+						"settings":
+						{
+							"auto_complete_triggers":
+							[
+								{
+									"characters": ".",
+									"selector": "source.python - string - comment - constant.numeric"
+								},
+								{
+									"characters": ".",
+									"selector": "source.python - string - constant.numeric"
+								},
+								{
+									"characters": ".",
+									"selector": "source.python - string - constant.numeric"
+								},
+								{
+									"characters": ".",
+									"selector": "source.python - string - constant.numeric"
+								}
+							],
+							"syntax": "Packages/Python/Python.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 168.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				}
+			]
+		},
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 1,
+					"file": "convert_to_records.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3832,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1875,
+								1875
+							]
+						],
+						"settings":
+						{
+							"auto_complete_triggers":
+							[
+								{
+									"characters": ".",
+									"selector": "source.python - string - comment - constant.numeric"
+								},
+								{
+									"characters": ".",
+									"selector": "source.python - string - constant.numeric"
+								},
+								{
+									"characters": ".",
+									"selector": "source.python - string - constant.numeric"
+								}
+							],
+							"auto_name": "# Copyright 2015 The TensorFlow Authors. All Right",
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "/home/justin/research/tfsa/sa_experiment.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 16952,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								8736,
+								8736
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 2352.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				}
+			]
+		},
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 3,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 5108,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								5108,
+								5108
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 1025.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 0.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			],
+			[
+				1,
+				0,
+				2,
+				1
+			],
+			[
+				2,
+				0,
+				3,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			0.33,
+			0.672422239502,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 100.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "Packages/User/python-anaconda-36.sublime-build",
+	"project": "tensorflow-zoo.sublime-project",
+	"replace":
+	{
+		"height": 0.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 197.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

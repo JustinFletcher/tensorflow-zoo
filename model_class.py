@@ -1,4 +1,5 @@
 
+import os
 import sys
 import argparse
 import functools
@@ -61,6 +62,80 @@ def doublewrap(function):
     return decorator
 
 
+def read_and_decode(filename_queue):
+
+    reader = tf.TFRecordReader()
+    _, serialized_example = reader.read(filename_queue)
+
+    features = tf.parse_single_example(
+        serialized_example,
+        # Defaults are not specified since both keys are required.
+        features={
+            'image_raw': tf.FixedLenFeature([], tf.string),
+            'label': tf.FixedLenFeature([], tf.int64),
+        })
+
+    # Convert from a scalar string tensor (whose single string has
+    # length mnist.IMAGE_PIXELS) to a uint8 tensor with shape
+    # [mnist.IMAGE_PIXELS].
+    image = tf.decode_raw(features['image_raw'], tf.uint8)
+    image.set_shape([mnist.IMAGE_PIXELS])
+    print(mnist.IMAGE_PIXELS)
+    # OPTIONAL: Could reshape into a 28x28 image and apply distortions
+    # here.  Since we are not applying any distortions in this
+    # example, and the next step expects the image to be flattened
+    # into a vector, we don't bother.
+
+    # Convert from [0, 255] -> [-0.5, 0.5] floats.
+    image = tf.cast(image, tf.float32) * (1. / 255) - 0.5
+
+    # Convert label from a scalar uint8 tensor to an int32 scalar.
+    label = tf.cast(features['label'], tf.int32)
+
+    return image, label
+
+
+def inputs(train, batch_size, num_epochs):
+    """Reads input data num_epochs times.
+    Args:
+      train: Selects between the training (True) and validation (False) data.
+      batch_size: Number of examples per returned batch.
+      num_epochs: Number of times to read the input data, or 0/None to
+         train forever.
+    Returns:
+      A tuple (images, labels), where:
+      * images is a float tensor with shape [batch_size, mnist.IMAGE_PIXELS]
+        in the range [-0.5, 0.5].
+      * labels is an int32 tensor with shape [batch_size] with the true label,
+        a number in the range [0, mnist.NUM_CLASSES).
+    Note that an tf.train.QueueRunner is added to the graph, which
+    must be run using e.g. tf.train.start_queue_runners().
+    """
+    if not num_epochs:
+        num_epochs = None
+    filename = os.path.join(FLAGS.train_dir,
+                            TRAIN_FILE if train else VALIDATION_FILE)
+
+    with tf.name_scope('input'):
+        filename_queue = tf.train.string_input_producer(
+            [filename], num_epochs=num_epochs)
+
+        # Even when reading in multiple threads, share the filename
+        # queue.
+        image, label = read_and_decode(filename_queue)
+
+    # Shuffle the examples and collect them into batch_size batches.
+    # (Internally uses a RandomShuffleQueue.)
+    # We run this in two threads to avoid being a bottleneck.
+    images, sparse_labels = tf.train.shuffle_batch(
+        [image, label], batch_size=batch_size, num_threads=2,
+        capacity=1000 + 3 * batch_size,
+        # Ensures a minimum amount of shuffling of examples.
+        min_after_dequeue=1000)
+
+    return images, sparse_labels
+
+
 @doublewrap
 def define_scope(function, scope=None, *args, **kwargs):
     """
@@ -99,14 +174,22 @@ def print_tensor_shape(tensor, string):
 
 class Model:
 
-    def __init__(self, image, label, keep_prob):
-        self.image = image
-        self.label = label
+    def __init__(self, stimulus_placeholder, target_placeholder, keep_prob):
+
+        self.stimulus_placeholder = stimulus_placeholder
+        self.target_placeholder = target_placeholder
         self.keep_prob = keep_prob
         self.learning_rate = FLAGS.learning_rate
         self.inference
         self.optimize
         self.error
+
+        # tf.summary.scalar('error', self.error)
+
+        # # Merge all the summaries and instantiate the writers
+        # # merged_summaries = tf.summary.merge_all()
+
+        # self.summaries = merged_summaries
 
     def variable_summaries(self, var):
             """Attach a lot of summaries to a Tensor
@@ -158,12 +241,12 @@ class Model:
         output: tensor of computed logits
         '''
 
-        print_tensor_shape(self.image, 'images shape')
-        print_tensor_shape(self.label, 'label shape')
+        print_tensor_shape(self.stimulus_placeholder, 'images shape')
+        print_tensor_shape(self.target_placeholder, 'label shape')
 
         # resize the image tensors to add channels, 1 in this case
         # required to pass the images to various layers upcoming in the graph
-        images_re = tf.reshape(self.image, [-1, 28, 28, 1])
+        images_re = tf.reshape(self.stimulus_placeholder, [-1, 28, 28, 1])
         print_tensor_shape(images_re, 'reshaped images shape')
 
         # Convolution layer.
@@ -229,7 +312,8 @@ class Model:
 
         # Compute the cross entropy.
         xe = tf.nn.softmax_cross_entropy_with_logits(
-            labels=self.label, logits=self.inference, name='xentropy')
+            labels=self.target_placeholder, logits=self.inference,
+            name='xentropy')
 
         # Take the mean of the cross entropy.
         loss = tf.reduce_mean(xe, name='xentropy_mean')
@@ -240,72 +324,86 @@ class Model:
     @define_scope
     def error(self):
 
-        mistakes = tf.not_equal(tf.argmax(self.label, 1),
+        mistakes = tf.not_equal(tf.argmax(self.target_placeholder, 1),
                                 tf.argmax(self.inference, 1))
-        return tf.reduce_mean(tf.cast(mistakes, tf.float32))
+        error = tf.reduce_mean(tf.cast(mistakes, tf.float32))
+        # tf.summary.scalar('error', error)
+        return(error)
 
 
-def train():
+def create_model():
+
+    # Build placeholders for the input and desired response.
+    stimulus_placeholder = tf.placeholder(tf.float32, [None, 784])
+    target_placeholder = tf.placeholder(tf.int32, [None, 10])
+    keep_prob = tf.placeholder(tf.float32)
+
+    # Instantiate a model.
+    model = Model(stimulus_placeholder, target_placeholder, keep_prob)
+
+    return(model)
+
+# TODO: Convert to QueueRunners
+
+def train(model):
 
     # Get input data.
     mnist = input_data.read_data_sets('./mnist/', one_hot=True)
 
-    # Build placeholders for the input and desired response.
-    image = tf.placeholder(tf.float32, [None, 784])
-    label = tf.placeholder(tf.int32, [None, 10])
-    keep_prob = tf.placeholder(tf.float32)
-
-    # Instantiate a model.
-    model = Model(image, label, keep_prob)
+    # init_op = [tf.global_variables_initializer()]
 
     # Instantiate a session and initialize it.
-    sess = tf.Session()
-    sess.run(tf.initialize_all_variables())
+    sv = tf.train.Supervisor(logdir=FLAGS.log_dir, save_summaries_secs=10.0)
+    # sess = sv.managed_session()
 
-    # Notional contraction loops would occur here.
-    tf.summary.scalar('error', model.error)
+    with sv.managed_session() as sess:
 
-    # Merge all the summaries and instantiate the writers
-    merged = tf.summary.merge_all()
-    train_writer = tf.summary.FileWriter(FLAGS.log_dir + '/train', sess.graph)
-    test_writer = tf.summary.FileWriter(FLAGS.log_dir + '/test')
+        # sess.run(init_op)
 
-    # Iterate, training the model. Outer loop iterataions evaluate test loss.
-    for i in range(FLAGS.max_steps):
+        # train_writer = tf.summary.FileWriter(FLAGS.log_dir + '/train',
+                                             # sess.graph)
+        # test_writer = tf.summary.FileWriter(FLAGS.log_dir + '/test')
 
-        # If we have reached a testing interval, test.
-        if i % FLAGS.test_interval == 0:
+        # Iterate, training the model.
+        for i in range(FLAGS.max_steps):
 
-            # Load the full dataset.
-            images, labels = mnist.test.images, mnist.test.labels
+            if sv.should_stop():
+                break
 
-            # Compute error over the test set.
-            summary, error = sess.run([merged, model.error],
-                                      {image: images,
-                                       label: labels,
-                                       keep_prob: 1.0})
+            # If we have reached a testing interval, test.
+            if i % FLAGS.test_interval == 0:
 
-            print('Test error: {:6.2f}%'.format(100 * error))
+                # Load the full dataset.
+                images, labels = mnist.test.images, mnist.test.labels
 
-            test_writer.add_summary(summary, i)
+                # Compute error over the test set.
+                error = sess.run(model.error,
+                                 {model.stimulus_placeholder: images,
+                                  model.target_placeholder: labels,
+                                  model.keep_prob: 1.0})
 
-        # Iterate, training the network.
-        else:
+                print('Test error @' + str(i) + ': {:6.2f}%'.format(100 * error))
 
-            # Grabe a batch
-            images, labels = mnist.train.next_batch(128)
+                # test_writer.add_summary(summary, i)
 
-            # Train the model on the batch.
-            summary, _ = sess.run([merged, model.optimize],
-                                  {image: images,
-                                   label: labels,
-                                   keep_prob: 0.8})
+            # Iterate, training the network.
+            else:
 
-            train_writer.add_summary(summary, i)
+                # Grabe a batch
+                images, labels = mnist.train.next_batch(128)
 
-    # Close the summary writers.
-    test_writer.close()
-    train_writer.close()
+                # Train the model on the batch.
+                sess.run(model.optimize,
+                         {model.stimulus_placeholder: images,
+                          model.target_placeholder: labels,
+                          model.keep_prob: 0.5})
+
+                # train_writer.add_summary(summary, i)
+
+        # Close the summary writers.
+        # test_writer.close()
+        # train_writer.close()
+        sv.stop()
 
 
 def main(_):
@@ -316,7 +414,9 @@ def main(_):
 
     tf.gfile.MakeDirs(FLAGS.log_dir)
 
-    train()
+    model = create_model()
+
+    train(model)
 
 
 if __name__ == '__main__':
@@ -327,7 +427,7 @@ if __name__ == '__main__':
                         default=False,
                         help='If true, uses fake data for unit testing.')
 
-    parser.add_argument('--max_steps', type=int, default=100,
+    parser.add_argument('--max_steps', type=int, default=1000,
                         help='Number of steps to run trainer.')
 
     parser.add_argument('--test_interval', type=int, default=10,
@@ -341,7 +441,7 @@ if __name__ == '__main__':
                         help='Directory for storing input data')
 
     parser.add_argument('--log_dir', type=str,
-                        default='/tmp/tensorflow/mnist/logs/standard_model',
+                        default='./tensorboard',
                         help='Summaries log directory')
 
     FLAGS, unparsed = parser.parse_known_args()
