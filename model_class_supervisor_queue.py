@@ -1,4 +1,3 @@
-
 import os
 import sys
 import argparse
@@ -363,6 +362,7 @@ def create_model():
 
 # TODO: Convert to QueueRunners
 
+
 def train(model):
 
     # Get input data.
@@ -376,11 +376,17 @@ def train(model):
 
     with sv.managed_session() as sess:
 
+        sv.start_standard_services(sess=sess)
+
         # sess.run(init_op)
 
         # train_writer = tf.summary.FileWriter(FLAGS.log_dir + '/train',
                                              # sess.graph)
         # test_writer = tf.summary.FileWriter(FLAGS.log_dir + '/test')
+
+        # Start input enqueue threads.
+        sv.start_queue_runners(sess=sess)
+        # threads = tf.train.start_queue_runners(sess=sess, coord=sv.coord)
 
         # Iterate, training the model.
         for i in range(FLAGS.max_steps):
@@ -393,6 +399,10 @@ def train(model):
 
                 # Load the full dataset.
                 images, labels = mnist.test.images, mnist.test.labels
+                # images, labels = inputs(batch_size=FLAGS.batch_size,
+                #                         num_epochs=FLAGS.num_epochs,
+                #                         train_dir='../data/',
+                #                         file_name='train.tfrecords')
 
                 # Compute error over the test set.
                 error = sess.run(model.error,
@@ -421,7 +431,10 @@ def train(model):
         # Close the summary writers.
         # test_writer.close()
         # train_writer.close()
+        sv.request_stop()
+        sv.coord.join()
         sv.stop()
+        sess.close()
 
 
 def main(_):
