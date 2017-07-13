@@ -3,6 +3,7 @@ import sys
 import argparse
 import functools
 import tensorflow as tf
+from numpy import *
 from tensorflow.examples.tutorials.mnist import input_data
 
 from tensorflow.examples.tutorials.mnist import mnist
@@ -191,13 +192,13 @@ def print_tensor_shape(tensor, string):
 
 class Model:
 
-    def __init__(self, stimulus_placeholder, target_placeholder, keep_prob):
+    def __init__(self, stimulus_placeholder, target_placeholder):
 
         self.stimulus_placeholder = stimulus_placeholder
         self.target_placeholder = target_placeholder
-        self.keep_prob = keep_prob
         self.learning_rate = FLAGS.learning_rate
         self.inference
+        self.loss
         self.optimize
         self.error
 
@@ -311,7 +312,7 @@ class Model:
         # Dropout layer.
         with tf.name_scope('dropout'):
 
-            h_fc1_drop = tf.nn.dropout(h_fc1, self.keep_prob)
+            h_fc1_drop = tf.nn.dropout(h_fc1, FLAGS.keep_prob)
 
         # Output layer (will be transformed via stable softmax)
         with tf.name_scope('readout'):
@@ -325,50 +326,80 @@ class Model:
         return readout
 
     @define_scope
-    def optimize(self):
+    def loss(self):
+
+        self.target_placeholder = tf.to_int64(self.target_placeholder)
 
         # Compute the cross entropy.
-        xe = tf.nn.softmax_cross_entropy_with_logits(
+        xe = tf.nn.sparse_softmax_cross_entropy_with_logits(
             labels=self.target_placeholder, logits=self.inference,
             name='xentropy')
 
         # Take the mean of the cross entropy.
-        loss = tf.reduce_mean(xe, name='xentropy_mean')
+        loss_val = tf.reduce_mean(xe, name='xentropy_mean')
+
+        # Add a scalar summary for the snapshot loss.
+        tf.summary.scalar('cross_entropy', loss_val)
+
+        return loss_val
+
+    @define_scope
+    def optimize(self):
+
+        # Create a variable to track the global step.
+        global_step = tf.Variable(0, name='global_step', trainable=False)
 
         # Minimize the loss by incrementally changing trainable variables.
-        return tf.train.AdamOptimizer(self.learning_rate).minimize(loss)
+        return tf.train.AdamOptimizer(self.learning_rate).minimize(
+            self.loss, global_step=global_step)
 
     @define_scope
     def error(self):
 
         mistakes = tf.not_equal(tf.argmax(self.target_placeholder, 1),
                                 tf.argmax(self.inference, 1))
+
         error = tf.reduce_mean(tf.cast(mistakes, tf.float32))
         # tf.summary.scalar('error', error)
-        return(error)
+
+        return error
 
 
-def create_model():
+# def create_model():
 
-    # Build placeholders for the input and desired response.
-    stimulus_placeholder = tf.placeholder(tf.float32, [None, 784])
-    target_placeholder = tf.placeholder(tf.int32, [None, 10])
-    keep_prob = tf.placeholder(tf.float32)
+#     # Build placeholders for the input and desired response.
+#     stimulus_placeholder = tf.placeholder(tf.float32, [None, 784])
+#     target_placeholder = tf.placeholder(tf.int32, [None, 10])
+#     keep_prob = tf.placeholder(tf.float32)
 
-    # Instantiate a model.
-    model = Model(stimulus_placeholder, target_placeholder, keep_prob)
+#     # Instantiate a model.
+#     model = Model(stimulus_placeholder, target_placeholder, keep_prob)
 
-    return(model)
+#     return(model)
 
 # TODO: Convert to QueueRunners
 
 
-def train(model):
+def train():
 
     # Get input data.
-    mnist = input_data.read_data_sets('./mnist/', one_hot=True)
+    # mnist = input_data.read_data_sets('./mnist/', one_hot=True)
 
     # init_op = [tf.global_variables_initializer()]
+
+    images, labels = inputs(train=True,
+                            batch_size=FLAGS.batch_size,
+                            num_epochs=FLAGS.num_epochs)
+
+    # keep_prob = tf.placeholder(tf.float32)
+    # tf.summary.scalar('dropout_keep_probability', keep_prob)
+
+    model = Model(images, labels)
+
+    # logits = model.inference
+
+    # init_op = tf.group(tf.global_variables_initializer(),
+    #                    tf.local_variables_initializer())
 
     # Instantiate a session and initialize it.
     sv = tf.train.Supervisor(logdir=FLAGS.log_dir, save_summaries_secs=10.0)
@@ -394,23 +425,29 @@ def train(model):
             if sv.should_stop():
                 break
 
+            # summary, _, error = sess.run([merged, model.optimize, model.error],
+            #                                 {model.keep_prob: 0.5})
+
             # If we have reached a testing interval, test.
             if i % FLAGS.test_interval == 0:
 
                 # Load the full dataset.
-                images, labels = mnist.test.images, mnist.test.labels
-                # images, labels = inputs(batch_size=FLAGS.batch_size,
-                #                         num_epochs=FLAGS.num_epochs,
-                #                         train_dir='../data/',
-                #                         file_name='train.tfrecords')
+                # images, labels = inputs(train=True,
+                #                         batch_size=FLAGS.batch_size,
+                #                         num_epochs=FLAGS.num_epochs)
 
                 # Compute error over the test set.
-                error = sess.run(model.error,
-                                 {model.stimulus_placeholder: images,
-                                  model.target_placeholder: labels,
-                                  model.keep_prob: 1.0})
+                # error = sess.run(model.error,
+                #                  {model.stimulus_placeholder: images,
+                #                   model.target_placeholder: labels,
+                #                   model.keep_prob: 1.0})
+                loss = sess.run([model.loss])
+                print('Step %d: loss = %.2f' % (i, loss[0]))
 
-                print('Test error @' + str(i) + ': {:6.2f}%'.format(100 * error))
+                # # print(error)
+                # exit()
+
+                # print('Test error @' + str(i) + ': {:6.2f}%'.format(100 * loss))
 
                 # test_writer.add_summary(summary, i)
 
@@ -418,23 +455,21 @@ def train(model):
             else:
 
                 # Grabe a batch
-                images, labels = mnist.train.next_batch(128)
+                # images, labels = mnist.train.next_batch(128)
 
                 # Train the model on the batch.
-                sess.run(model.optimize,
-                         {model.stimulus_placeholder: images,
-                          model.target_placeholder: labels,
-                          model.keep_prob: 0.5})
+                sess.run([model.optimize])
 
                 # train_writer.add_summary(summary, i)
 
         # Close the summary writers.
         # test_writer.close()
         # train_writer.close()
-        sv.request_stop()
-        sv.coord.join()
-        sv.stop()
-        sess.close()
+
+    sv.request_stop()
+    sv.coord.join()
+    sv.stop()
+    sess.close()
 
 
 def main(_):
@@ -445,9 +480,7 @@ def main(_):
 
     tf.gfile.MakeDirs(FLAGS.log_dir)
 
-    model = create_model()
-
-    train(model)
+    train()
 
 
 if __name__ == '__main__':
@@ -474,6 +507,22 @@ if __name__ == '__main__':
     parser.add_argument('--log_dir', type=str,
                         default='./tensorboard',
                         help='Summaries log directory')
+
+    parser.add_argument('--batch_size', type=int,
+                        default=100,
+                        help='Batch size.')
+
+    parser.add_argument('--num_epochs', type=int,
+                        default=10,
+                        help='Number of epochs.')
+
+    parser.add_argument('--train_dir', type=str,
+                        default='../data',
+                        help='Directory with the training data.')
+
+    parser.add_argument('--keep_prob', type=float,
+                        default=0.5,
+                        help='Keep probability for output layer dropout.')
 
     FLAGS, unparsed = parser.parse_known_args()
 

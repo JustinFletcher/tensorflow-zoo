@@ -71,6 +71,11 @@ def doublewrap(function):
     return decorator
 
 
+# Constants used for dealing with the files, matches convert_to_records.
+TRAIN_FILE = 'train.tfrecords'
+VALIDATION_FILE = 'validation.tfrecords'
+
+
 def read_and_decode(filename_queue):
 
     reader = tf.TFRecordReader()
@@ -104,7 +109,7 @@ def read_and_decode(filename_queue):
     return image, label
 
 
-def inputs(batch_size, num_epochs, train_dir, file_name):
+def inputs(train, batch_size, num_epochs):
 
     """
     Reads input data num_epochs times.
@@ -123,9 +128,12 @@ def inputs(batch_size, num_epochs, train_dir, file_name):
         must be run using e.g. tf.train.start_queue_runners().
     """
 
-    if not num_epochs: num_epochs = None
+    if not num_epochs:
+        num_epochs = None
 
-    filename = os.path.join(train_dir, file_name)
+    # Set the filename pointing to the data file.
+    filename = os.path.join(FLAGS.train_dir,
+                            TRAIN_FILE if train else VALIDATION_FILE)
 
     with tf.name_scope('input'):
 
@@ -145,7 +153,7 @@ def inputs(batch_size, num_epochs, train_dir, file_name):
             # Ensures a minimum amount of shuffling of examples.
             min_after_dequeue=1000)
 
-        return images, sparse_labels
+    return images, sparse_labels
 
 
 @doublewrap
@@ -365,15 +373,14 @@ class Model:
 # TODO: Incorporate Supervisor
 
 
-def train():
+def train(model=None):
 
     with tf.Graph().as_default():
 
         # Input images and labels.
-        images, labels = inputs(batch_size=FLAGS.batch_size,
-                                num_epochs=FLAGS.num_epochs,
-                                train_dir='/home/jermws/PycharmProjects/testing_codes',
-                                file_name='train.tfrecords')
+        images, labels = inputs(train=True,
+                                batch_size=FLAGS.batch_size,
+                                num_epochs=FLAGS.num_epochs)
 
         # Build placeholders for the input and desired response.
         keep_prob = tf.placeholder(tf.float32)
@@ -513,6 +520,12 @@ if __name__ == '__main__':
         help='Number of epochs.'
     )
 
+    parser.add_argument(
+        '--train_dir',
+        type=str,
+        default='../data',
+        help='Directory with the training data.')
+
     FLAGS, unparsed = parser.parse_known_args()
 
-tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
+    tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
