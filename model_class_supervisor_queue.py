@@ -362,19 +362,6 @@ class Model:
 
         return error
 
-
-# def create_model():
-
-#     # Build placeholders for the input and desired response.
-#     stimulus_placeholder = tf.placeholder(tf.float32, [None, 784])
-#     target_placeholder = tf.placeholder(tf.int32, [None, 10])
-#     keep_prob = tf.placeholder(tf.float32)
-
-#     # Instantiate a model.
-#     model = Model(stimulus_placeholder, target_placeholder, keep_prob)
-
-#     return(model)
-
 # TODO: Convert to QueueRunners
 
 
