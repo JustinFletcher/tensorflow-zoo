@@ -3,8 +3,6 @@ import sys
 import argparse
 import functools
 import tensorflow as tf
-from numpy import *
-from tensorflow.examples.tutorials.mnist import input_data
 
 from tensorflow.examples.tutorials.mnist import mnist
 
@@ -383,41 +381,21 @@ class Model:
 def train():
 
     # Get input data.
-    # mnist = input_data.read_data_sets('./mnist/', one_hot=True)
-
-    # init_op = [tf.global_variables_initializer()]
-
     images, labels = inputs(train=True,
                             batch_size=FLAGS.batch_size,
                             num_epochs=FLAGS.num_epochs)
 
-    # keep_prob = tf.placeholder(tf.float32)
-    # tf.summary.scalar('dropout_keep_probability', keep_prob)
-
     model = Model(images, labels)
-
-    # logits = model.inference
-
-    # init_op = tf.group(tf.global_variables_initializer(),
-    #                    tf.local_variables_initializer())
 
     # Instantiate a session and initialize it.
     sv = tf.train.Supervisor(logdir=FLAGS.log_dir, save_summaries_secs=10.0)
-    # sess = sv.managed_session()
 
     with sv.managed_session() as sess:
 
         sv.start_standard_services(sess=sess)
 
-        # sess.run(init_op)
-
-        # train_writer = tf.summary.FileWriter(FLAGS.log_dir + '/train',
-                                             # sess.graph)
-        # test_writer = tf.summary.FileWriter(FLAGS.log_dir + '/test')
-
         # Start input enqueue threads.
         sv.start_queue_runners(sess=sess)
-        # threads = tf.train.start_queue_runners(sess=sess, coord=sv.coord)
 
         # Iterate, training the model.
         for i in range(FLAGS.max_steps):
@@ -425,46 +403,21 @@ def train():
             if sv.should_stop():
                 break
 
-            # summary, _, error = sess.run([merged, model.optimize, model.error],
-            #                                 {model.keep_prob: 0.5})
-
             # If we have reached a testing interval, test.
             if i % FLAGS.test_interval == 0:
 
-                # Load the full dataset.
-                # images, labels = inputs(train=True,
-                #                         batch_size=FLAGS.batch_size,
-                #                         num_epochs=FLAGS.num_epochs)
-
-                # Compute error over the test set.
-                # error = sess.run(model.error,
-                #                  {model.stimulus_placeholder: images,
-                #                   model.target_placeholder: labels,
-                #                   model.keep_prob: 1.0})
+                # Compute loss over the test set.
                 loss = sess.run([model.loss])
                 print('Step %d: loss = %.2f' % (i, loss[0]))
-
-                # # print(error)
-                # exit()
-
-                # print('Test error @' + str(i) + ': {:6.2f}%'.format(100 * loss))
-
-                # test_writer.add_summary(summary, i)
 
             # Iterate, training the network.
             else:
 
-                # Grabe a batch
+                # Grab a batch
                 # images, labels = mnist.train.next_batch(128)
 
                 # Train the model on the batch.
                 sess.run([model.optimize])
-
-                # train_writer.add_summary(summary, i)
-
-        # Close the summary writers.
-        # test_writer.close()
-        # train_writer.close()
 
     sv.request_stop()
     sv.coord.join()
