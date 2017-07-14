@@ -374,8 +374,10 @@ def train():
 
     model = Model(images, labels)
 
+    merged = tf.summary.merge_all()
+
     # Instantiate a session and initialize it.
-    sv = tf.train.Supervisor(logdir=FLAGS.log_dir, save_summaries_secs=10.0)
+    sv = tf.train.Supervisor(logdir=FLAGS.log_dir, save_summaries_secs=2.0)
 
     with sv.managed_session() as sess:
 
@@ -383,6 +385,10 @@ def train():
 
         # Start input enqueue threads.
         sv.start_queue_runners(sess=sess)
+
+        train_writer = tf.summary.FileWriter(FLAGS.log_dir + '/train',
+                                             sess.graph)
+        test_writer = tf.summary.FileWriter(FLAGS.log_dir + '/test')
 
         # Iterate, training the model.
         for i in range(FLAGS.max_steps):
@@ -394,8 +400,9 @@ def train():
             if i % FLAGS.test_interval == 0:
 
                 # Compute loss over the test set.
-                loss = sess.run([model.loss])
-                print('Step %d: loss = %.2f' % (i, loss[0]))
+                summary, loss = sess.run([merged, model.loss])
+                print('Step %d: loss = %.2f' % (i, loss))
+                test_writer.add_summary(summary, i)
 
             # Iterate, training the network.
             else:
@@ -404,10 +411,13 @@ def train():
                 # images, labels = mnist.train.next_batch(128)
 
                 # Train the model on the batch.
-                sess.run([model.optimize])
+                summary, _ = sess.run([merged, model.optimize])
+                train_writer.add_summary(summary, i)
 
     sv.request_stop()
     sv.coord.join()
+    test_writer.close()
+    train_writer.close()
     sv.stop()
     sess.close()
 
@@ -431,7 +441,7 @@ if __name__ == '__main__':
                         default=False,
                         help='If true, uses fake data for unit testing.')
 
-    parser.add_argument('--max_steps', type=int, default=1000,
+    parser.add_argument('--max_steps', type=int, default=100,
                         help='Number of steps to run trainer.')
 
     parser.add_argument('--test_interval', type=int, default=10,

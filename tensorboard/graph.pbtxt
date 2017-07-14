@@ -18265,6 +18265,68 @@ node {
   }
 }
 node {
+  name: "Merge/MergeSummary"
+  op: "MergeSummary"
+  input: "input/input_producer/fraction_of_32_full"
+  input: "input/shuffle_batch/fraction_over_1000_of_300_full"
+  input: "inference/Conv1/summaries/mean"
+  input: "inference/Conv1/summaries/stddev_1"
+  input: "inference/Conv1/summaries/max"
+  input: "inference/Conv1/summaries/min"
+  input: "inference/Conv1/summaries/histogram"
+  input: "inference/Conv1/summaries_1/mean"
+  input: "inference/Conv1/summaries_1/stddev_1"
+  input: "inference/Conv1/summaries_1/max"
+  input: "inference/Conv1/summaries_1/min"
+  input: "inference/Conv1/summaries_1/histogram"
+  input: "inference/Conv2/summaries/mean"
+  input: "inference/Conv2/summaries/stddev_1"
+  input: "inference/Conv2/summaries/max"
+  input: "inference/Conv2/summaries/min"
+  input: "inference/Conv2/summaries/histogram"
+  input: "inference/Conv2/summaries_1/mean"
+  input: "inference/Conv2/summaries_1/stddev_1"
+  input: "inference/Conv2/summaries_1/max"
+  input: "inference/Conv2/summaries_1/min"
+  input: "inference/Conv2/summaries_1/histogram"
+  input: "inference/fully_connected1/summaries/mean"
+  input: "inference/fully_connected1/summaries/stddev_1"
+  input: "inference/fully_connected1/summaries/max"
+  input: "inference/fully_connected1/summaries/min"
+  input: "inference/fully_connected1/summaries/histogram"
+  input: "inference/fully_connected1/summaries_1/mean"
+  input: "inference/fully_connected1/summaries_1/stddev_1"
+  input: "inference/fully_connected1/summaries_1/max"
+  input: "inference/fully_connected1/summaries_1/min"
+  input: "inference/fully_connected1/summaries_1/histogram"
+  input: "inference/readout/summaries/mean"
+  input: "inference/readout/summaries/stddev_1"
+  input: "inference/readout/summaries/max"
+  input: "inference/readout/summaries/min"
+  input: "inference/readout/summaries/histogram"
+  input: "inference/readout/summaries_1/mean"
+  input: "inference/readout/summaries_1/stddev_1"
+  input: "inference/readout/summaries_1/max"
+  input: "inference/readout/summaries_1/min"
+  input: "inference/readout/summaries_1/histogram"
+  input: "loss/cross_entropy"
+  attr {
+    key: "N"
+    value {
+      i: 43
+    }
+  }
+  attr {
+    key: "_output_shapes"
+    value {
+      list {
+        shape {
+        }
+      }
+    }
+  }
+}
+node {
   name: "report_uninitialized_variables/IsVariableInitialized"
   op: "IsVariableInitialized"
   input: "inference/Conv1/Variable"
@@ -24154,7 +24216,7 @@ node {
   input: "^save/Assign_26"
 }
 node {
-  name: "Merge/MergeSummary"
+  name: "Merge_1/MergeSummary"
   op: "MergeSummary"
   input: "input/input_producer/fraction_of_32_full"
   input: "input/shuffle_batch/fraction_over_1000_of_300_full"
