@@ -377,7 +377,7 @@ def train():
     merged = tf.summary.merge_all()
 
     # Instantiate a session and initialize it.
-    sv = tf.train.Supervisor(logdir=FLAGS.log_dir, save_summaries_secs=2.0)
+    sv = tf.train.Supervisor(logdir=FLAGS.log_dir, save_summaries_secs=2)
 
     with sv.managed_session() as sess:
 
@@ -441,7 +441,7 @@ if __name__ == '__main__':
                         default=False,
                         help='If true, uses fake data for unit testing.')
 
-    parser.add_argument('--max_steps', type=int, default=100,
+    parser.add_argument('--max_steps', type=int, default=1000,
                         help='Number of steps to run trainer.')
 
     parser.add_argument('--test_interval', type=int, default=10,
