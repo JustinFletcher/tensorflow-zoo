@@ -4,8 +4,6 @@ import argparse
 import functools
 import tensorflow as tf
 
-from tensorflow.examples.tutorials.mnist import mnist
-
 
 def segmentation_layer(prev_layer):
     # Conv layer to generate the 2 score classes
@@ -75,8 +73,8 @@ def read_and_decode(filename_queue):
     # image = tf.decode_raw(features['image_raw'], tf.uint8)
     image = tf.decode_raw(features['image_raw'], tf.int32)
     # image.set_shape([mnist.IMAGE_PIXELS])
-    image.set_shape(262144)
-    # print(mnist.IMAGE_PIXELS)
+    image.set_shape([262144])
+    print(262144)
     # OPTIONAL: Could reshape into a 28x28 image and apply distortions
     # here.  Since we are not applying any distortions in this
     # example, and the next step expects the image to be flattened
