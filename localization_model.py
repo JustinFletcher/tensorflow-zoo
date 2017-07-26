@@ -71,12 +71,12 @@ def read_and_decode(filename_queue):
     # [mnist.IMAGE_PIXELS].
     # TODO: Require specification, rather than mnist dependence.
     # image = tf.decode_raw(features['image_raw'], tf.uint8)
-    image = tf.decode_raw(features['image_raw'], tf.int32)
+    image = tf.decode_raw(features['image_raw'], tf.int16)
     # image.set_shape([mnist.IMAGE_PIXELS])
     # image.set_shape([262144])
     # print(262144)
-    image.set_shape([1572864])
-    print(1572864)
+    image.set_shape([1310720])
+    print(1310720)
     # OPTIONAL: Could reshape into a 28x28 image and apply distortions
     # here.  Since we are not applying any distortions in this
     # example, and the next step expects the image to be flattened
@@ -88,7 +88,6 @@ def read_and_decode(filename_queue):
 
     # Convert label from int64 tensor to an int32 tensor.
     label = tf.cast(features['label'], tf.int32)
-    print(label.get_shape())
 
     return image, label
 
@@ -268,7 +267,7 @@ class Model:
         # resize the image tensors to add channels, 1 in this case
         # required to pass the images to various layers upcoming in the graph
         # images_re = tf.reshape(self.stimulus_placeholder, [-1, 28, 28, 1])
-        images_re = tf.reshape(self.stimulus_placeholder, [-1, 512, 512, 6])
+        images_re = tf.reshape(self.stimulus_placeholder, [-1, 512, 512, 5])
         # images_re = tf.reshape(self.stimulus_placeholder, [-1, 512, 512, 1])
         print_tensor_shape(images_re, 'reshaped images shape')
 
@@ -278,7 +277,7 @@ class Model:
             # weight variable 4d tensor, first two dims are patch (kernel) size
             # 3rd dim is number of input channels, 4th dim is output channels
             # W_conv1 = self.weight_variable([5, 5, 1, 32])
-            W_conv1 = self.weight_variable([5, 5, 6, 32])
+            W_conv1 = self.weight_variable([5, 5, 5, 32])
             b_conv1 = self.bias_variable([32])
             h_conv1 = tf.nn.relu(self.conv2d(images_re, W_conv1) + b_conv1)
             print_tensor_shape(h_conv1, 'Conv1 shape')
