@@ -63,7 +63,7 @@ def read_and_decode(filename_queue):
         # Defaults are not specified since both keys are required.
         features={
             'image_raw': tf.FixedLenFeature([], tf.string),
-            'label': tf.FixedLenFeature([], tf.int64),
+            'label': tf.FixedLenFeature([2], tf.int64),
         })
 
     # Convert from a scalar string tensor (whose single string has
@@ -73,19 +73,22 @@ def read_and_decode(filename_queue):
     # image = tf.decode_raw(features['image_raw'], tf.uint8)
     image = tf.decode_raw(features['image_raw'], tf.int32)
     # image.set_shape([mnist.IMAGE_PIXELS])
-    image.set_shape([262144])
-    print(262144)
+    # image.set_shape([262144])
+    # print(262144)
+    image.set_shape([1572864])
+    print(1572864)
     # OPTIONAL: Could reshape into a 28x28 image and apply distortions
     # here.  Since we are not applying any distortions in this
     # example, and the next step expects the image to be flattened
     # into a vector, we don't bother.
 
     # Convert from [0, 255] -> [-0.5, 0.5] floats.
-    image = tf.cast(image, tf.float32) * (1. / 255) - 0.5
+    # image = tf.cast(image, tf.float32) * (1. / 255) - 0.5
+    image = tf.cast(image, tf.float32)
 
-    # Convert label from a scalar uint8 tensor to an int32 scalar.
+    # Convert label from int64 tensor to an int32 tensor.
     label = tf.cast(features['label'], tf.int32)
-    # I initialize label to be two ints x and y coordinates but above code casts it into single int32 var
+    print(label.get_shape())
 
     return image, label
 
@@ -245,6 +248,7 @@ class Model:
     def conv2d(self, x, W):
 
         return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='SAME')
+        # return tf.nn.conv3d(x, W, strides=[1, 1, 1, 1], padding='SAME')
 
     def max_pool_2x2(self, x):
 
@@ -265,6 +269,7 @@ class Model:
         # required to pass the images to various layers upcoming in the graph
         # images_re = tf.reshape(self.stimulus_placeholder, [-1, 28, 28, 1])
         images_re = tf.reshape(self.stimulus_placeholder, [-1, 512, 512, 6])
+        # images_re = tf.reshape(self.stimulus_placeholder, [-1, 512, 512, 1])
         print_tensor_shape(images_re, 'reshaped images shape')
 
         # Convolution layer.
@@ -272,7 +277,8 @@ class Model:
 
             # weight variable 4d tensor, first two dims are patch (kernel) size
             # 3rd dim is number of input channels, 4th dim is output channels
-            W_conv1 = self.weight_variable([5, 5, 1, 32])
+            # W_conv1 = self.weight_variable([5, 5, 1, 32])
+            W_conv1 = self.weight_variable([5, 5, 6, 32])
             b_conv1 = self.bias_variable([32])
             h_conv1 = tf.nn.relu(self.conv2d(images_re, W_conv1) + b_conv1)
             print_tensor_shape(h_conv1, 'Conv1 shape')
@@ -300,10 +306,12 @@ class Model:
         # Fully-connected layer.
         with tf.name_scope('fully_connected1'):
 
-            h_pool2_flat = tf.reshape(h_pool2, [-1, 7 * 7 * 64])
+            # h_pool2_flat = tf.reshape(h_pool2, [-1, 7 * 7 * 64])
+            h_pool2_flat = tf.reshape(h_pool2, [-1, 128 * 128 * 64])
             print_tensor_shape(h_pool2_flat, 'MaxPool2_flat shape')
 
-            W_fc1 = self.weight_variable([7 * 7 * 64, 1024])
+            # W_fc1 = self.weight_variable([7 * 7 * 64, 1024])
+            W_fc1 = self.weight_variable([128 * 128 * 64, 1024])
             b_fc1 = self.bias_variable([1024])
 
             h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
@@ -317,8 +325,10 @@ class Model:
         # Output layer (will be transformed via stable softmax)
         with tf.name_scope('readout'):
 
-            W_fc2 = self.weight_variable([1024, 10])
-            b_fc2 = self.bias_variable([10])
+            # W_fc2 = self.weight_variable([1024, 10])
+            # b_fc2 = self.bias_variable([10])
+            W_fc2 = self.weight_variable([1024, 2])
+            b_fc2 = self.bias_variable([2])
 
             readout = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
             print_tensor_shape(readout, 'readout shape')
@@ -331,15 +341,19 @@ class Model:
         self.target_placeholder = tf.to_int64(self.target_placeholder)
 
         # Compute the cross entropy.
-        xe = tf.nn.sparse_softmax_cross_entropy_with_logits(
-            labels=self.target_placeholder, logits=self.inference,
-            name='xentropy')
+        # xe = tf.nn.sparse_softmax_cross_entropy_with_logits(
+        #     labels=self.target_placeholder, logits=self.inference,
+        #     name='xentropy')
 
         # Take the mean of the cross entropy.
-        loss_val = tf.reduce_mean(xe, name='xentropy_mean')
+        # loss_val = tf.reduce_mean(xe, name='xentropy_mean')
+        # loss_val = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.target_placeholder, self.inference))))
+        loss_val = tf.losses.mean_squared_error(
+            labels=self.target_placeholder, predictions=self.inference)
 
         # Add a scalar summary for the snapshot loss.
-        tf.summary.scalar('cross_entropy', loss_val)
+        # tf.summary.scalar('cross_entropy', loss_val)
+        tf.summary.scalar('regression_loss', loss_val)
 
         return loss_val
 
