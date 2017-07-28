@@ -247,15 +247,24 @@ class Model:
     def conv2d(self, x, W):
 
         return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='SAME')
-        # return tf.nn.conv3d(x, W, strides=[1, 1, 1, 1], padding='SAME')
+
+    def conv3d(self, x, W):
+
+        return tf.nn.conv3d(x, W, strides=[1, 1, 1, 1, 1], padding='SAME')
 
     def max_pool_2x2(self, x):
 
         return tf.nn.max_pool(x, ksize=[1, 2, 2, 1],
                               strides=[1, 2, 2, 1], padding='SAME')
 
+    def max_pool_2x2x2(self, x):
+
+        return tf.nn.max_pool3d(x, ksize=[1, 2, 2, 2, 1],
+                                strides=[1, 2, 2, 2, 1], padding='SAME')
+
     @define_scope(initializer=tf.contrib.slim.xavier_initializer())
     def inference(self, input=None):
+
         '''
         input: tensor of input image. if none, uses instantiation input
         output: tensor of computed logits
@@ -267,8 +276,8 @@ class Model:
         # resize the image tensors to add channels, 1 in this case
         # required to pass the images to various layers upcoming in the graph
         # images_re = tf.reshape(self.stimulus_placeholder, [-1, 28, 28, 1])
-        images_re = tf.reshape(self.stimulus_placeholder, [-1, 512, 512, 5])
-        # images_re = tf.reshape(self.stimulus_placeholder, [-1, 512, 512, 1])
+        # images_re = tf.reshape(self.stimulus_placeholder, [-1, 512, 512, 5])
+        images_re = tf.reshape(self.stimulus_placeholder, [-1, 512, 512, 5, 1])
         print_tensor_shape(images_re, 'reshaped images shape')
 
         # Convolution layer.
@@ -277,40 +286,50 @@ class Model:
             # weight variable 4d tensor, first two dims are patch (kernel) size
             # 3rd dim is number of input channels, 4th dim is output channels
             # W_conv1 = self.weight_variable([5, 5, 1, 32])
-            W_conv1 = self.weight_variable([5, 5, 5, 32])
+            # W_conv1 = self.weight_variable([5, 5, 5, 32])
+
+            # weight variable 5d tensor, first 3 dims are patch (kernel) size
+            # 4th dim is number of input channels, 5th dim is output channels
+            W_conv1 = self.weight_variable([5, 5, 3, 1, 32])
             b_conv1 = self.bias_variable([32])
-            h_conv1 = tf.nn.relu(self.conv2d(images_re, W_conv1) + b_conv1)
+            # h_conv1 = tf.nn.relu(self.conv2d(images_re, W_conv1) + b_conv1)
+            h_conv1 = tf.nn.relu(self.conv3d(images_re, W_conv1) + b_conv1)
             print_tensor_shape(h_conv1, 'Conv1 shape')
 
         # Pooling layer.
         with tf.name_scope('Pool1'):
 
-            h_pool1 = self.max_pool_2x2(h_conv1)
+            # h_pool1 = self.max_pool_2x2(h_conv1)
+            h_pool1 = self.max_pool_2x2x2(h_conv1)
             print_tensor_shape(h_pool1, 'MaxPool1 shape')
 
         # Conv layer.
         with tf.name_scope('Conv2'):
 
-            W_conv2 = self.weight_variable([5, 5, 32, 64])
+            # W_conv2 = self.weight_variable([5, 5, 32, 64])
+            W_conv2 = self.weight_variable([5, 5, 3, 32, 64])
             b_conv2 = self.bias_variable([64])
-            h_conv2 = tf.nn.relu(self.conv2d(h_pool1, W_conv2) + b_conv2)
+            h_conv2 = tf.nn.relu(self.conv3d(h_pool1, W_conv2) + b_conv2)
             print_tensor_shape(h_conv2, 'Conv2 shape')
 
         # Pooling layer.
         with tf.name_scope('Pool2'):
 
-            h_pool2 = self.max_pool_2x2(h_conv2)
+            # h_pool2 = self.max_pool_2x2(h_conv2)
+            h_pool2 = self.max_pool_2x2x2(h_conv2)
             print_tensor_shape(h_pool2, 'MaxPool2 shape')
 
         # Fully-connected layer.
         with tf.name_scope('fully_connected1'):
 
             # h_pool2_flat = tf.reshape(h_pool2, [-1, 7 * 7 * 64])
-            h_pool2_flat = tf.reshape(h_pool2, [-1, 128 * 128 * 64])
+            # h_pool2_flat = tf.reshape(h_pool2, [-1, 128 * 128 * 64])
+            h_pool2_flat = tf.reshape(h_pool2, [-1, 128 * 128 * 2 * 64])
             print_tensor_shape(h_pool2_flat, 'MaxPool2_flat shape')
 
             # W_fc1 = self.weight_variable([7 * 7 * 64, 1024])
-            W_fc1 = self.weight_variable([128 * 128 * 64, 1024])
+            # W_fc1 = self.weight_variable([128 * 128 * 64, 1024])
+            W_fc1 = self.weight_variable([128 * 128 * 2 * 64, 1024])
             b_fc1 = self.bias_variable([1024])
 
             h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
@@ -392,7 +411,7 @@ def train():
     merged = tf.summary.merge_all()
 
     # Instantiate a session and initialize it.
-    sv = tf.train.Supervisor(logdir=FLAGS.log_dir, save_summaries_secs=2)
+    sv = tf.train.Supervisor(logdir=FLAGS.log_dir, save_summaries_secs=5)
 
     with sv.managed_session() as sess:
 
@@ -415,12 +434,14 @@ def train():
             if i % FLAGS.test_interval == 0:
 
                 # Compute loss over the test set.
+                print('hello')
                 summary, loss = sess.run([merged, model.loss])
+                print('hi')
                 print('Step %d: loss = %.2f' % (i, loss))
                 test_writer.add_summary(summary, i)
 
             # Iterate, training the network.
-            else:
+            # else:
 
                 # Grab a batch
                 # images, labels = mnist.train.next_batch(128)
