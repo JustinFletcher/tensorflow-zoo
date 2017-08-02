@@ -63,7 +63,7 @@ def read_and_decode(filename_queue):
         # Defaults are not specified since both keys are required.
         features={
             'image_raw': tf.FixedLenFeature([], tf.string),
-            'label': tf.FixedLenFeature([2], tf.int64),
+            'label': tf.FixedLenFeature([2], tf.int64)
         })
 
     # Convert from a scalar string tensor (whose single string has
@@ -75,8 +75,8 @@ def read_and_decode(filename_queue):
     # image.set_shape([mnist.IMAGE_PIXELS])
     # image.set_shape([262144])
     # print(262144)
-    image.set_shape([1310720])
-    print(1310720)
+    image.set_shape([512 * 512 * 5])
+    # print(1310720)
     # OPTIONAL: Could reshape into a 28x28 image and apply distortions
     # here.  Since we are not applying any distortions in this
     # example, and the next step expects the image to be flattened
@@ -84,10 +84,10 @@ def read_and_decode(filename_queue):
 
     # Convert from [0, 255] -> [-0.5, 0.5] floats.
     # image = tf.cast(image, tf.float32) * (1. / 255) - 0.5
-    image = tf.cast(image, tf.float32)
+    image = tf.cast(image, tf.float32) * (1. / 65535) - 0.5
 
     # Convert label from int64 tensor to an int32 tensor.
-    label = tf.cast(features['label'], tf.int32)
+    label = tf.cast(features['label'], tf.float32)
 
     return image, label
 
@@ -290,8 +290,10 @@ class Model:
 
             # weight variable 5d tensor, first 3 dims are patch (kernel) size
             # 4th dim is number of input channels, 5th dim is output channels
-            W_conv1 = self.weight_variable([5, 5, 3, 1, 32])
-            b_conv1 = self.bias_variable([32])
+            # W_conv1 = self.weight_variable([5, 5, 3, 1, 32])
+            W_conv1 = self.weight_variable([5, 5, 3, 1, 8])
+            # b_conv1 = self.bias_variable([32])
+            b_conv1 = self.bias_variable([8])
             # h_conv1 = tf.nn.relu(self.conv2d(images_re, W_conv1) + b_conv1)
             h_conv1 = tf.nn.relu(self.conv3d(images_re, W_conv1) + b_conv1)
             print_tensor_shape(h_conv1, 'Conv1 shape')
@@ -307,8 +309,10 @@ class Model:
         with tf.name_scope('Conv2'):
 
             # W_conv2 = self.weight_variable([5, 5, 32, 64])
-            W_conv2 = self.weight_variable([5, 5, 3, 32, 64])
-            b_conv2 = self.bias_variable([64])
+            # W_conv2 = self.weight_variable([5, 5, 3, 32, 64])
+            W_conv2 = self.weight_variable([5, 5, 3, 8, 16])
+            # b_conv2 = self.bias_variable([64])
+            b_conv2 = self.bias_variable([16])
             h_conv2 = tf.nn.relu(self.conv3d(h_pool1, W_conv2) + b_conv2)
             print_tensor_shape(h_conv2, 'Conv2 shape')
 
@@ -324,12 +328,14 @@ class Model:
 
             # h_pool2_flat = tf.reshape(h_pool2, [-1, 7 * 7 * 64])
             # h_pool2_flat = tf.reshape(h_pool2, [-1, 128 * 128 * 64])
-            h_pool2_flat = tf.reshape(h_pool2, [-1, 128 * 128 * 2 * 64])
+            # h_pool2_flat = tf.reshape(h_pool2, [-1, 128 * 128 * 2 * 64])
+            h_pool2_flat = tf.reshape(h_pool2, [-1, 128 * 128 * 2 * 16])
             print_tensor_shape(h_pool2_flat, 'MaxPool2_flat shape')
 
             # W_fc1 = self.weight_variable([7 * 7 * 64, 1024])
             # W_fc1 = self.weight_variable([128 * 128 * 64, 1024])
-            W_fc1 = self.weight_variable([128 * 128 * 2 * 64, 1024])
+            # W_fc1 = self.weight_variable([128 * 128 * 2 * 64, 1024])
+            W_fc1 = self.weight_variable([128 * 128 * 2 * 16, 1024])
             b_fc1 = self.bias_variable([1024])
 
             h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
@@ -434,14 +440,14 @@ def train():
             if i % FLAGS.test_interval == 0:
 
                 # Compute loss over the test set.
-                print('hello')
                 summary, loss = sess.run([merged, model.loss])
-                print('hi')
+                print(sess.run(labels))
+                print(sess.run(model.inference))
                 print('Step %d: loss = %.2f' % (i, loss))
                 test_writer.add_summary(summary, i)
 
             # Iterate, training the network.
-            # else:
+            else:
 
                 # Grab a batch
                 # images, labels = mnist.train.next_batch(128)
@@ -480,7 +486,8 @@ if __name__ == '__main__':
     parser.add_argument('--max_steps', type=int, default=100,
                         help='Number of steps to run trainer.')
 
-    parser.add_argument('--test_interval', type=int, default=10,
+    # parser.add_argument('--test_interval', type=int, default=10,
+    parser.add_argument('--test_interval', type=int, default=2,
                         help='Number of steps between test set evaluations.')
 
     parser.add_argument('--learning_rate', type=float, default=1e-4,
@@ -491,12 +498,11 @@ if __name__ == '__main__':
                         help='Directory for storing input data')
 
     parser.add_argument('--log_dir', type=str,
-                        # default='./tensorboard',
                         default='../data/tensorboard',
                         help='Summaries log directory')
 
     parser.add_argument('--batch_size', type=int,
-                        default=100,
+                        default=4,
                         help='Batch size.')
 
     parser.add_argument('--num_epochs', type=int,
