@@ -483,11 +483,11 @@ if __name__ == '__main__':
                         default=False,
                         help='If true, uses fake data for unit testing.')
 
-    parser.add_argument('--max_steps', type=int, default=100,
+    parser.add_argument('--max_steps', type=int, default=1000,
                         help='Number of steps to run trainer.')
 
     # parser.add_argument('--test_interval', type=int, default=10,
-    parser.add_argument('--test_interval', type=int, default=2,
+    parser.add_argument('--test_interval', type=int, default=10,
                         help='Number of steps between test set evaluations.')
 
     parser.add_argument('--learning_rate', type=float, default=1e-4,
@@ -502,7 +502,7 @@ if __name__ == '__main__':
                         help='Summaries log directory')
 
     parser.add_argument('--batch_size', type=int,
-                        default=4,
+                        default=8,
                         help='Batch size.')
 
     parser.add_argument('--num_epochs', type=int,
