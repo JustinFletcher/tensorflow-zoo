@@ -5,9 +5,7 @@ class ObjectAstrometry(object):
     """
     Class to parse an .ast file. Class attributes
     are equivalent to the parameter names in the
-    .ast file. Will parse either all of the .ast
-    files in a directory or a list of .ast files
-    provided by the user.
+    .ast file.
     """
 
     def __init__(self, file_path):
