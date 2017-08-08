@@ -5,6 +5,7 @@ import numpy as np
 
 
 class AstronomyImage(object):
+
     """
     A class which parses a .fits file.
 
