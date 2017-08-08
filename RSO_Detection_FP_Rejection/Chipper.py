@@ -16,7 +16,6 @@ class Chipper(object):
         width: chip width
         height: chip height
         chip_stack: stack of chips around the centroid
-        label:
     """
 
     def __init__(self, frame_stack, centroid,
