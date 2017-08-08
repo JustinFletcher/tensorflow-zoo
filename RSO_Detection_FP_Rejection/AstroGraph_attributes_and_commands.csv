@@ -1,0 +1,16 @@
+help,--help
+instance ID,--instanceID
+sensor,--sensor
+sensor directory,--sensorDir
+batch,--batch
+target detection threshold,--targetDetect.threshold
+target detection edge limits,--targetDetect.edgeLimits
+target detection size limits,--properties
+bright star limit,--match.magnitudeLimits
+star fit method,--starFit.photometry
+star catalog,--starCatalog.path
+satellite catalog TLE path,--satelliteCatalog.tlePath
+correct dark file,--correct.darkFile
+correct flat file,--correct.flatFile
+data root path,--data.rootPath
+star detection threshold,--starDetect.threshold
