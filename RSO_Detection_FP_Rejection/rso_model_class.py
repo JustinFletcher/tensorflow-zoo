@@ -244,8 +244,8 @@ class Model:
 
             # Weight variable 5d tensor, first 3 dims are patch (kernel) size
             # 4th dim is number of input channels, 5th dim is output channels.
-            W_conv1 = self.weight_variable([3, 5, 5, 1, 8])
-            b_conv1 = self.bias_variable([8])
+            W_conv1 = self.weight_variable([3, 5, 5, 1, 16])
+            b_conv1 = self.bias_variable([16])
             h_conv1 = tf.nn.relu(self.conv3d(images_re, W_conv1) + b_conv1)
             print_tensor_shape(h_conv1, 'Conv1 shape')
 
@@ -264,8 +264,8 @@ class Model:
         # Conv layer.
         with tf.name_scope('Conv2'):
 
-            W_conv2 = self.weight_variable([3, 5, 5, 8, 16])
-            b_conv2 = self.bias_variable([16])
+            W_conv2 = self.weight_variable([3, 5, 5, 16, 32])
+            b_conv2 = self.bias_variable([32])
             h_conv2 = tf.nn.relu(self.conv3d(h_pool1, W_conv2) + b_conv2)
             print_tensor_shape(h_conv2, 'Conv2 shape')
 
@@ -284,8 +284,8 @@ class Model:
         # Conv layer.
         with tf.name_scope('Conv3'):
 
-            W_conv3 = self.weight_variable([3, 5, 5, 16, 32])
-            b_conv3 = self.bias_variable([32])
+            W_conv3 = self.weight_variable([3, 5, 5, 32, 64])
+            b_conv3 = self.bias_variable([64])
             h_conv3 = tf.nn.relu(self.conv3d(h_pool2, W_conv3) + b_conv3)
             print_tensor_shape(h_conv3, 'Conv3 shape')
 
@@ -304,10 +304,10 @@ class Model:
         # Fully-connected layer.
         with tf.name_scope('fully_connected1'):
 
-            h_pool3_flat = tf.reshape(h_pool3, [-1, 1 * 7 * 7 * 32])
+            h_pool3_flat = tf.reshape(h_pool3, [-1, 1 * 7 * 7 * 64])
             print_tensor_shape(h_pool3_flat, 'MaxPool3_flat shape')
 
-            W_fc1 = self.weight_variable([1 * 7 * 7 * 32, 1024])
+            W_fc1 = self.weight_variable([1 * 7 * 7 * 64, 1024])
             b_fc1 = self.bias_variable([1024])
 
             h_fc1 = tf.nn.relu(tf.matmul(h_pool3_flat, W_fc1) + b_fc1)
