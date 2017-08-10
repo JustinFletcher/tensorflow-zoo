@@ -313,17 +313,22 @@ class Model:
             h_fc1 = tf.nn.relu(tf.matmul(h_pool3_flat, W_fc1) + b_fc1)
             print_tensor_shape(h_fc1, 'FullyConnected1 shape')
 
+        # Dropout layer.
+        with tf.name_scope('dropout1'):
+
+            h_fc1_drop = tf.nn.dropout(h_fc1, FLAGS.keep_prob)
+
         # Fully connected layer.
         with tf.name_scope('fully_connected2'):
 
             W_fc2 = self.weight_variable([1024, 1024])
             b_fc2 = self.bias_variable([1024])
 
-            h_fc2 = tf.nn.relu(tf.matmul(h_fc1, W_fc2) + b_fc2)
+            h_fc2 = tf.nn.relu(tf.matmul(h_fc1_drop, W_fc2) + b_fc2)
             print_tensor_shape(h_fc1, 'FullyConnected2 shape')
 
         # Dropout layer.
-        with tf.name_scope('dropout'):
+        with tf.name_scope('dropout2'):
 
             h_fc2_drop = tf.nn.dropout(h_fc2, FLAGS.keep_prob)
 
@@ -462,11 +467,11 @@ if __name__ == '__main__':
                         help='Initial learning rate')
 
     parser.add_argument('--data_dir', type=str,
-                        default='/home/jermws/PycharmProjects/Machine_Learning_Updated',
+                        default='/Users/jeremiah/PycharmProjects/Detection',
                         help='Directory for storing input data')
 
     parser.add_argument('--log_dir', type=str,
-                        default='/home/jermws/PycharmProjects/Machine_Learning_Updated/tensorboard',
+                        default='/Users/jeremiah/PycharmProjects/Detection/tensorboard',
                         help='Summaries log directory')
 
     parser.add_argument('--batch_size', type=int,
@@ -478,7 +483,7 @@ if __name__ == '__main__':
                         help='Number of epochs.')
 
     parser.add_argument('--train_dir', type=str,
-                        default='/home/jermws/PycharmProjects/Machine_Learning_Updated',
+                        default='/Users/jeremiah/PycharmProjects/Detection',
                         help='Directory with the training data.')
 
     parser.add_argument('--keep_prob', type=float,
