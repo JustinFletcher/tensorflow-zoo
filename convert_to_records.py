@@ -95,7 +95,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--directory',
         type=str,
-        default='.',
+        default='../data',
         help='Directory to download data files and write the converted result'
     )
     parser.add_argument(
