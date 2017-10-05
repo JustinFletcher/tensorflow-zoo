@@ -128,10 +128,10 @@ def inputs(train, batch_size, num_epochs):
         images, sparse_labels = tf.train.shuffle_batch(
             [image, label],
             batch_size=batch_size,
-            num_threads=2,
+            num_threads=4,
             capacity=1000 + 3 * batch_size,
             # Ensures a minimum amount of shuffling of examples.
-            min_after_dequeue=1000)
+            min_after_dequeue=100000)
 
     return images, sparse_labels
 
@@ -455,11 +455,11 @@ if __name__ == '__main__':
                         help='Directory for storing input data')
 
     parser.add_argument('--log_dir', type=str,
-                        default='./tensorboard',
+                        default='../tensorboard',
                         help='Summaries log directory')
 
     parser.add_argument('--batch_size', type=int,
-                        default=100,
+                        default=128,
                         help='Batch size.')
 
     parser.add_argument('--num_epochs', type=int,
