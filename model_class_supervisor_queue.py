@@ -51,6 +51,9 @@ def segmentation_layer(prev_layer):
 TRAIN_FILE = 'train.tfrecords'
 VALIDATION_FILE = 'validation.tfrecords'
 
+# The images are 6 x 24 x 24 pixels (for now, can be changed later).
+IMAGE_PIXELS = 6 * 24 * 24
+
 
 def read_and_decode(filename_queue):
 
@@ -70,19 +73,14 @@ def read_and_decode(filename_queue):
         })
 
     # Convert from a scalar string tensor (whose single string has
-    # length mnist.IMAGE_PIXELS) to a uint8 tensor with shape
-    # [mnist.IMAGE_PIXELS].
-    # TODO: Require specification, rather than mnist dependence.
-    image = tf.decode_raw(features['image_raw'], tf.uint8)
-    image.set_shape([mnist.IMAGE_PIXELS])
-    print(mnist.IMAGE_PIXELS)
-    # OPTIONAL: Could reshape into a 28x28 image and apply distortions
-    # here.  Since we are not applying any distortions in this
-    # example, and the next step expects the image to be flattened
-    # into a vector, we don't bother.
+    # length IMAGE_PIXELS) to a uint8 tensor with shape
+    # [IMAGE_PIXELS].
+    image = tf.decode_raw(features['image_raw'], tf.float32)
+    image.set_shape([IMAGE_PIXELS])
+    print(IMAGE_PIXELS)
 
-    # Convert from [0, 255] -> [-0.5, 0.5] floats.
-    image = tf.cast(image, tf.float32) * (1. / 255) - 0.5
+    # Rescale pixel intensities.
+    # image = tf.cast(image, tf.float32) * (1. / 255) - 0.5
 
     # Convert label from a scalar uint8 tensor to an int32 scalar.
     label = tf.cast(features['label'], tf.int32)
@@ -91,6 +89,7 @@ def read_and_decode(filename_queue):
 
 
 def inputs(train, batch_size, num_epochs):
+
     """Reads input data num_epochs times.
     Args:
       train: Selects between the training (True) and validation (False) data.
@@ -99,13 +98,13 @@ def inputs(train, batch_size, num_epochs):
                   train forever.
     Returns:
       A tuple (images, labels), where:
-      * images is a float tensor with shape [batch_size, mnist.IMAGE_PIXELS]
-        in the range [-0.5, 0.5].
+      * images is a float tensor with shape [batch_size, IMAGE_PIXELS].
       * labels is an int32 tensor with shape [batch_size] with the true label,
-        a number in the range [0, mnist.NUM_CLASSES).
+        a number in the range [0, NUM_CLASSES).
     Note that an tf.train.QueueRunner is added to the graph, which
     must be run using e.g. tf.train.start_queue_runners().
     """
+
     if not num_epochs:
         num_epochs = None
 
@@ -129,10 +128,10 @@ def inputs(train, batch_size, num_epochs):
         images, sparse_labels = tf.train.shuffle_batch(
             [image, label],
             batch_size=batch_size,
-            num_threads=16,
-            capacity=5000,
+            num_threads=2,
+            capacity=1000 + 3 * batch_size,
             # Ensures a minimum amount of shuffling of examples.
-            min_after_dequeue=100)
+            min_after_dequeue=1000)
 
     return images, sparse_labels
 
