@@ -325,18 +325,18 @@ class Model:
     @define_scope
     def loss(self):
 
-        self.target_placeholder = tf.to_int64(self.target_placeholder)
+        # self.target_placeholder = tf.to_int64(self.target_placeholder)
 
         # Compute the cross entropy.
         xe = tf.nn.sparse_softmax_cross_entropy_with_logits(
-            labels=self.target_placeholder, logits=self.inference,
-            name='xentropy')
+            labels=tf.to_int64(self.target_placeholder), logits=self.inference,
+            name='xentropy1')
 
         # Take the mean of the cross entropy.
-        loss_val = tf.reduce_mean(xe, name='xentropy_mean')
+        loss_val = tf.reduce_mean(xe, name='xentropy_mean1')
 
         # Add a scalar summary for the snapshot loss.
-        tf.summary.scalar('cross_entropy', loss_val)
+        tf.summary.scalar('cross_entropy1', loss_val)
 
         return loss_val
 
@@ -352,10 +352,10 @@ class Model:
 
         # Compute the cross entropy.
 
-        self.target_placeholder = tf.to_int64(self.target_placeholder)
+        # self.target_placeholder = tf.to_int64(self.target_placeholder)
 
-        xe = tf.nn.softmax_cross_entropy_with_logits(
-            labels=self.target_placeholder, logits=self.inference,
+        xe = tf.nn.sparse_softmax_cross_entropy_with_logits(
+            labels=tf.to_int64(self.target_placeholder), logits=self.inference,
             name='xentropy')
 
         # Take the mean of the cross entropy.
@@ -367,7 +367,7 @@ class Model:
     @define_scope
     def error(self):
 
-        mistakes = tf.not_equal(tf.argmax(self.target_placeholder, 1),
+        mistakes = tf.not_equal(tf.argmax(tf.to_int64(self.target_placeholder), 1),
                                 tf.argmax(self.inference, 1))
 
         error = tf.reduce_mean(tf.cast(mistakes, tf.float32))
@@ -417,6 +417,7 @@ def train():
 
                 # Compute loss over the test set.
                 loss = sess.run(model.loss)
+                #error = sess.run(model.error)
                 print('Step %d:  loss = %.2f, t = %.6f, total_t = %.2f, ' % (i, loss, i_delta, total_time))
                 # test_writer.add_summary(summary, i)
 
@@ -429,7 +430,6 @@ def train():
                 # Train the model on the batch.
                 sess.run(model.optimize)
                 # train_writer.add_summary(summary, i)
-
 
             i_stop = time.time()
             i_delta = i_stop - i_start
@@ -462,7 +462,7 @@ if __name__ == '__main__':
                         default=False,
                         help='If true, uses fake data for unit testing.')
 
-    parser.add_argument('--max_steps', type=int, default=1000,
+    parser.add_argument('--max_steps', type=int, default=100,
                         help='Number of steps to run trainer.')
 
     parser.add_argument('--test_interval', type=int, default=10,
@@ -484,7 +484,7 @@ if __name__ == '__main__':
                         help='Batch size.')
 
     parser.add_argument('--num_epochs', type=int,
-                        default=10,
+                        default=1000,
                         help='Number of epochs.')
 
     parser.add_argument('--train_dir', type=str,
