@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import argparse
 import functools
 import tensorflow as tf
@@ -390,8 +391,13 @@ def train():
         #                                      sess.graph)
         # test_writer = tf.summary.FileWriter(FLAGS.log_dir + '/test')
 
+        total_time = 0
+        i_delta = 0
+
         # Iterate, training the model.
         for i in range(FLAGS.max_steps):
+
+            i_start = time.time()
 
             if sv.should_stop():
                 break
@@ -401,7 +407,7 @@ def train():
 
                 # Compute loss over the test set.
                 loss = sess.run(model.loss)
-                print('Step %d:  loss = %.2f' % (i, loss))
+                print('Step %d:  loss = %.2f, t = %.2f, total_t = %.2f, ' % (i, loss, i_delta, total_time))
                 # test_writer.add_summary(summary, i)
 
             # Iterate, training the network.
@@ -413,6 +419,11 @@ def train():
                 # Train the model on the batch.
                 sess.run(model.optimize)
                 # train_writer.add_summary(summary, i)
+
+
+            i_stop = time.time()
+            i_delta = i_stop - i_start
+            total_time = total_time + i_delta
 
     sv.request_stop()
     sv.coord.join()

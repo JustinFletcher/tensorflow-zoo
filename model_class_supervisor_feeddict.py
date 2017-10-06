@@ -1,6 +1,7 @@
 
 import os
 import sys
+import time
 import argparse
 import functools
 import tensorflow as tf
@@ -383,7 +384,13 @@ def train(model):
         # test_writer = tf.summary.FileWriter(FLAGS.log_dir + '/test')
 
         # Iterate, training the model.
+
+        total_time = 0
+        i_delta = 0
+
         for i in range(FLAGS.max_steps):
+
+
 
             if sv.should_stop():
                 break
@@ -400,7 +407,9 @@ def train(model):
                                   model.target_placeholder: labels,
                                   model.keep_prob: 1.0})
 
-                print('Test error @' + str(i) + ': {:6.2f}%'.format(100 * error))
+                # print('Test error @' + str(i) + ': {:6.2f}%'.format(100 * error))
+                print('Step %d:  loss = %.2f, t = %.2f, total_t = %.2f, ' % (i, loss, i_delta, total_time))
+
 
                 # test_writer.add_summary(summary, i)
 
@@ -417,6 +426,10 @@ def train(model):
                           model.keep_prob: 0.5})
 
                 # train_writer.add_summary(summary, i)
+            
+            i_stop = time.time()
+            i_delta = i_stop - i_start
+            total_time = total_time + i_delta
 
         # Close the summary writers.
         # test_writer.close()
