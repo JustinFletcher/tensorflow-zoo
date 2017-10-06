@@ -390,7 +390,7 @@ def train(model):
 
         for i in range(FLAGS.max_steps):
 
-
+            i_start = time.time()
 
             if sv.should_stop():
                 break
