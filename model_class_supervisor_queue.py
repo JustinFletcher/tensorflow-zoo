@@ -377,7 +377,7 @@ def train():
     merged = tf.summary.merge_all()
 
     # Instantiate a session and initialize it.
-    sv = tf.train.Supervisor(logdir=FLAGS.log_dir, save_summaries_secs=2)
+    sv = tf.train.Supervisor(logdir=FLAGS.log_dir, save_summaries_secs=10)
 
     with sv.managed_session() as sess:
 
@@ -386,9 +386,9 @@ def train():
         # Start input enqueue threads.
         sv.start_queue_runners(sess=sess)
 
-        train_writer = tf.summary.FileWriter(FLAGS.log_dir + '/train',
-                                             sess.graph)
-        test_writer = tf.summary.FileWriter(FLAGS.log_dir + '/test')
+        # train_writer = tf.summary.FileWriter(FLAGS.log_dir + '/train',
+        #                                      sess.graph)
+        # test_writer = tf.summary.FileWriter(FLAGS.log_dir + '/test')
 
         # Iterate, training the model.
         for i in range(FLAGS.max_steps):
@@ -400,9 +400,9 @@ def train():
             if i % FLAGS.test_interval == 0:
 
                 # Compute loss over the test set.
-                summary, loss = sess.run([merged, model.loss])
-                print('Step %d: loss = %.2f' % (i, loss))
-                test_writer.add_summary(summary, i)
+                summary, error = sess.run([merged, model.error])
+                print('Step %d:  error = %.2f' % (i, error))
+                # test_writer.add_summary(summary, i)
 
             # Iterate, training the network.
             else:
@@ -412,12 +412,12 @@ def train():
 
                 # Train the model on the batch.
                 summary, _ = sess.run([merged, model.optimize])
-                train_writer.add_summary(summary, i)
+                # train_writer.add_summary(summary, i)
 
     sv.request_stop()
     sv.coord.join()
-    test_writer.close()
-    train_writer.close()
+    # test_writer.close()
+    # train_writer.close()
     sv.stop()
     sess.close()
 
