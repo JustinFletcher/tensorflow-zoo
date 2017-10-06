@@ -200,6 +200,7 @@ class Model:
         self.keep_prob = keep_prob
         self.learning_rate = FLAGS.learning_rate
         self.inference
+        self.loss
         self.optimize
         self.error
 
@@ -339,6 +340,22 @@ class Model:
 
         # Minimize the loss by incrementally changing trainable variables.
         return tf.train.AdamOptimizer(self.learning_rate).minimize(loss)
+
+    @define_scope
+    def loss(self):
+
+        # Compute the cross entropy.
+        xe = tf.nn.softmax_cross_entropy_with_logits(
+            labels=self.target_placeholder, logits=self.inference,
+            name='xentropy')
+
+        # Take the mean of the cross entropy.
+        loss_val = tf.reduce_mean(xe, name='xentropy_mean')
+
+        # Add a scalar summary for the snapshot loss.
+        tf.summary.scalar('cross_entropy', loss_val)
+
+        return loss_val
 
     @define_scope
     def error(self):
