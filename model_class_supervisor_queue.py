@@ -128,7 +128,7 @@ def inputs(train, batch_size, num_epochs):
         images, sparse_labels = tf.train.shuffle_batch(
             [image, label],
             batch_size=batch_size,
-            num_threads=2,
+            num_threads=8,
             capacity=50000,
             # Ensures a minimum amount of shuffling of examples.
             min_after_dequeue=10000)
@@ -377,7 +377,7 @@ def train():
     merged = tf.summary.merge_all()
 
     # Instantiate a session and initialize it.
-    sv = tf.train.Supervisor(logdir=FLAGS.log_dir, save_summaries_secs=10)
+    sv = tf.train.Supervisor(logdir=FLAGS.log_dir, save_summaries_secs=10.0)
 
     with sv.managed_session() as sess:
 
