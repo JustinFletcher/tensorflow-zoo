@@ -128,7 +128,7 @@ def inputs(train, batch_size, num_epochs):
             [image, label],
             batch_size=batch_size,
             num_threads=8,
-            capacity=100000,
+            capacity=1000000,
             # Ensures a minimum amount of shuffling of examples.
             min_after_dequeue=1000)
 
