@@ -402,7 +402,7 @@ def train(model):
                 images, labels = mnist.test.images, mnist.test.labels
 
                 # Compute error over the test set.
-                error = sess.run(model.error,
+                loss = sess.run(model.loss,
                                  {model.stimulus_placeholder: images,
                                   model.target_placeholder: labels,
                                   model.keep_prob: 1.0})
@@ -426,7 +426,7 @@ def train(model):
                           model.keep_prob: 0.5})
 
                 # train_writer.add_summary(summary, i)
-            
+
             i_stop = time.time()
             i_delta = i_stop - i_start
             total_time = total_time + i_delta
