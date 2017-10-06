@@ -130,9 +130,9 @@ def inputs(train, batch_size, num_epochs):
             [image, label],
             batch_size=batch_size,
             num_threads=8,
-            capacity=50000,
+            capacity=500000,
             # Ensures a minimum amount of shuffling of examples.
-            min_after_dequeue=10000)
+            min_after_dequeue=100000)
 
     return images, sparse_labels
 
