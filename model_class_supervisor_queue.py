@@ -351,6 +351,9 @@ class Model:
         #     self.loss, global_step=global_step)
 
         # Compute the cross entropy.
+
+        self.target_placeholder = tf.to_int64(self.target_placeholder)
+
         xe = tf.nn.softmax_cross_entropy_with_logits(
             labels=self.target_placeholder, logits=self.inference,
             name='xentropy')
