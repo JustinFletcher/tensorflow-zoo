@@ -127,7 +127,7 @@ def inputs(train, batch_size, num_epochs):
         images, sparse_labels = tf.train.shuffle_batch(
             [image, label],
             batch_size=batch_size,
-            num_threads=8,
+            num_threads=16,
             capacity=1000000,
             # Ensures a minimum amount of shuffling of examples.
             min_after_dequeue=1000)
