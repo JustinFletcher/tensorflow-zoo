@@ -419,13 +419,13 @@ def train(model):
                 images, labels = mnist.test.images, mnist.test.labels
 
                 # Compute error over the test set.
-                loss = sess.run(model.loss,
+                error = sess.run(model.error,
                                  {model.stimulus_placeholder: images,
                                   model.target_placeholder: labels,
                                   model.keep_prob: 1.0})
 
                 # print('Test error @' + str(i) + ': {:6.2f}%'.format(100 * error))
-                print('Step %d:  loss = %.2f, t = %.2f, total_t = %.2f, ' % (i, loss, i_delta, total_time))
+                print('Step %d:  error = %.2f, t = %.2f, total_t = %.2f, ' % (i, error, i_delta, total_time))
 
 
                 # test_writer.add_summary(summary, i)
