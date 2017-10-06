@@ -128,10 +128,10 @@ def inputs(train, batch_size, num_epochs):
         images, sparse_labels = tf.train.shuffle_batch(
             [image, label],
             batch_size=batch_size,
-            num_threads=10,
-            capacity=1000000*batch_size,
+            num_threads=2,
+            capacity=50000,
             # Ensures a minimum amount of shuffling of examples.
-            min_after_dequeue=batch_size)
+            min_after_dequeue=10000)
 
     return images, sparse_labels
 
@@ -400,8 +400,8 @@ def train():
             if i % FLAGS.test_interval == 0:
 
                 # Compute loss over the test set.
-                summary, error = sess.run([merged, model.error])
-                print('Step %d:  error = %.2f' % (i, error))
+                loss = sess.run(model.loss)
+                print('Step %d:  loss = %.2f' % (i, loss))
                 # test_writer.add_summary(summary, i)
 
             # Iterate, training the network.
@@ -411,7 +411,7 @@ def train():
                 # images, labels = mnist.train.next_batch(128)
 
                 # Train the model on the batch.
-                summary, _ = sess.run([merged, model.optimize])
+                sess.run(model.optimize)
                 # train_writer.add_summary(summary, i)
 
     sv.request_stop()
