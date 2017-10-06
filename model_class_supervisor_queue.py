@@ -344,11 +344,22 @@ class Model:
     def optimize(self):
 
         # Create a variable to track the global step.
-        global_step = tf.Variable(0, name='global_step', trainable=False)
+        # global_step = tf.Variable(0, name='global_step', trainable=False)
+
+        # # Minimize the loss by incrementally changing trainable variables.
+        # return tf.train.AdamOptimizer(self.learning_rate).minimize(
+        #     self.loss, global_step=global_step)
+
+        # Compute the cross entropy.
+        xe = tf.nn.softmax_cross_entropy_with_logits(
+            labels=self.target_placeholder, logits=self.inference,
+            name='xentropy')
+
+        # Take the mean of the cross entropy.
+        loss = tf.reduce_mean(xe, name='xentropy_mean')
 
         # Minimize the loss by incrementally changing trainable variables.
-        return tf.train.AdamOptimizer(self.learning_rate).minimize(
-            self.loss, global_step=global_step)
+        return tf.train.AdamOptimizer(self.learning_rate).minimize(loss)
 
     @define_scope
     def error(self):
@@ -360,8 +371,6 @@ class Model:
         # tf.summary.scalar('error', error)
 
         return error
-
-# TODO: Convert to QueueRunners
 
 
 def train():
@@ -468,7 +477,7 @@ if __name__ == '__main__':
                         help='Summaries log directory')
 
     parser.add_argument('--batch_size', type=int,
-                        default=512,
+                        default=128,
                         help='Batch size.')
 
     parser.add_argument('--num_epochs', type=int,
