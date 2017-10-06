@@ -407,7 +407,7 @@ def train():
 
                 # Compute loss over the test set.
                 loss = sess.run(model.loss)
-                print('Step %d:  loss = %.2f, t = %.2f, total_t = %.2f, ' % (i, loss, i_delta, total_time))
+                print('Step %d:  loss = %.2f, t = %.6f, total_t = %.2f, ' % (i, loss, i_delta, total_time))
                 # test_writer.add_summary(summary, i)
 
             # Iterate, training the network.
