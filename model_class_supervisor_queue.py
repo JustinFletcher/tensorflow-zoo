@@ -418,7 +418,6 @@ def train():
             time.sleep(1)
             for qr in tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS):
 
-                print(sess.run(qr.queue.name))
                 print(sess.run(qr.queue.size()))
 
         total_time = 0
@@ -443,7 +442,6 @@ def train():
 
                 for qr in tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS):
 
-                    print(sess.run(qr.queue.name))
                     print(sess.run(qr.queue.size()))
 
                 # Compute loss over the test set.
@@ -513,7 +511,7 @@ if __name__ == '__main__':
                         help='Summaries log directory')
 
     parser.add_argument('--batch_size', type=int,
-                        default=128,
+                        default=256,
                         help='Batch size.')
 
     parser.add_argument('--num_epochs', type=int,
