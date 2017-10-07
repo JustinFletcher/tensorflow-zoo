@@ -422,6 +422,9 @@ def train():
 
             i_start = time.time()
 
+
+            sess.run(model.optimize)
+
             # if sv.should_stop():
             #     break
 
@@ -435,13 +438,12 @@ def train():
                 # test_writer.add_summary(summary, i)
 
             # Iterate, training the network.
-            else:
+            # else:
 
                 # Grab a batch
-                # images, labels = mnist.train.next_batch(128)
+                # images, labels = mnisse:t.train.next_batch(128)
 
                 # Train the model on the batch.
-                sess.run(model.optimize)
                 # train_writer.add_summary(summary, i)
 
             i_stop = time.time()
