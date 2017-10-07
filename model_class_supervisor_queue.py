@@ -430,6 +430,10 @@ def train():
             # If we have reached a testing interval, test.
             if i % FLAGS.test_interval == 0:
 
+                for q in tf.GraphKeys.QUEUE_RUNNERS:
+
+                    print(sess.run(q.size()))
+
                 # Compute loss over the test set.
                 loss = sess.run(model.loss)
                 # loss = 1.0
