@@ -73,7 +73,7 @@ def read_and_decode(filename_queue):
     # [mnist.IMAGE_PIXELS].
     image = tf.decode_raw(features['image_raw'], tf.uint8)
     image.set_shape([IMAGE_PIXELS])
-    print(IMAGE_PIXELS)
+
     # OPTIONAL: Could reshape into a 28x28 image and apply distortions
     # here.  Since we are not applying any distortions in this
     # example, and the next step expects the image to be flattened
@@ -116,8 +116,7 @@ def inputs(train, batch_size, num_epochs):
 
         # Produce a queue of files to read from.
         filename_queue = tf.train.string_input_producer([filename],
-                                                        capacity=1000000,
-                                                        num_epochs=10000)
+                                                        capacity=1000)
 
         # Even when reading in multiple threads, share the filename queue.
         image, label = read_and_decode(filename_queue)
@@ -128,9 +127,9 @@ def inputs(train, batch_size, num_epochs):
         images, sparse_labels = tf.train.shuffle_batch(
             [image, label],
             batch_size=batch_size,
-            capacity=1000000,
-            num_threads=4,
-            min_after_dequeue=0)
+            capacity=10.0 * batch_size,
+            num_threads=20,
+            min_after_dequeue=1)
 
     return images, sparse_labels
 
