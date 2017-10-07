@@ -430,7 +430,7 @@ def train():
             # If we have reached a testing interval, test.
             if i % FLAGS.test_interval == 0:
 
-                for q in tf.GraphKeys.QUEUE_RUNNERS:
+                for q in tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS):
 
                     print(sess.run(q.size()))
 
