@@ -427,11 +427,16 @@ def train():
             # if sv.should_stop():
             #     break
 
+            i_stop = time.time()
+            i_delta = i_stop - i_start
+            total_time = total_time + i_delta
+
             # If we have reached a testing interval, test.
             if i % FLAGS.test_interval == 0:
 
                 for qr in tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS):
 
+                    print(sess.run(qr.queue.name))
                     print(sess.run(qr.queue.size()))
 
                 # Compute loss over the test set.
@@ -449,10 +454,6 @@ def train():
 
                 # Train the model on the batch.
                 # train_writer.add_summary(summary, i)
-
-            i_stop = time.time()
-            i_delta = i_stop - i_start
-            total_time = total_time + i_delta
 
         coord.request_stop()
         coord.join(threads)
@@ -490,7 +491,7 @@ if __name__ == '__main__':
     parser.add_argument('--max_steps', type=int, default=100,
                         help='Number of steps to run trainer.')
 
-    parser.add_argument('--test_interval', type=int, default=2,
+    parser.add_argument('--test_interval', type=int, default=1,
                         help='Number of steps between test set evaluations.')
 
     parser.add_argument('--learning_rate', type=float, default=1e-4,
