@@ -115,7 +115,8 @@ def inputs(train, batch_size, num_epochs):
     with tf.name_scope('input'):
 
         # Produce a queue of files to read from.
-        filename_queue = tf.train.string_input_producer([filename])
+        filename_queue = tf.train.string_input_producer([filename],
+                                                        capacity=1000000)
 
         # Even when reading in multiple threads, share the filename queue.
         image, label = read_and_decode(filename_queue)
@@ -481,7 +482,7 @@ if __name__ == '__main__':
                         default=False,
                         help='If true, uses fake data for unit testing.')
 
-    parser.add_argument('--max_steps', type=int, default=500,
+    parser.add_argument('--max_steps', type=int, default=250,
                         help='Number of steps to run trainer.')
 
     parser.add_argument('--test_interval', type=int, default=1,
