@@ -511,7 +511,7 @@ if __name__ == '__main__':
                         help='Summaries log directory')
 
     parser.add_argument('--batch_size', type=int,
-                        default=64,
+                        default=32,
                         help='Batch size.')
 
     parser.add_argument('--num_epochs', type=int,
