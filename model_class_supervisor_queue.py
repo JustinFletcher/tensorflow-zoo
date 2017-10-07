@@ -414,6 +414,13 @@ def train():
 
         print(threads)
 
+        for t in range(10):
+            time.sleep(1)
+            for qr in tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS):
+
+                print(sess.run(qr.queue.name))
+                print(sess.run(qr.queue.size()))
+
         total_time = 0
         i_delta = 0
 
