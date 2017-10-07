@@ -422,7 +422,6 @@ def train():
 
             i_start = time.time()
 
-
             sess.run(model.optimize)
 
             # if sv.should_stop():
@@ -433,6 +432,7 @@ def train():
 
                 # Compute loss over the test set.
                 loss = sess.run(model.loss)
+                # loss = 1.0
                 # error = sess.run(model.error)
                 print('Step %d:  loss = %.2f, t = %.6f, total_t = %.2f, ' % (i, loss, i_delta, total_time))
                 # test_writer.add_summary(summary, i)
@@ -464,7 +464,6 @@ def train():
     # train_writer.close()
     # sess.close()
 
-
 def main(_):
 
     if tf.gfile.Exists(FLAGS.log_dir):
@@ -487,7 +486,7 @@ if __name__ == '__main__':
     parser.add_argument('--max_steps', type=int, default=250,
                         help='Number of steps to run trainer.')
 
-    parser.add_argument('--test_interval', type=int, default=1,
+    parser.add_argument('--test_interval', type=int, default=2,
                         help='Number of steps between test set evaluations.')
 
     parser.add_argument('--learning_rate', type=float, default=1e-4,
