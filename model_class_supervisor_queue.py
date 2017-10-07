@@ -414,7 +414,7 @@ def train():
 
         print(threads)
 
-        for t in range(10):
+        for t in range(20):
             time.sleep(1)
             for qr in tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS):
 
@@ -496,7 +496,7 @@ if __name__ == '__main__':
     parser.add_argument('--max_steps', type=int, default=10000,
                         help='Number of steps to run trainer.')
 
-    parser.add_argument('--test_interval', type=int, default=10,
+    parser.add_argument('--test_interval', type=int, default=100,
                         help='Number of steps between test set evaluations.')
 
     parser.add_argument('--learning_rate', type=float, default=1e-4,
