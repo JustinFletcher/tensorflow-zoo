@@ -115,8 +115,7 @@ def inputs(train, batch_size, num_epochs):
     with tf.name_scope('input'):
 
         # Produce a queue of files to read from.
-        filename_queue = tf.train.string_input_producer([filename],
-                                                        num_epochs=num_epochs)
+        filename_queue = tf.train.string_input_producer([filename])
 
         # Even when reading in multiple threads, share the filename queue.
         image, label = read_and_decode(filename_queue)
