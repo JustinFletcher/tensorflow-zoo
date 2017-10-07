@@ -440,9 +440,9 @@ def train():
             # If we have reached a testing interval, test.
             if i % FLAGS.test_interval == 0:
 
-                for qr in tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS):
+                # for qr in tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS):
 
-                    print(sess.run(qr.queue.size()))
+                #     print(sess.run(qr.queue.size()))
 
                 # Compute loss over the test set.
                 loss = sess.run(model.loss)
@@ -493,10 +493,10 @@ if __name__ == '__main__':
                         default=False,
                         help='If true, uses fake data for unit testing.')
 
-    parser.add_argument('--max_steps', type=int, default=100,
+    parser.add_argument('--max_steps', type=int, default=1000,
                         help='Number of steps to run trainer.')
 
-    parser.add_argument('--test_interval', type=int, default=1,
+    parser.add_argument('--test_interval', type=int, default=10,
                         help='Number of steps between test set evaluations.')
 
     parser.add_argument('--learning_rate', type=float, default=1e-4,
