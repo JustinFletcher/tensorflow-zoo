@@ -50,6 +50,7 @@ TRAIN_FILE = 'train.tfrecords'
 VALIDATION_FILE = 'validation.tfrecords'
 IMAGE_PIXELS = 28 * 28
 
+
 def read_and_decode(filename_queue):
 
     # Instantiate a TFRecord reader.
@@ -70,7 +71,6 @@ def read_and_decode(filename_queue):
     # Convert from a scalar string tensor (whose single string has
     # length mnist.IMAGE_PIXELS) to a uint8 tensor with shape
     # [mnist.IMAGE_PIXELS].
-    # TODO: Require specification, rather than mnist dependence.
     image = tf.decode_raw(features['image_raw'], tf.uint8)
     image.set_shape([IMAGE_PIXELS])
     print(IMAGE_PIXELS)
@@ -127,8 +127,8 @@ def inputs(train, batch_size, num_epochs):
         images, sparse_labels = tf.train.shuffle_batch(
             [image, label],
             batch_size=batch_size,
-            num_threads=16,
-            capacity=1000000,
+            capacity=2000,
+            num_threads=2,
             # Ensures a minimum amount of shuffling of examples.
             min_after_dequeue=1000)
 
@@ -325,8 +325,6 @@ class Model:
     @define_scope
     def loss(self):
 
-        # self.target_placeholder = tf.to_int64(self.target_placeholder)
-
         # Compute the cross entropy.
         xe = tf.nn.sparse_softmax_cross_entropy_with_logits(
             labels=tf.to_int64(self.target_placeholder), logits=self.inference,
@@ -367,11 +365,10 @@ class Model:
     @define_scope
     def error(self):
 
-        mistakes = tf.not_equal(tf.argmax(tf.to_int64(self.target_placeholder), 1),
+        mistakes = tf.not_equal(tf.argmax(self.target_placeholder, 1),
                                 tf.argmax(self.inference, 1))
 
         error = tf.reduce_mean(tf.cast(mistakes, tf.float32))
-        # tf.summary.scalar('error', error)
 
         return error
 
@@ -385,21 +382,38 @@ def train():
 
     model = Model(images, labels)
 
-    merged = tf.summary.merge_all()
+    # init_local = tf.local_variables_initializer()
+    # init_global = tf.global_variables_initializer()
+
+    tf.summary.merge_all()
 
     # Instantiate a session and initialize it.
-    sv = tf.train.Supervisor(logdir=FLAGS.log_dir, save_summaries_secs=10.0)
+    # sv = tf.train.Supervisor(logdir=FLAGS.log_dir, save_summaries_secs=10.0)
 
-    with sv.managed_session() as sess:
+    # sess = tf.Session()
 
-        sv.start_standard_services(sess=sess)
+    with tf.Session() as sess:
 
-        # Start input enqueue threads.
-        sv.start_queue_runners(sess=sess)
+        # sess.run(init_local)
+        # sess.run(init_global)
 
-        # train_writer = tf.summary.FileWriter(FLAGS.log_dir + '/train',
-        #                                      sess.graph)
-        # test_writer = tf.summary.FileWriter(FLAGS.log_dir + '/test')
+        # sv.start_standard_services(sess=sess)
+
+        # sv.start_queue_runners
+
+        # # Start input enqueue threads.
+        # threads = tf.train.start_queue_runners(sess=sess, coord=sv.coord)
+
+        init = tf.global_variables_initializer()
+        sess.run(init)
+        init = tf.local_variables_initializer()
+        sess.run(init)
+
+        # coordinator
+        coord = tf.train.Coordinator()
+        threads = tf.train.start_queue_runners(sess=sess, coord=coord)
+
+        print(threads)
 
         total_time = 0
         i_delta = 0
@@ -409,15 +423,15 @@ def train():
 
             i_start = time.time()
 
-            if sv.should_stop():
-                break
+            # if sv.should_stop():
+            #     break
 
             # If we have reached a testing interval, test.
             if i % FLAGS.test_interval == 0:
 
                 # Compute loss over the test set.
                 loss = sess.run(model.loss)
-                #error = sess.run(model.error)
+                # error = sess.run(model.error)
                 print('Step %d:  loss = %.2f, t = %.6f, total_t = %.2f, ' % (i, loss, i_delta, total_time))
                 # test_writer.add_summary(summary, i)
 
@@ -435,12 +449,14 @@ def train():
             i_delta = i_stop - i_start
             total_time = total_time + i_delta
 
-    sv.request_stop()
-    sv.coord.join()
+    # sv.request_stop()
+    # sv.coord.join()
+    # sv.stop()
+
+
     # test_writer.close()
     # train_writer.close()
-    sv.stop()
-    sess.close()
+    # sess.close()
 
 
 def main(_):
@@ -462,7 +478,7 @@ if __name__ == '__main__':
                         default=False,
                         help='If true, uses fake data for unit testing.')
 
-    parser.add_argument('--max_steps', type=int, default=100,
+    parser.add_argument('--max_steps', type=int, default=500,
                         help='Number of steps to run trainer.')
 
     parser.add_argument('--test_interval', type=int, default=10,
@@ -480,11 +496,11 @@ if __name__ == '__main__':
                         help='Summaries log directory')
 
     parser.add_argument('--batch_size', type=int,
-                        default=128,
+                        default=64,
                         help='Batch size.')
 
     parser.add_argument('--num_epochs', type=int,
-                        default=1000,
+                        default=0,
                         help='Number of epochs.')
 
     parser.add_argument('--train_dir', type=str,

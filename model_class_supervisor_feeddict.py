@@ -364,6 +364,7 @@ def create_model():
 
 # TODO: Convert to QueueRunners
 
+
 def train(model):
 
     # Get input data.
@@ -409,9 +410,6 @@ def train(model):
 
                 # print('Test error @' + str(i) + ': {:6.2f}%'.format(100 * error))
                 print('Step %d:  error = %.2f, t = %.6f, total_t = %.2f, ' % (i, error, i_delta, total_time))
-
-
-                # test_writer.add_summary(summary, i)
 
             # Iterate, training the network.
             else:
