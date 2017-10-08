@@ -381,17 +381,18 @@ def train():
 
     model = Model(images, labels)
 
-    # init_local = tf.local_variables_initializer()
-    # init_global = tf.global_variables_initializer()
+    init_local = tf.local_variables_initializer()
+    init_global = tf.global_variables_initializer()
 
     tf.summary.merge_all()
 
     # Instantiate a session and initialize it.
-    # sv = tf.train.Supervisor(logdir=FLAGS.log_dir, save_summaries_secs=10.0)
+    sv = tf.train.Supervisor(logdir=FLAGS.log_dir, save_summaries_secs=10.0)
 
     # sess = tf.Session()
 
-    with tf.Session() as sess:
+    # with tf.Session() as sess:
+    with sv.managed_session() as sess:
 
         # sess.run(init_local)
         # sess.run(init_global)
@@ -403,14 +404,14 @@ def train():
         # # Start input enqueue threads.
         # threads = tf.train.start_queue_runners(sess=sess, coord=sv.coord)
 
-        init = tf.global_variables_initializer()
-        sess.run(init)
-        init = tf.local_variables_initializer()
-        sess.run(init)
+        # init = tf.global_variables_initializer()
+        sess.run(init_local)
+        # init = tf.local_variables_initializer()
+        sess.run(init_global)
 
         # coordinator
-        coord = tf.train.Coordinator()
-        threads = tf.train.start_queue_runners(sess=sess, coord=coord)
+        # coord = tf.train.Coordinator()
+        threads = tf.train.start_queue_runners(sess=sess, coord=sv.coord)
 
         print(threads)
 
