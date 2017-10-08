@@ -389,27 +389,21 @@ def train():
     # Instantiate a session and initialize it.
     sv = tf.train.Supervisor(logdir=FLAGS.log_dir, save_summaries_secs=10.0)
 
-    # sess = tf.Session()
-
     # with tf.Session() as sess:
     with sv.managed_session() as sess:
 
-        # sess.run(init_local)
-        # sess.run(init_global)
-
         # sv.start_standard_services(sess=sess)
 
-        # sv.start_queue_runners
+        # sv.start_queue_runners()
 
         # # Start input enqueue threads.
         # threads = tf.train.start_queue_runners(sess=sess, coord=sv.coord)
 
-        # init = tf.global_variables_initializer()
+        # init_local = tf.local_variables_initializer()
+        # init_global = tf.global_variables_initializer()
         sess.run(init_local)
-        # init = tf.local_variables_initializer()
         sess.run(init_global)
 
-        # coordinator
         # coord = tf.train.Coordinator()
         threads = tf.train.start_queue_runners(sess=sess, coord=sv.coord)
 
@@ -447,33 +441,12 @@ def train():
 
                 # Compute loss over the test set.
                 loss = sess.run(model.loss)
-                # loss = 1.0
-                # error = sess.run(model.error)
                 print('Step %d:  loss = %.2f, t = %.6f, total_t = %.2f, ' % (i, loss, i_delta, total_time))
                 # test_writer.add_summary(summary, i)
 
-            # Iterate, training the network.
-            # else:
+        # coord.request_stop()
+        # coord.join(threads)
 
-                # Grab a batch
-                # images, labels = mnisse:t.train.next_batch(128)
-
-                # Train the model on the batch.
-                # train_writer.add_summary(summary, i)
-
-        coord.request_stop()
-        coord.join(threads)
-
-
-    # sv.request_stop()
-    # sv.coord.join()
-    # sv.stop()
-
-
-
-    # test_writer.close()
-    # train_writer.close()
-    # sess.close()
 
 def main(_):
 

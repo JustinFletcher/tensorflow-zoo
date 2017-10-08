@@ -10,45 +10,6 @@ from tensorflow.examples.tutorials.mnist import input_data
 from tensorflow.examples.tutorials.mnist import mnist
 
 
-def segmentation_layer(prev_layer):
-    # Conv layer to generate the 2 score classes
-    with tf.name_scope('Score_classes'):
-
-        W_score_classes = tf.Variable(tf.truncated_normal([1, 1, 300, 2],
-                                                          stddev=0.1,
-                                                          dtype=tf.float32),
-                                      name='W_score_classes')
-
-        print_tensor_shape(W_score_classes, 'W_score_classes_shape')
-
-        score_classes_conv_op = tf.nn.conv2d(prev_layer, W_score_classes,
-                                             strides=[1, 1, 1, 1],
-                                             padding='SAME',
-                                             name='score_classes_conv_op')
-
-        print_tensor_shape(score_classes_conv_op, 'score_conv_op shape')
-
-    # Upscore the results to 256x256x2 image
-    with tf.name_scope('Upscore'):
-
-        W_upscore = tf.Variable(tf.truncated_normal([31, 31, 2, 2],
-                                                    stddev=0.1,
-                                                    dtype=tf.float32),
-                                name='W_upscore')
-        print_tensor_shape(W_upscore, 'W_upscore shape')
-
-        upscore_conv_op = tf.nn.conv2d_transpose(score_classes_conv_op,
-                                                 W_upscore,
-                                                 output_shape=[1, 256, 256, 2],
-                                                 strides=[1, 16, 16, 1],
-                                                 padding='SAME',
-                                                 name='upscore_conv_op')
-
-        print_tensor_shape(upscore_conv_op, 'upscore_conv_op shape')
-
-    return upscore_conv_op
-
-
 # Constants used for dealing with the files, matches convert_to_records.
 TRAIN_FILE = 'train.tfrecords'
 VALIDATION_FILE = 'validation.tfrecords'
