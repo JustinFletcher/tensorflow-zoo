@@ -396,24 +396,12 @@ def train():
 
         # sv.start_queue_runners()
 
-        # # Start input enqueue threads.
-        # threads = tf.train.start_queue_runners(sess=sess, coord=sv.coord)
-
-        # init_local = tf.local_variables_initializer()
-        # init_global = tf.global_variables_initializer()
         sess.run(init_local)
         sess.run(init_global)
 
-        # coord = tf.train.Coordinator()
         threads = tf.train.start_queue_runners(sess=sess, coord=sv.coord)
 
         print(threads)
-
-        # for t in range(20):
-        #     time.sleep(1)
-        #     for qr in tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS):
-
-        #         print(sess.run(qr.queue.size()))
 
         total_time = 0
         i_delta = 0
@@ -435,6 +423,58 @@ def train():
             # If we have reached a testing interval, test.
             if i % FLAGS.test_interval == 0:
 
+                # Compute loss over the test set.
+                loss = sess.run(model.loss)
+                print('Step %d:  loss = %.2f, t = %.6f, total_t = %.2f, ' % (i, loss, i_delta, total_time))
+
+
+def train_with_coord():
+
+    # Get input data.
+    images, labels = inputs(train=True,
+                            batch_size=FLAGS.batch_size,
+                            num_epochs=FLAGS.num_epochs)
+
+    model = Model(images, labels)
+
+    tf.summary.merge_all()
+
+    # Instantiate a session and initialize it.
+    with tf.Session() as sess:
+
+        init_local = tf.local_variables_initializer()
+        init_global = tf.global_variables_initializer()
+        sess.run(init_local)
+        sess.run(init_global)
+
+        coord = tf.train.Coordinator()
+        threads = tf.train.start_queue_runners(sess=sess, coord=coord)
+
+        print(threads)
+
+        for t in range(20):
+            time.sleep(1)
+            for qr in tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS):
+
+                print(sess.run(qr.queue.size()))
+
+        total_time = 0
+        i_delta = 0
+
+        # Iterate, training the model.
+        for i in range(FLAGS.max_steps):
+
+            i_start = time.time()
+
+            sess.run(model.optimize)
+
+            i_stop = time.time()
+            i_delta = i_stop - i_start
+            total_time = total_time + i_delta
+
+            # If we have reached a testing interval, test.
+            if i % FLAGS.test_interval == 0:
+
                 # for qr in tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS):
 
                 #     print(sess.run(qr.queue.size()))
@@ -442,10 +482,12 @@ def train():
                 # Compute loss over the test set.
                 loss = sess.run(model.loss)
                 print('Step %d:  loss = %.2f, t = %.6f, total_t = %.2f, ' % (i, loss, i_delta, total_time))
-                # test_writer.add_summary(summary, i)
 
-        # coord.request_stop()
-        # coord.join(threads)
+        coord.request_stop()
+        coord.join(threads)
+
+    tf.summary.merge_all()
+
 
 
 def main(_):
