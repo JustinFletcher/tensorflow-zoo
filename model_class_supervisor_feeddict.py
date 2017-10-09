@@ -417,10 +417,10 @@ if __name__ == '__main__':
                         default=False,
                         help='If true, uses fake data for unit testing.')
 
-    parser.add_argument('--max_steps', type=int, default=1000,
+    parser.add_argument('--max_steps', type=int, default=2000,
                         help='Number of steps to run trainer.')
 
-    parser.add_argument('--test_interval', type=int, default=10,
+    parser.add_argument('--test_interval', type=int, default=100,
                         help='Number of steps between test set evaluations.')
 
     parser.add_argument('--learning_rate', type=float, default=1e-4,
