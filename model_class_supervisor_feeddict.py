@@ -424,7 +424,7 @@ if __name__ == '__main__':
                         help='Number of steps between test set evaluations.')
 
     parser.add_argument('--batch_size', type=int,
-                        default=32,
+                        default=128,
                         help='Batch size.')
 
     parser.add_argument('--learning_rate', type=float, default=1e-4,
