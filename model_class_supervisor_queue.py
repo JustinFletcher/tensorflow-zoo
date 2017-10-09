@@ -404,7 +404,7 @@ def train():
         threads = tf.train.start_queue_runners(sess=sess, coord=sv.coord)
 
         # Pause to allow the queues to fill.
-        time.sleep(10)
+        time.sleep(20)
 
         print(threads)
 
