@@ -198,13 +198,6 @@ class Model:
         self.optimize
         self.error
 
-        # tf.summary.scalar('error', self.error)
-
-        # # Merge all the summaries and instantiate the writers
-        # # merged_summaries = tf.summary.merge_all()
-
-        # self.summaries = merged_summaries
-
     def variable_summaries(self, var):
             """Attach a lot of summaries to a Tensor
             (for TensorBoard visualization)."""
@@ -247,6 +240,10 @@ class Model:
 
         return tf.nn.max_pool(x, ksize=[1, 2, 2, 1],
                               strides=[1, 2, 2, 1], padding='SAME')
+
+    def ingest_data(self):
+
+        return()
 
     @define_scope(initializer=tf.contrib.slim.xavier_initializer())
     def inference(self, input=None):
@@ -406,6 +403,9 @@ def train():
         # Initiate the queue runners.
         threads = tf.train.start_queue_runners(sess=sess, coord=sv.coord)
 
+        # Pause to allow the queues to fill.
+        time.sleep(10)
+
         print(threads)
 
         # Initialize some time keeping variables.
@@ -525,7 +525,7 @@ if __name__ == '__main__':
                         default=False,
                         help='If true, uses fake data for unit testing.')
 
-    parser.add_argument('--max_steps', type=int, default=5000,
+    parser.add_argument('--max_steps', type=int, default=2000,
                         help='Number of steps to run trainer.')
 
     parser.add_argument('--test_interval', type=int, default=100,
