@@ -376,7 +376,7 @@ def train(model):
             else:
 
                 # Grabe a batch
-                images, labels = mnist.train.next_batch(128)
+                images, labels = mnist.train.next_batch(FLAGS.batch_size)
 
                 # Train the model on the batch.
                 sess.run(model.optimize,
@@ -422,6 +422,10 @@ if __name__ == '__main__':
 
     parser.add_argument('--test_interval', type=int, default=100,
                         help='Number of steps between test set evaluations.')
+
+    parser.add_argument('--batch_size', type=int,
+                        default=32,
+                        help='Batch size.')
 
     parser.add_argument('--learning_rate', type=float, default=1e-4,
                         help='Initial learning rate')
