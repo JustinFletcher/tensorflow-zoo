@@ -379,11 +379,14 @@ def train():
                             batch_size=FLAGS.batch_size,
                             num_epochs=FLAGS.num_epochs)
 
+    # Instantiate the model.
     model = Model(images, labels)
 
+    # Create varaible initialization ops.
     init_local = tf.local_variables_initializer()
     init_global = tf.global_variables_initializer()
 
+    # Merge the summaries.
     tf.summary.merge_all()
 
     # Instantiate a session and initialize it.
@@ -396,26 +399,32 @@ def train():
 
         # sv.start_queue_runners()
 
+        # Initailize the variables.
         sess.run(init_local)
         sess.run(init_global)
 
+        # Initiate the queue runners.
         threads = tf.train.start_queue_runners(sess=sess, coord=sv.coord)
 
         print(threads)
 
+        # Initialize some time keeping variables.
         total_time = 0
         i_delta = 0
 
         # Iterate, training the model.
         for i in range(FLAGS.max_steps):
 
+            # Start keeping time.
             i_start = time.time()
 
+            # Run the optimizer.
             sess.run(model.optimize)
 
             # if sv.should_stop():
             #     break
 
+            # Record the time.
             i_stop = time.time()
             i_delta = i_stop - i_start
             total_time = total_time + i_delta
@@ -435,39 +444,52 @@ def train_with_coord():
                             batch_size=FLAGS.batch_size,
                             num_epochs=FLAGS.num_epochs)
 
+    # Instantiate a model.
     model = Model(images, labels)
 
+    # Merge the summaries.
     tf.summary.merge_all()
 
     # Instantiate a session and initialize it.
     with tf.Session() as sess:
 
+        # Initialize all variables.
         init_local = tf.local_variables_initializer()
         init_global = tf.global_variables_initializer()
         sess.run(init_local)
         sess.run(init_global)
 
+        # Start a coordinator.
         coord = tf.train.Coordinator()
-        threads = tf.train.start_queue_runners(sess=sess, coord=coord)
 
+        # Launch some threads and view them.
+        threads = tf.train.start_queue_runners(sess=sess, coord=coord)
         print(threads)
 
+        # Iterate, filling up a queue.
         for t in range(20):
+
+            # Iterate over each queue runner...
             time.sleep(1)
             for qr in tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS):
 
+                # .., and print it's size to see it fill up.
                 print(sess.run(qr.queue.size()))
 
+        # Initialize some timekeeping variables.
         total_time = 0
         i_delta = 0
 
         # Iterate, training the model.
         for i in range(FLAGS.max_steps):
 
+            # Mark the starting time.
             i_start = time.time()
 
+            # Run the uptimizer.
             sess.run(model.optimize)
 
+            # Record the time.
             i_stop = time.time()
             i_delta = i_stop - i_start
             total_time = total_time + i_delta
@@ -475,19 +497,13 @@ def train_with_coord():
             # If we have reached a testing interval, test.
             if i % FLAGS.test_interval == 0:
 
-                # for qr in tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS):
-
-                #     print(sess.run(qr.queue.size()))
-
                 # Compute loss over the test set.
                 loss = sess.run(model.loss)
                 print('Step %d:  loss = %.2f, t = %.6f, total_t = %.2f, ' % (i, loss, i_delta, total_time))
 
+        # Stop the threads.
         coord.request_stop()
         coord.join(threads)
-
-    tf.summary.merge_all()
-
 
 
 def main(_):
@@ -509,7 +525,7 @@ if __name__ == '__main__':
                         default=False,
                         help='If true, uses fake data for unit testing.')
 
-    parser.add_argument('--max_steps', type=int, default=10000,
+    parser.add_argument('--max_steps', type=int, default=5000,
                         help='Number of steps to run trainer.')
 
     parser.add_argument('--test_interval', type=int, default=100,
