@@ -480,6 +480,8 @@ def train_with_coord():
         total_time = 0
         i_delta = 0
 
+        print(threads)
+
         # Iterate, training the model.
         for i in range(FLAGS.max_steps):
 
@@ -496,6 +498,8 @@ def train_with_coord():
 
             # If we have reached a testing interval, test.
             if i % FLAGS.test_interval == 0:
+
+                print(threads)
 
                 # Compute loss over the test set.
                 loss = sess.run(model.loss)
@@ -535,7 +539,7 @@ if __name__ == '__main__':
                         help='Initial learning rate')
 
     parser.add_argument('--data_dir', type=str,
-                        default='$WORKDIR/data',
+                        default=os.environ['WORKDIR'] + '/data',
                         help='Directory for storing input data')
 
     parser.add_argument('--log_dir', type=str,
@@ -551,7 +555,7 @@ if __name__ == '__main__':
                         help='Number of epochs.')
 
     parser.add_argument('--train_dir', type=str,
-                        default='$WORKDIR/data',
+                        default=os.environ['WORKDIR'] + '/data',
                         help='Directory with the training data.')
 
     parser.add_argument('--keep_prob', type=float,
