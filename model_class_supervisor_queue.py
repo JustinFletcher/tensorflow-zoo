@@ -535,7 +535,7 @@ if __name__ == '__main__':
                         help='Initial learning rate')
 
     parser.add_argument('--data_dir', type=str,
-                        default='../data',
+                        default='$WORKDIR/data',
                         help='Directory for storing input data')
 
     parser.add_argument('--log_dir', type=str,
@@ -551,7 +551,7 @@ if __name__ == '__main__':
                         help='Number of epochs.')
 
     parser.add_argument('--train_dir', type=str,
-                        default='../data',
+                        default='$WORKDIR/data',
                         help='Directory with the training data.')
 
     parser.add_argument('--keep_prob', type=float,
