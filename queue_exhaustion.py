@@ -116,8 +116,7 @@ def inputs(train, batch_size, num_epochs, num_threads):
     with tf.name_scope('input'):
 
         # Produce a queue of files to read from.
-        filename_queue = tf.train.string_input_producer([filename],
-                                                        capacity=1000)
+        filename_queue = tf.train.string_input_producer([filename])
 
         # Even when reading in multiple threads, share the filename queue.
         image, label = read_and_decode(filename_queue)
@@ -128,9 +127,9 @@ def inputs(train, batch_size, num_epochs, num_threads):
         images, sparse_labels = tf.train.shuffle_batch(
             [image, label],
             batch_size=batch_size,
-            capacity=1000000.0 * batch_size,
+            capacity=10.0 * batch_size,
             num_threads=num_threads,
-            min_after_dequeue=1000)
+            min_after_dequeue=100)
 
     return images, sparse_labels
 
@@ -405,7 +404,6 @@ def measure_queue_rate(batch_size, num_threads):
 
         # Launch some threads and view them.
         threads = tf.train.start_queue_runners(sess=sess, coord=coord)
-        print(threads)
 
         print('batch_size = %d | num_threads = %d' % (batch_size, num_threads))
         print('Actual thread count = %d.' % len(threads))
@@ -489,9 +487,9 @@ def main(_):
 
     # thread_counts = [1, 2, 4, 8, 16, 32, 64, 128]
 
-    batch_sizes = [8, 16, 32, 64, 128]
+    batch_sizes = [32, 64, 128]
 
-    thread_counts = [2, 4, 16, 32, 128]
+    thread_counts = [8, 16, 64]
 
     for batch_size in batch_sizes:
 
@@ -532,7 +530,7 @@ if __name__ == '__main__':
                         default=False,
                         help='If true, uses fake data for unit testing.')
 
-    parser.add_argument('--max_steps', type=int, default=200,
+    parser.add_argument('--max_steps', type=int, default=400,
                         help='Number of steps to run trainer.')
 
     parser.add_argument('--test_interval', type=int, default=20,
