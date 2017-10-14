@@ -411,7 +411,7 @@ def measure_queue_rate(batch_size, num_threads):
             qr = tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)[1]
 
             # .., andstoreit's size to see it fill up.
-            enqueued_count_list.append(sess.run(qr.queue.size()) / t + 1.0)
+            enqueued_count_list.append(sess.run(qr.queue.size()) / (t + 1.0))
 
         # Show list.
         print(enqueued_count_list)
