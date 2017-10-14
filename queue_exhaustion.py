@@ -494,7 +494,7 @@ def main(_):
 
     # thread_counts = [1, 2, 4, 8, 16, 32, 64, 128]
 
-    batch_sizes = [32, 64, 128]
+    batch_sizes = [32, 32, 32]
 
     thread_counts = [2]
 
