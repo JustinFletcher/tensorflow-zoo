@@ -413,7 +413,7 @@ def measure_queue_rate(batch_size, num_threads):
         enqueued_count_list = []
 
         # Iterate, filling up a queue, measure the enqueue rate.
-        for t in range(20):
+        for t in range(1):
 
             # Iterate over each queue runner...
             time.sleep(1)
@@ -500,7 +500,7 @@ def main(_):
 
     batch_sizes = [32, 64, 128]
 
-    thread_counts = [2, 4]
+    thread_counts = [16, 32]
 
     for batch_size in batch_sizes:
 
