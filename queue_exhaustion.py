@@ -500,7 +500,7 @@ def main(_):
 
     batch_sizes = [32, 64, 128]
 
-    thread_counts = [16, 32]
+    thread_counts = [32, 64, 128]
 
     for batch_size in batch_sizes:
 
