@@ -409,21 +409,17 @@ def measure_queue_rate(batch_size, num_threads):
 
         print('Actual thread count = %d.' % len(threads))
 
-        # List to store the number enqueued/sec.
-        enqueued_count_list = []
+        # Let the queue fill for 1 sec.
+        time.sleep(1)
+        qr = tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)[1]
 
-        # Iterate, filling up a queue, measure the enqueue rate.
-        for t in range(1):
-
-            # Iterate over each queue runner...
-            time.sleep(1)
-            qr = tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)[1]
-
-            # .., andstoreit's size to see it fill up.
-            enqueued_count_list.append(sess.run(qr.queue.size()) / (t + 1.0))
+        # .., andstoreit's size to see it fill up.
+        enqueued_count = sess.run(qr.queue.size())
 
         # Show list.
-        print(enqueued_count_list)
+        print(enqueued_count)
+
+        prior_queue_size = enqueued_count
 
         # Initialize some timekeeping variables.
         total_time = 0
@@ -436,11 +432,18 @@ def measure_queue_rate(batch_size, num_threads):
         # Iterate, training the model.
         for i in range(FLAGS.max_steps):
 
+            # Mark the starting time.
+            i_start = time.time()
+
+            # Run the uptimizer.
+            sess.run(model.optimize)
+
+            # Record the time.
+            i_delta = time.time() - i_start
+            total_time = total_time + i_delta
+
             # If we have reached a testing interval, test.
             if i % FLAGS.test_interval == 0:
-
-                # Measure the pre-optimize queue size and store it.
-                before_queue_size = sess.run(qr.queue.size())
 
                 # Mark the starting time.
                 i_start = time.time()
@@ -452,35 +455,29 @@ def measure_queue_rate(batch_size, num_threads):
                 i_delta = time.time() - i_start
                 total_time = total_time + i_delta
 
+                # Measure the pre-optimize queue size and store it.
+                current_queue_size = sess.run(qr.queue.size())
+
                 # Measure the post-optimize queue size. Compute the rate.
-                net_queue_size = sess.run(qr.queue.size()) - before_queue_size
+                net_queue_size = current_queue_size - prior_queue_size
                 print(net_queue_size)
                 queue_growth_rate_list.append(net_queue_size / i_delta)
+
+                # Store this queue size as the current.
+                prior_queue_size = current_queue_size
 
                 # Compute loss over the test set.
                 loss = sess.run(model.loss)
                 print('Step %d:  loss = %.2f, t = %.6f, total_t = %.2f, ' % (i, loss, i_delta, total_time))
 
 
-            # If we have reached a testing interval, test.
-            else:
-
-                # Mark the starting time.
-                i_start = time.time()
-
-                # Run the uptimizer.
-                sess.run(model.optimize)
-
-                # Record the time.
-                i_delta = time.time() - i_start
-                total_time = total_time + i_delta
 
         # Stop the threads.
         coord.request_stop()
         coord.join(threads)
         sess.close()
 
-    return([enqueued_count_list, queue_growth_rate_list])
+    return([enqueued_count, queue_growth_rate_list])
     # return(net_dequeue_rate_list)
 
 
@@ -518,12 +515,12 @@ def main(_):
 
         batch_size, thread_count, queue_rate_list = qp
 
-        print('batch size | thread_count | mean_enqueue_rate | mean_queue_growth_rate')
+        print('batch size | thread_count | enqueue_rate | mean_queue_growth_rate')
 
-        mean_eq = np.mean(queue_rate_list[0])
+        eq = queue_rate_list[0]
         mean_queue_growth_rate = np.mean(queue_rate_list[1])
 
-        print_tuple = (batch_size, thread_count, mean_eq, mean_queue_growth_rate)
+        print_tuple = (batch_size, thread_count, eq, mean_queue_growth_rate)
         print('%d         | %d           | %.6f  | %.6f ' % print_tuple)
 
 
