@@ -536,21 +536,13 @@ def main(_):
         running_time_by_step = queue_measurements[2]
         test_step_list = queue_measurements[3]
 
-        print("---------------")
-
-        print('batch_size = %d | thread_count = %d' % (batch_size, thread_count))
-        print(test_step_list)
-        print(queue_size_list)
-        print(running_time_by_step)
-        print("---------------")
-
         with open(FLAGS.log_dir + 'queue_exhaustion_out.csv', 'wb') as csvfile:
 
+            csvwriter = csv.writer(csvfile)
             for step, qs, rt in zip(test_step_list,
                                     queue_size_list,
                                     running_time_by_step):
 
-                csvwriter = csv.writer(csvfile)
                 csvwriter.writerow([batch_size,
                                     thread_count,
                                     step,
