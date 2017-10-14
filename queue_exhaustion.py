@@ -428,7 +428,7 @@ def measure_queue_rate(batch_size, num_threads):
 
         # Get queue size Op.
         qr = tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)[1]
-        net_dequeue_rate_list = []
+        queue_growth_rate_list = []
 
         # Iterate, training the model.
         for i in range(FLAGS.max_steps):
@@ -451,7 +451,7 @@ def measure_queue_rate(batch_size, num_threads):
 
                 # Measure the post-optimize queue size. Compute the rate.
                 net_queue_size = sess.run(qr.queue.size()) - before_queue_size
-                net_dequeue_rate_list.append(net_queue_size / i_delta)
+                queue_growth_rate_list.append(net_queue_size / i_delta)
 
                 # Compute loss over the test set.
                 loss = sess.run(model.loss)
@@ -475,7 +475,7 @@ def measure_queue_rate(batch_size, num_threads):
         coord.join(threads)
         coord.request_stop()
 
-    return([enqueued_count_list, net_dequeue_rate_list])
+    return([enqueued_count_list, queue_growth_rate_list])
     # return(net_dequeue_rate_list)
 
 
@@ -513,12 +513,12 @@ def main(_):
 
         batch_size, thread_count, queue_rate_list = qp
 
-        print('batch size | thread_count | mean_enqueue_rate | mean_net_dequeue_rate')
+        print('batch size | thread_count | mean_enqueue_rate | mean_queue_growth_rate')
 
         mean_eq = np.mean(queue_rate_list[0])
-        mean_dq = np.mean(queue_rate_list[1])
+        mean_queue_growth_rate = np.mean(queue_rate_list[1])
 
-        print_tuple = (batch_size, thread_count, mean_eq, mean_dq)
+        print_tuple = (batch_size, thread_count, mean_eq, mean_queue_growth_rate)
         print('%d         | %d           | %.6f  | %.6f ' % print_tuple)
 
 
