@@ -521,7 +521,7 @@ def main(_):
                        mean_queue_growth_rate,
                        mean_running_time)
 
-        print('%4d        | %4d          | %.6f     | %8.6f               | %8.6f ' % print_tuple)
+        print('%4d        | %4d        | %5.6f   | %8.6f      | %8.6f ' % print_tuple)
 
 
 if __name__ == '__main__':
