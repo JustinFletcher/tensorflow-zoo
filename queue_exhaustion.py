@@ -445,10 +445,11 @@ def measure_queue_rate(batch_size, num_threads):
             total_time = total_time + i_delta
 
             # If we have reached a testing interval, test.
-            if i % FLAGS.test_interval == 0:
+            if (i % FLAGS.test_interval == 0) and (i != 0):
 
                 # Measure the pre-optimize queue size and store it.
                 current_queue_size = sess.run(qr.queue.size())
+                # current_queue_size = 5
 
                 # Measure the post-optimize queue size. Compute the rate.
                 net_queue_size = current_queue_size - prior_queue_size
@@ -520,7 +521,7 @@ def main(_):
                        mean_queue_growth_rate,
                        mean_running_time)
 
-        print('%4d        | %4d          | %.6f     | %.6f                   | %.6f ' % print_tuple)
+        print('%4d        | %4d          | %.6f     | %8.6f               | %8.6f ' % print_tuple)
 
 
 if __name__ == '__main__':
@@ -531,10 +532,10 @@ if __name__ == '__main__':
                         default=False,
                         help='If true, uses fake data for unit testing.')
 
-    parser.add_argument('--max_steps', type=int, default=100,
+    parser.add_argument('--max_steps', type=int, default=200,
                         help='Number of steps to run trainer.')
 
-    parser.add_argument('--test_interval', type=int, default=10,
+    parser.add_argument('--test_interval', type=int, default=20,
                         help='Number of steps between test set evaluations.')
 
     parser.add_argument('--learning_rate', type=float, default=1e-4,
