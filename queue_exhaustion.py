@@ -469,8 +469,8 @@ def measure_queue_rate(batch_size, num_threads):
         coord.request_stop()
         coord.join(threads)
 
-        return([enqueued_count_list, net_dequeue_rate_list])
-        # return(net_dequeue_rate_list)
+    return([enqueued_count_list, net_dequeue_rate_list])
+    # return(net_dequeue_rate_list)
 
 
 def main(_):
