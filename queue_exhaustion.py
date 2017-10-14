@@ -372,6 +372,9 @@ class Model:
 
 def measure_queue_rate(batch_size, num_threads):
 
+    # Reset the default graph.
+    tf.reset_default_graph()
+
     print('-------------------------------------------------------')
     print('batch_size = %d | num_threads = %d' % (batch_size, num_threads))
     print('-------------------------------------------------------')
