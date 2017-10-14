@@ -129,7 +129,7 @@ def inputs(train, batch_size, num_epochs):
             batch_size=batch_size,
             capacity=1000000.0 * batch_size,
             num_threads=10,
-            min_after_dequeue=1)
+            min_after_dequeue=1000.0)
 
     return images, sparse_labels
 
@@ -474,7 +474,8 @@ def train_with_coord():
             for qr in tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS):
 
                 # .., and print it's size to see it fill up.
-                print(sess.run(qr.queue.size()))
+                num_enqueued = sess.run(qr.queue.size())
+                print('Enqueued/sec = %.6fa' % (num_enqueued / t))
 
         # Initialize some timekeeping variables.
         total_time = 0

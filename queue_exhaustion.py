@@ -407,6 +407,7 @@ def measure_queue_rate(batch_size, num_threads):
         threads = tf.train.start_queue_runners(sess=sess, coord=coord)
         print(threads)
 
+        print('batch_size = %d | num_threads = %d' % (batch_size, num_threads))
         print('Actual thread count = %d.' % len(threads))
 
         # Let the queue fill for 1 sec.
@@ -424,6 +425,7 @@ def measure_queue_rate(batch_size, num_threads):
         # Initialize some timekeeping variables.
         total_time = 0
         i_delta = 0
+        running_time_list = []
 
         # Get queue size Op.
         qr = tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)[1]
@@ -452,6 +454,7 @@ def measure_queue_rate(batch_size, num_threads):
                 net_queue_size = current_queue_size - prior_queue_size
                 print(net_queue_size)
                 queue_growth_rate_list.append(net_queue_size / i_delta)
+                running_time_list.append(i_delta)
 
                 # Store this queue size as the current.
                 prior_queue_size = current_queue_size
@@ -467,7 +470,7 @@ def measure_queue_rate(batch_size, num_threads):
         coord.join(threads)
         sess.close()
 
-    return([enqueued_count, queue_growth_rate_list])
+    return([enqueued_count, queue_growth_rate_list, running_time_list])
     # return(net_dequeue_rate_list)
 
 
@@ -485,9 +488,9 @@ def main(_):
 
     # thread_counts = [1, 2, 4, 8, 16, 32, 64, 128]
 
-    batch_sizes = [32, 64, 128]
+    batch_sizes = [8, 16, 32, 64, 128]
 
-    thread_counts = [32, 64, 128]
+    thread_counts = [2, 4, 16, 32, 128]
 
     for batch_size in batch_sizes:
 
@@ -505,13 +508,19 @@ def main(_):
 
         batch_size, thread_count, queue_rate_list = qp
 
-        print('batch size | thread_count | enqueue_rate | mean_queue_growth_rate')
+        print('batch size | thread_count | enqueue_rate | mean_queue_growth_rate | mean_running_time ')
 
         eq = queue_rate_list[0]
         mean_queue_growth_rate = np.mean(queue_rate_list[1])
+        mean_running_time = np.mean(queue_rate_list[2])
 
-        print_tuple = (batch_size, thread_count, eq, mean_queue_growth_rate)
-        print('%d         | %d           | %.6f  | %.6f ' % print_tuple)
+        print_tuple = (batch_size,
+                       thread_count,
+                       eq,
+                       mean_queue_growth_rate,
+                       mean_running_time)
+
+        print('%d         | %d           | %.6f  | %.6f | %.6f ' % print_tuple)
 
 
 if __name__ == '__main__':
@@ -522,10 +531,10 @@ if __name__ == '__main__':
                         default=False,
                         help='If true, uses fake data for unit testing.')
 
-    parser.add_argument('--max_steps', type=int, default=1000,
+    parser.add_argument('--max_steps', type=int, default=100,
                         help='Number of steps to run trainer.')
 
-    parser.add_argument('--test_interval', type=int, default=100,
+    parser.add_argument('--test_interval', type=int, default=25,
                         help='Number of steps between test set evaluations.')
 
     parser.add_argument('--learning_rate', type=float, default=1e-4,
