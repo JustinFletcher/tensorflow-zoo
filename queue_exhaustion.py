@@ -427,33 +427,43 @@ def measure_queue_rate(batch_size, num_threads):
         # Iterate, training the model.
         for i in range(FLAGS.max_steps):
 
-            # Measure the pre-optimize queue size and store it.
-            num_enqueued = sess.run(qr.queue.size())
-            before_queue_size = num_enqueued
-
-            # Mark the starting time.
-            i_start = time.time()
-
-            # Run the uptimizer.
-            sess.run(model.optimize)
-
-            # Record the time.
-            i_stop = time.time()
-            i_delta = i_stop - i_start
-            total_time = total_time + i_delta
-
-            # Measure the post-optimize queue size. Compute the rate.
-            num_enqueued = sess.run(qr.queue.size())
-            after_queue_size = num_enqueued
-            net_queue_size = after_queue_size - before_queue_size
-            net_dequeue_rate_list.append(net_queue_size / i_delta)
-
             # If we have reached a testing interval, test.
             if i % FLAGS.test_interval == 0:
+
+                # Measure the pre-optimize queue size and store it.
+                before_queue_size = sess.run(qr.queue.size())
+
+                # Mark the starting time.
+                i_start = time.time()
+
+                # Run the uptimizer.
+                sess.run(model.optimize)
+
+                # Record the time.
+                i_delta = time.time() - i_start
+                total_time = total_time + i_delta
+
+                # Measure the post-optimize queue size. Compute the rate.
+                net_queue_size = sess.run(qr.queue.size()) - before_queue_size
+                net_dequeue_rate_list.append(net_queue_size / i_delta)
 
                 # Compute loss over the test set.
                 loss = sess.run(model.loss)
                 print('Step %d:  loss = %.2f, t = %.6f, total_t = %.2f, ' % (i, loss, i_delta, total_time))
+
+
+            # If we have reached a testing interval, test.
+            else:
+
+                # Mark the starting time.
+                i_start = time.time()
+
+                # Run the uptimizer.
+                sess.run(model.optimize)
+
+                # Record the time.
+                i_delta = time.time() - i_start
+                total_time = total_time + i_delta
 
         # Stop the threads.
         coord.request_stop()
