@@ -472,8 +472,8 @@ def measure_queue_rate(batch_size, num_threads):
                 total_time = total_time + i_delta
 
         # Stop the threads.
-        coord.join(threads)
         coord.request_stop()
+        coord.join(threads)
 
     return([enqueued_count_list, queue_growth_rate_list])
     # return(net_dequeue_rate_list)
