@@ -3,6 +3,7 @@ import sys
 import time
 import argparse
 import functools
+import csv
 import numpy as np
 import tensorflow as tf
 
@@ -542,6 +543,21 @@ def main(_):
         print(queue_size_list)
         print(running_time_by_step)
         print("---------------")
+
+        with open(FLAGS.log_dir + 'queue_exhaustion_out.csv', 'wb') as csvfile:
+
+            for step, qs, rt in zip(test_step_list,
+                                    queue_size_list,
+                                    running_time_by_step):
+
+                csvwriter = csv.writer(csvfile)
+                csvwriter.writerow([batch_size],
+                                   [thread_count],
+                                   [step],
+                                   [qs],
+                                   [rt])
+
+
 
         # Write out: thread_count, batch_size, test_step, step_running_time, step_queue_size
 
