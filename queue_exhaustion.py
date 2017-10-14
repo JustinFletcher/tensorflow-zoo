@@ -445,16 +445,6 @@ def measure_queue_rate(batch_size, num_threads):
             # If we have reached a testing interval, test.
             if i % FLAGS.test_interval == 0:
 
-                # Mark the starting time.
-                i_start = time.time()
-
-                # Run the uptimizer.
-                sess.run(model.optimize)
-
-                # Record the time.
-                i_delta = time.time() - i_start
-                total_time = total_time + i_delta
-
                 # Measure the pre-optimize queue size and store it.
                 current_queue_size = sess.run(qr.queue.size())
 
@@ -532,7 +522,7 @@ if __name__ == '__main__':
                         default=False,
                         help='If true, uses fake data for unit testing.')
 
-    parser.add_argument('--max_steps', type=int, default=2000,
+    parser.add_argument('--max_steps', type=int, default=1000,
                         help='Number of steps to run trainer.')
 
     parser.add_argument('--test_interval', type=int, default=100,
