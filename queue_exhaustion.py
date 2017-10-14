@@ -372,6 +372,10 @@ class Model:
 
 def measure_queue_rate(batch_size, num_threads):
 
+    print('-------------------------------------------------------')
+    print('batch_size = %d | num_threads = %d' % (batch_size, num_threads))
+    print('-------------------------------------------------------')
+
     # Get input data.
     images, labels = inputs(train=True,
                             batch_size=batch_size,
@@ -399,6 +403,8 @@ def measure_queue_rate(batch_size, num_threads):
         # Launch some threads and view them.
         threads = tf.train.start_queue_runners(sess=sess, coord=coord)
         print(threads)
+
+        print('Actual thread count = %d.' % len(threads))
 
         # List to store the number enqueued/sec.
         enqueued_count_list = []
@@ -466,8 +472,8 @@ def measure_queue_rate(batch_size, num_threads):
                 total_time = total_time + i_delta
 
         # Stop the threads.
-        coord.request_stop()
         coord.join(threads)
+        coord.request_stop()
 
     return([enqueued_count_list, net_dequeue_rate_list])
     # return(net_dequeue_rate_list)
