@@ -451,7 +451,7 @@ def measure_queue_rate(batch_size, num_threads):
 
                 # Measure the post-optimize queue size. Compute the rate.
                 net_queue_size = current_queue_size - prior_queue_size
-                print(net_queue_size)
+                print(current_queue_size)
                 queue_growth_rate_list.append(net_queue_size / i_delta)
                 running_time_list.append(i_delta)
 
