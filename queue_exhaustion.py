@@ -504,11 +504,11 @@ def main(_):
 
             print(queue_performance)
 
+    print('batch size | thread_count | enqueue_rate | mean_queue_growth_rate | mean_running_time ')
+
     for qp in queue_performance:
 
         batch_size, thread_count, queue_rate_list = qp
-
-        print('batch size | thread_count | enqueue_rate | mean_queue_growth_rate | mean_running_time ')
 
         eq = queue_rate_list[0]
         mean_queue_growth_rate = np.mean(queue_rate_list[1])
@@ -520,7 +520,7 @@ def main(_):
                        mean_queue_growth_rate,
                        mean_running_time)
 
-        print('%d         | %d           | %.6f  | %.6f | %.6f ' % print_tuple)
+        print('%4d        | %4d          | %.6f     | %.6f                   | %.6f ' % print_tuple)
 
 
 if __name__ == '__main__':
@@ -534,7 +534,7 @@ if __name__ == '__main__':
     parser.add_argument('--max_steps', type=int, default=100,
                         help='Number of steps to run trainer.')
 
-    parser.add_argument('--test_interval', type=int, default=25,
+    parser.add_argument('--test_interval', type=int, default=10,
                         help='Number of steps between test set evaluations.')
 
     parser.add_argument('--learning_rate', type=float, default=1e-4,
