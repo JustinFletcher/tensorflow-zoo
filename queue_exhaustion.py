@@ -551,15 +551,11 @@ def main(_):
                                     running_time_by_step):
 
                 csvwriter = csv.writer(csvfile)
-                csvwriter.writerow([batch_size],
-                                   [thread_count],
-                                   [step],
-                                   [qs],
-                                   [rt])
-
-
-
-        # Write out: thread_count, batch_size, test_step, step_running_time, step_queue_size
+                csvwriter.writerow([batch_size,
+                                    thread_count,
+                                    step,
+                                    qs,
+                                    rt])
 
 
 if __name__ == '__main__':
