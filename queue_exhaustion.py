@@ -451,6 +451,7 @@ def measure_queue_rate(batch_size, num_threads):
 
                 # Measure the post-optimize queue size. Compute the rate.
                 net_queue_size = sess.run(qr.queue.size()) - before_queue_size
+                print(net_queue_size)
                 queue_growth_rate_list.append(net_queue_size / i_delta)
 
                 # Compute loss over the test set.
@@ -494,7 +495,7 @@ def main(_):
 
     # thread_counts = [1, 2, 4, 8, 16, 32, 64, 128]
 
-    batch_sizes = [32, 32, 32]
+    batch_sizes = [32, 32, 32, 32, 32]
 
     thread_counts = [2]
 
