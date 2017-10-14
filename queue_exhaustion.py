@@ -3,6 +3,7 @@ import sys
 import time
 import argparse
 import functools
+import numpy as np
 import tensorflow as tf
 
 
@@ -88,7 +89,7 @@ def read_and_decode(filename_queue):
     return image, label
 
 
-def inputs(train, batch_size, num_epochs):
+def inputs(train, batch_size, num_epochs, num_threads):
     """Reads input data num_epochs times.
     Args:
       train: Selects between the training (True) and validation (False) data.
@@ -128,7 +129,7 @@ def inputs(train, batch_size, num_epochs):
             [image, label],
             batch_size=batch_size,
             capacity=1000000.0 * batch_size,
-            num_threads=10,
+            num_threads=num_threads,
             min_after_dequeue=1000)
 
     return images, sparse_labels
@@ -373,8 +374,9 @@ def measure_queue_rate(batch_size, num_threads):
 
     # Get input data.
     images, labels = inputs(train=True,
-                            batch_size=FLAGS.batch_size,
-                            num_epochs=FLAGS.num_epochs)
+                            batch_size=batch_size,
+                            num_epochs=FLAGS.num_epochs,
+                            num_threads=num_threads)
 
     # Instantiate a model.
     model = Model(images, labels)
@@ -398,33 +400,35 @@ def measure_queue_rate(batch_size, num_threads):
         threads = tf.train.start_queue_runners(sess=sess, coord=coord)
         print(threads)
 
+        # List to store the number enqueued/sec.
+        enqueued_count_list = []
+
         # Iterate, filling up a queue, measure the enqueue rate.
         for t in range(20):
 
             # Iterate over each queue runner...
             time.sleep(1)
-            for qr in tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)[1]:
+            qr = tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)[1]
 
-                # .., and print it's size to see it fill up.
-                num_enqueued = sess.run(qr.queue.size())
-                print('Enqueued/sec = %.6fa' % (num_enqueued / t))
+            # .., andstoreit's size to see it fill up.
+            enqueued_count_list.append(sess.run(qr.queue.size()) / t + 1.0)
 
+        # Show list.
+        print(enqueued_count_list)
 
         # Initialize some timekeeping variables.
         total_time = 0
         i_delta = 0
 
-        print(threads)
+        # Get queue size Op.
+        qr = tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)[1]
+        net_dequeue_rate_list = []
 
         # Iterate, training the model.
         for i in range(FLAGS.max_steps):
 
-            # Get queue size.
-            for qr in tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)[1]:
-
-                # .., and print it's size to see it fill up.
-                num_enqueued = sess.run(qr.queue.size())
-
+            # Measure the pre-optimize queue size and store it.
+            num_enqueued = sess.run(qr.queue.size())
             before_queue_size = num_enqueued
 
             # Mark the starting time.
@@ -438,21 +442,14 @@ def measure_queue_rate(batch_size, num_threads):
             i_delta = i_stop - i_start
             total_time = total_time + i_delta
 
-            # Get queue size.
-            for qr in tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)[1]:
-
-                # .., and print it's size to see it fill up.
-                num_enqueued = sess.run(qr.queue.size())
+            # Measure the post-optimize queue size. Compute the rate.
+            num_enqueued = sess.run(qr.queue.size())
             after_queue_size = num_enqueued
-
             net_queue_size = after_queue_size - before_queue_size
-
-            net_dequeue_rate = net_queue_size / i_delta
+            net_dequeue_rate_list.append(net_queue_size / i_delta)
 
             # If we have reached a testing interval, test.
             if i % FLAGS.test_interval == 0:
-
-                print(threads)
 
                 # Compute loss over the test set.
                 loss = sess.run(model.loss)
@@ -462,7 +459,8 @@ def measure_queue_rate(batch_size, num_threads):
         coord.request_stop()
         coord.join(threads)
 
-        return(mean_enqueue_rate, net_dequeue_rate)
+        return([enqueued_count_list, net_dequeue_rate_list])
+        # return(net_dequeue_rate_list)
 
 
 def main(_):
@@ -475,24 +473,37 @@ def main(_):
 
     queue_performance = []
 
-    batch_sizes = [8, 16, 24, 32, 64, 128, 256, 512]
+    # batch_sizes = [8, 16, 24, 32, 64, 128, 256, 512]
 
-    thread_counts = [1, 2, 4, 8, 16, 32, 64, 128]
+    # thread_counts = [1, 2, 4, 8, 16, 32, 64, 128]
+
+    batch_sizes = [16, 32, 64, 128, 256]
+
+    thread_counts = [4, 8, 16, 32]
 
     for batch_size in batch_sizes:
 
         for thread_count in thread_counts:
 
-            enqueue_rate, dequeue_rate = measure_queue_rate(batch_size,
-                                                            thread_count)
+            queue_rate_list = measure_queue_rate(batch_size, thread_count)
 
             queue_performance.append([batch_size,
                                       thread_count,
-                                      enqueue_rate,
-                                      dequeue_rate])
+                                      queue_rate_list])
 
-    print(queue_performance)
+            print(queue_performance)
 
+    for qp in queue_performance:
+
+        batch_size, thread_count, queue_rate_list = qp
+
+        print('batch size | thread_count | mean_enqueue_rate | mean_net_dequeue_rate')
+
+        mean_eq = np.mean(queue_rate_list[0])
+        mean_dq = np.mean(queue_rate_list[1])
+
+        print_tuple = (batch_size, thread_count, mean_eq, mean_dq)
+        print('%d         | %d           | %.6f  | %.6f ' % print_tuple)
 
 
 if __name__ == '__main__':
