@@ -528,17 +528,18 @@ def main(_):
 
         print('%4d        | %4d        | %5.6f   | %8.6f      | %8.6f ' % print_tuple)
 
-    for qp in queue_performance:
+    with open(FLAGS.log_dir + '/queue_exhaustion_out.csv', 'wb') as csvfile:
 
-        batch_size, thread_count, queue_measurements = qp
+        csvwriter = csv.writer(csvfile)
 
-        queue_size_list = queue_measurements[1]
-        running_time_by_step = queue_measurements[2]
-        test_step_list = queue_measurements[3]
+        for qp in queue_performance:
 
-        with open(FLAGS.log_dir + 'queue_exhaustion_out.csv', 'wb') as csvfile:
+            batch_size, thread_count, queue_measurements = qp
 
-            csvwriter = csv.writer(csvfile)
+            queue_size_list = queue_measurements[1]
+            running_time_by_step = queue_measurements[2]
+            test_step_list = queue_measurements[3]
+
             for step, qs, rt in zip(test_step_list,
                                     queue_size_list,
                                     running_time_by_step):
