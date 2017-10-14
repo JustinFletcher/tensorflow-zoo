@@ -418,7 +418,7 @@ def measure_queue_rate(batch_size, num_threads):
         # Show list.
         print(enqueued_count)
 
-        prior_queue_size = enqueued_count
+        # prior_queue_size = enqueued_count
 
         # Initialize some timekeeping variables.
         total_time = 0
@@ -427,7 +427,7 @@ def measure_queue_rate(batch_size, num_threads):
 
         # Get queue size Op.
         qr = tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)[1]
-        queue_growth_rate_list = []
+        # queue_growth_rate_list = []
         queue_size_list = []
         test_step_list = []
 
@@ -452,14 +452,14 @@ def measure_queue_rate(batch_size, num_threads):
                 # current_queue_size = 5
 
                 # Measure the post-optimize queue size. Compute the rate.
-                net_queue_size = current_queue_size - prior_queue_size
+                # net_queue_size = current_queue_size - prior_queue_size
                 print(current_queue_size)
                 queue_size_list.append(current_queue_size)
                 running_time_list.append(i_delta)
                 test_step_list.append(i)
 
                 # Store this queue size as the current.
-                prior_queue_size = current_queue_size
+                # prior_queue_size = current_queue_size
 
                 # Compute loss over the test set.
                 loss = sess.run(model.loss)
@@ -472,7 +472,7 @@ def measure_queue_rate(batch_size, num_threads):
         coord.join(threads)
         sess.close()
 
-    return([enqueued_count, queue_size_list, running_time_list])
+    return([enqueued_count, queue_size_list, running_time_list, test_step_list])
     # return(net_dequeue_rate_list)
 
 
@@ -510,12 +510,14 @@ def main(_):
 
     for qp in queue_performance:
 
-        batch_size, thread_count, queue_size_list, queue_measurements = qp
+        batch_size, thread_count, queue_measurements = qp
 
         eq = queue_measurements[0]
         queue_size_list = queue_measurements[1]
         mean_queue_growth_rate = np.mean(np.diff(queue_size_list))
-        mean_running_time = np.mean(queue_measurements[2])
+        running_time_by_step = queue_measurements[2]
+        mean_running_time = np.mean(running_time_by_step)
+        test_step_list = queue_measurements[3]
 
         print_tuple = (batch_size,
                        thread_count,
@@ -524,6 +526,24 @@ def main(_):
                        mean_running_time)
 
         print('%4d        | %4d        | %5.6f   | %8.6f      | %8.6f ' % print_tuple)
+
+    for qp in queue_performance:
+
+        batch_size, thread_count, queue_measurements = qp
+
+        queue_size_list = queue_measurements[1]
+        running_time_by_step = queue_measurements[2]
+        test_step_list = queue_measurements[3]
+
+        print("---------------")
+
+        print('batch_size = %d | thread_count = %d' % (batch_size, thread_count))
+        print(test_step_list)
+        print(queue_size_list)
+        print(running_time_by_step)
+        print("---------------")
+
+        # Write out: thread_count, batch_size, test_step, step_running_time, step_queue_size
 
 
 if __name__ == '__main__':
