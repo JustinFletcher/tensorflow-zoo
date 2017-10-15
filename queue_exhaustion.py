@@ -128,7 +128,7 @@ def inputs(train, batch_size, num_epochs, num_threads):
         images, sparse_labels = tf.train.shuffle_batch(
             [image, label],
             batch_size=batch_size,
-            capacity=100.0 + 100.0 * batch_size,
+            capacity=10000.0,
             num_threads=num_threads,
             min_after_dequeue=1)
 
@@ -473,7 +473,8 @@ def measure_queue_rate(batch_size, num_threads):
         coord.join(threads)
         sess.close()
 
-    return([enqueued_count, queue_size_list, running_time_list, test_step_list])
+    return([enqueued_count, queue_size_list,
+            running_time_list, test_step_list])
     # return(net_dequeue_rate_list)
 
 
@@ -531,6 +532,12 @@ def main(_):
     with open(FLAGS.log_dir + '/queue_exhaustion_out.csv', 'wb') as csvfile:
 
         csvwriter = csv.writer(csvfile)
+
+        csvwriter.writerow(['batch_size',
+                            'thread_count',
+                            'step_num',
+                            'queue_size',
+                            'running_time'])
 
         for qp in queue_performance:
 
