@@ -126,7 +126,7 @@ for i, tc in enumerate(df.thread_count.unique()):
 
         run_df = df.loc[(df['batch_size'] == bs) & (df['thread_count'] == tc)]
 
-        print(run_df)
+        # print(run_df)
         # Create some mock data
         t = run_df['step_num']
         s1 = run_df['running_time']
@@ -143,7 +143,10 @@ for i, tc in enumerate(df.thread_count.unique()):
         row_annotation = 'Thread Count = %d' % tc
 
         # Create axes
-        ax = fig.add_subplot(subplot_x_str + subplot_x_str + str(plot_num))
+        
+        ax = fig.add_subplot(len(df.thread_count.unique()),
+                             len(df.batch_size.unique()),
+                             plot_num)
         ax1, ax2 = bar_line_plot(ax, t, s1, s2, 'r', 'b',
                                  min_step_num,
                                  min_running_time,
@@ -159,6 +162,6 @@ for i, tc in enumerate(df.thread_count.unique()):
                                  annotate_row,
                                  row_annotation)
 
-fig.suptitle("TensorFlow Queue Exhaustion on Hokulea", fontsize=14)
+plt.suptitle("TensorFlow Queue Exhaustion on Hokule'a")
 
 plt.show()

@@ -492,9 +492,9 @@ def main(_):
 
     # thread_counts = [1, 2, 4, 8, 16, 32, 64, 128]
 
-    batch_sizes = [8, 16, 32, 64, 128]
+    batch_sizes = [32, 48, 64, 96, 128]
 
-    thread_counts = [8, 12, 16, 32, 48, 64]
+    thread_counts = [16, 32, 48, 64, 96, 128]
 
     for batch_size in batch_sizes:
 
@@ -566,10 +566,10 @@ if __name__ == '__main__':
                         default=False,
                         help='If true, uses fake data for unit testing.')
 
-    parser.add_argument('--max_steps', type=int, default=400,
+    parser.add_argument('--max_steps', type=int, default=800,
                         help='Number of steps to run trainer.')
 
-    parser.add_argument('--test_interval', type=int, default=20,
+    parser.add_argument('--test_interval', type=int, default=40,
                         help='Number of steps between test set evaluations.')
 
     parser.add_argument('--learning_rate', type=float, default=1e-4,
