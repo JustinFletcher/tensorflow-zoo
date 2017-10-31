@@ -309,7 +309,7 @@ class Model(object):
         with tf.name_scope('fully_connected1'):
 
             W_fc1 = self.weight_variable([FLAGS.input_size, 16])
-            b_fc1 = self.bias_variable([FLAGS.hl_size])
+            b_fc1 = self.bias_variable([16])
 
             h_fc1 = tf.nn.relu(tf.matmul(self.stimulus_placeholder, W_fc1) + b_fc1)
             print_tensor_shape(h_fc1, 'FullyConnected1 shape')
