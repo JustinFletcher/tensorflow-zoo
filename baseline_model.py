@@ -308,7 +308,7 @@ class Model(object):
         # Fully-connected layer.
         with tf.name_scope('fully_connected1'):
 
-            W_fc1 = self.weight_variable([FLAGS.input_size, FLAGS.hl_size])
+            W_fc1 = self.weight_variable([FLAGS.input_size, 16])
             b_fc1 = self.bias_variable([FLAGS.hl_size])
 
             h_fc1 = tf.nn.relu(tf.matmul(self.stimulus_placeholder, W_fc1) + b_fc1)
