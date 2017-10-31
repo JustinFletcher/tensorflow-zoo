@@ -322,7 +322,7 @@ class Model(object):
         # Output layer (will be transformed via stable softmax)
         with tf.name_scope('readout'):
 
-            W_fc2 = self.weight_variable([FLAGS.hl_size, FLAGS.label_size])
+            W_fc2 = self.weight_variable([16, FLAGS.label_size])
             b_fc2 = self.bias_variable([FLAGS.label_size])
 
             readout = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
