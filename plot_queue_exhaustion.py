@@ -68,7 +68,7 @@ def bar_line_plot(ax1, time, data1, data2, c1, c2,
     ax2.plot(time, data1, color=c1, alpha=0.75)
 
     if show_ylabel_2:
-        ax2.set_ylabel('Mean Single Batch \n Inference Running Time')
+        ax2.set_ylabel('Mean Single \n Batch Inference \n Running Time')
     else:
         ax2.yaxis.set_ticklabels([])
 
@@ -140,7 +140,7 @@ for i, tc in enumerate(df.thread_count.unique()):
         col_annotation = 'Batch Size = %d' % bs
 
         annotate_row = j == 0
-        row_annotation = 'Thread Count = %d' % tc
+        row_annotation = 'Thread \n Count = %d' % tc
 
         # Create axes
         

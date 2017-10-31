@@ -146,7 +146,8 @@ plt.show()
 number_training = 80
 number_validation = 5
 number_testing = 0
-DP = DataPreparation(DL.images, DL.labels,
+DP = DataPreparation('astrodetection',
+                     DL.images, DL.labels,
                      number_training,
                      number_validation,
                      number_testing,

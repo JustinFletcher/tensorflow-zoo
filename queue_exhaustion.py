@@ -466,8 +466,6 @@ def measure_queue_rate(batch_size, num_threads):
                 loss = sess.run(model.loss)
                 print('Step %d:  loss = %.2f, t = %.6f, total_t = %.2f, ' % (i, loss, i_delta, total_time))
 
-
-
         # Stop the threads.
         coord.request_stop()
         coord.join(threads)
@@ -496,6 +494,7 @@ def main(_):
 
     thread_counts = [16, 32, 48, 64, 96, 128]
 
+    # Experimetnal Loop
     for batch_size in batch_sizes:
 
         for thread_count in thread_counts:

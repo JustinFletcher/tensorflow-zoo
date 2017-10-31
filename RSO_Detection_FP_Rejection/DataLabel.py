@@ -84,6 +84,7 @@ class DataLabel(object):
 
         # Loop over each collect.
         for i in range(len(sorted_datasets_f)):
+        # for collect in collects.
 
             # Frames in each collect.
             frame_stack = sorted_datasets_f[
@@ -100,6 +101,7 @@ class DataLabel(object):
 
             # Loop over the detections in the collect.
             for j in range(len(label)):
+            # for detection in collect. 
 
                 # Chip the frame stack around the mean
                 # RSO centroid.
@@ -150,4 +152,3 @@ class DataLabel(object):
                           + ' continuing')
 
                     break
-
