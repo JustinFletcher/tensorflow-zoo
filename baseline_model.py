@@ -486,6 +486,12 @@ def main(_):
         # Grab an inital batch by running the batch ops.
         train_images, train_labels = sess.run([image_batch, label_batch])
 
+        # Grab an inital batch by running the batch ops.
+        val_images, val_labels = sess.run([val_image_batch, val_label_batch])
+
+        # Grab an inital batch by running the batch ops.
+        train_images, train_labels = sess.run([image_batch, label_batch])
+
         # Iterate until max steps.
         for i in range(FLAGS.max_steps):
 
@@ -517,8 +523,8 @@ def main(_):
                 # Compute error over the training set.
                 train_loss = sess.run(model.loss, train_dict)
 
-                val_dict = {model.stimulus_placeholder: val_image_batch,
-                            model.target_placeholder: val_label_batch,
+                val_dict = {model.stimulus_placeholder: val_images,
+                            model.target_placeholder: val_labels,
                             model.keep_prob: 1.0}
 
                 # Compute error over the validation set.
