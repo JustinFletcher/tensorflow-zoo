@@ -86,7 +86,7 @@ def get_train_batch_ops(batch_size):
             batch_size=batch_size,
             capacity=FLAGS.batch_size,
             num_threads=FLAGS.enqueue_threads,
-            min_after_dequeue=100)
+            min_after_dequeue=10)
 
     return images, sparse_labels
 
@@ -128,7 +128,7 @@ def get_val_batch_ops(batch_size):
             batch_size=batch_size,
             capacity=15000.0,
             num_threads=4,
-            min_after_dequeue=100)
+            min_after_dequeue=10)
 
     return images, sparse_labels
 
