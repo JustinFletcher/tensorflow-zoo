@@ -127,7 +127,7 @@ def get_val_batch_ops(batch_size):
             [image, label],
             batch_size=batch_size,
             capacity=15000.0,
-            num_threads=4,
+            num_threads=FLAGS.enqueue_threads,
             min_after_dequeue=10)
 
     return images, sparse_labels
