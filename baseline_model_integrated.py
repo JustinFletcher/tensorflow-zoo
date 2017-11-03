@@ -187,7 +187,7 @@ class Model(object):
                 batch_size=batch_size,
                 capacity=FLAGS.batch_size,
                 num_threads=FLAGS.enqueue_threads,
-                min_after_dequeue=100)
+                min_after_dequeue=10)
 
         return images, sparse_labels
 
@@ -214,7 +214,7 @@ class Model(object):
                 batch_size=batch_size,
                 capacity=15000.0,
                 num_threads=4,
-                min_after_dequeue=100)
+                min_after_dequeue=10)
 
         return images, sparse_labels
 
