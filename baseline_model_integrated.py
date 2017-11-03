@@ -547,8 +547,12 @@ if __name__ == '__main__':
                         help='Validation dataset filename.')
 
     parser.add_argument('--enqueue_threads', type=int,
-                        default=12,
-                        help='Number of threads to enqueue data examples.')
+                        default=32,
+                        help='Number of threads to enqueue training examples.')
+
+    parser.add_argument('--val_enqueue_threads', type=int,
+                        default=32,
+                        help='Number of threads to enqueue val examples.')
 
     # Parse known arguements.
     FLAGS, unparsed = parser.parse_known_args()
