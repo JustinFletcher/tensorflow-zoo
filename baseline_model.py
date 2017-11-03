@@ -85,7 +85,7 @@ def get_train_batch_ops(batch_size):
             [image, label],
             batch_size=batch_size,
             capacity=FLAGS.batch_size,
-            num_threads=FLAGS.enqueue_threads,
+            num_threads=FLAGS.val_enqueue_threads,
             min_after_dequeue=10)
 
     return images, sparse_labels
@@ -620,8 +620,12 @@ if __name__ == '__main__':
                         help='Validation dataset filename.')
 
     parser.add_argument('--enqueue_threads', type=int,
-                        default=12,
-                        help='Number of threads to enqueue data examples.')
+                        default=32,
+                        help='Number of threads to enqueue training examples.')
+
+    parser.add_argument('--val_enqueue_threads', type=int,
+                        default=32,
+                        help='Number of threads to enqueue val examples.')
 
     # Parse known arguements.
     FLAGS, unparsed = parser.parse_known_args()
