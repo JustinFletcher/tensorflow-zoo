@@ -7,132 +7,6 @@ import functools
 import tensorflow as tf
 
 
-def read_and_decode_image(filename_queue):
-
-    # Instantiate a TFRecord reader.
-    reader = tf.TFRecordReader()
-
-    # Read a single example from the input queue.
-    _, serialized_example = reader.read(filename_queue)
-
-    # Parse that example into features.
-    features = tf.parse_single_example(
-        serialized_example,
-        # Defaults are not specified since both keys are required.
-        features={
-            'image_raw': tf.FixedLenFeature([], tf.string),
-            'label': tf.FixedLenFeature([], tf.int64),
-        })
-
-    # Convert from a scalar string tensor (whose single string has
-    # length mnist.IMAGE_PIXELS) to a uint8 tensor with shape
-    # [mnist.IMAGE_PIXELS].
-    image = tf.decode_raw(features['image_raw'], tf.uint8)
-    image.set_shape([FLAGS.input_size])
-
-    # OPTIONAL: Could reshape into a 28x28 image and apply distortions
-    # here.  Since we are not applying any distortions in this
-    # example, and the next step expects the image to be flattened
-    # into a vector, we don't bother.
-
-    # Convert from [0, 255] -> [-0.5, 0.5] floats.
-    image = tf.cast(image, tf.float32) * (1. / 255) - 0.5
-
-    # Convert label from a scalar uint8 tensor to an int32 scalar.
-    label_batch = features['label']
-
-    label = tf.one_hot(label_batch,
-                       FLAGS.label_size,
-                       on_value=1.0,
-                       off_value=0.0)
-
-    return image, label
-
-
-def get_train_batch_ops(batch_size):
-    """Reads input data num_epochs times.
-
-    Args:
-      batch_size: Number of examples per returned batch.
-
-    Returns:
-      A tuple (images, labels), where:
-      * images is a float tensor with shape [batch_size, mnist.IMAGE_PIXELS]
-        in the range [-0.5, 0.5].
-      * labels is an int32 tensor with shape [batch_size] with the true label,
-        a number in the range [0, mnist.NUM_CLASSES).
-    Note that an tf.train.QueueRunner is added to the graph, which
-    must be run using e.g. tf.train.start_queue_runners().
-    """
-
-    # Set the filename pointing to the data file.
-    filename = os.path.join(FLAGS.data_dir, FLAGS.train_file)
-
-    # Create an input scope for the graph.
-    with tf.name_scope('input'):
-
-        # Produce a queue of files to read from.
-        filename_queue = tf.train.string_input_producer([filename],
-                                                        capacity=1)
-
-        # Even when reading in multiple threads, share the filename queue.
-        image, label = read_and_decode_image(filename_queue)
-
-        # Shuffle the examples and collect them into batch_size batches.
-        # (Internally uses a RandomShuffleQueue.)
-        # We run this in two threads to avoid being a bottleneck.
-        images, sparse_labels = tf.train.shuffle_batch(
-            [image, label],
-            batch_size=batch_size,
-            capacity=FLAGS.batch_size,
-            num_threads=FLAGS.enqueue_threads,
-            min_after_dequeue=100)
-
-    return images, sparse_labels
-
-
-def get_val_batch_ops(batch_size):
-    """Reads input data num_epochs times.
-
-    Args:
-      batch_size: Number of examples per returned batch.
-
-    Returns:
-      A tuple (images, labels), where:
-      * images is a float tensor with shape [batch_size, mnist.IMAGE_PIXELS]
-        in the range [-0.5, 0.5].
-      * labels is an int32 tensor with shape [batch_size] with the true label,
-        a number in the range [0, mnist.NUM_CLASSES).
-    Note that an tf.train.QueueRunner is added to the graph, which
-    must be run using e.g. tf.train.start_queue_runners().
-    """
-
-    # Set the filename pointing to the data file.
-    filename = os.path.join(FLAGS.data_dir, FLAGS.validation_file)
-
-    # Create an input scope for the graph.
-    with tf.name_scope('val_input'):
-
-        # Produce a queue of files to read from.
-        filename_queue = tf.train.string_input_producer([filename],
-                                                        capacity=1)
-
-        # Even when reading in multiple threads, share the filename queue.
-        image, label = read_and_decode_image(filename_queue)
-
-        # Shuffle the examples and collect them into batch_size batches.
-        # (Internally uses a RandomShuffleQueue.)
-        # We run this in two threads to avoid being a bottleneck.
-        images, sparse_labels = tf.train.shuffle_batch(
-            [image, label],
-            batch_size=batch_size,
-            capacity=15000.0,
-            num_threads=4,
-            min_after_dequeue=100)
-
-    return images, sparse_labels
-
-
 def doublewrap(function):
     """
     A decorator decorator, allowing to use the decorator to be used without
@@ -290,6 +164,59 @@ class Model(object):
 
         return image, label
 
+    def get_train_batch_ops(self, batch_size):
+
+        # Set the filename pointing to the data file.
+        filename = os.path.join(FLAGS.data_dir, FLAGS.train_file)
+
+        # Create an input scope for the graph.
+        with tf.name_scope('input'):
+
+            # Produce a queue of files to read from.
+            filename_queue = tf.train.string_input_producer([filename],
+                                                            capacity=1)
+
+            # Even when reading in multiple threads, share the filename queue.
+            image, label = self.read_and_decode_mnist(filename_queue)
+
+            # Shuffle the examples and collect them into batch_size batches.
+            # (Internally uses a RandomShuffleQueue.)
+            # We run this in two threads to avoid being a bottleneck.
+            images, sparse_labels = tf.train.shuffle_batch(
+                [image, label],
+                batch_size=batch_size,
+                capacity=FLAGS.batch_size,
+                num_threads=FLAGS.enqueue_threads,
+                min_after_dequeue=100)
+
+        return images, sparse_labels
+
+    def get_val_batch_ops(self, batch_size):
+
+        # Set the filename pointing to the data file.
+        filename = os.path.join(FLAGS.data_dir, FLAGS.validation_file)
+
+        # Create an input scope for the graph.
+        with tf.name_scope('val_input'):
+
+            # Produce a queue of files to read from.
+            filename_queue = tf.train.string_input_producer([filename],
+                                                            capacity=1)
+
+            # Even when reading in multiple threads, share the filename queue.
+            image, label = self.read_and_decode_mnist(filename_queue)
+
+            # Shuffle the examples and collect them into batch_size batches.
+            # (Internally uses a RandomShuffleQueue.)
+            # We run this in two threads to avoid being a bottleneck.
+            images, sparse_labels = tf.train.shuffle_batch(
+                [image, label],
+                batch_size=batch_size,
+                capacity=15000.0,
+                num_threads=4,
+                min_after_dequeue=100)
+
+        return images, sparse_labels
 
     @define_scope(initializer=tf.contrib.slim.xavier_initializer())
     def inference(self, input=None):
@@ -452,10 +379,10 @@ def main(_):
     model = Model(FLAGS.input_size, FLAGS.label_size)
 
     # Get input data.
-    image_batch, label_batch = get_train_batch_ops(batch_size=FLAGS.batch_size)
+    image_batch, label_batch = model.get_train_batch_ops(batch_size=FLAGS.batch_size)
 
     (val_image_batch,
-     val_label_batch) = get_val_batch_ops(batch_size=FLAGS.val_batch_size)
+     val_label_batch) = model.get_val_batch_ops(batch_size=FLAGS.val_batch_size)
 
     tf.summary.merge_all()
 

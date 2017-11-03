@@ -199,10 +199,23 @@ class Model(object):
         self.keep_prob = tf.placeholder(tf.float32)
 
         self.learning_rate = FLAGS.learning_rate
+        self.get_train_batch_ops
+        self.get_val_batch_ops
+
+        self.stimulus_placeholder = tf.placeholder(tf.float32,
+                                                   [None, input_size])
+
+        self.target_placeholder = tf.placeholder(tf.int32,
+                                                 [None, label_size])
+
         self.inference
         self.loss
+        self.training_loss
+        self.val_loss
         self.optimize
         self.error
+        self.training_error
+        self.val_error
 
     def variable_summaries(self, var):
         """Attach a lot of summaries to a Tensor
@@ -290,6 +303,87 @@ class Model(object):
 
         return image, label
 
+    def get_train_batch_ops(self, batch_size):
+        """Reads input data num_epochs times.
+
+        Args:
+          batch_size: Number of examples per returned batch.
+
+        Returns:
+          A tuple (images, labels), where:
+          * images is a float tensor with shape [batch_size, mnist.IMAGE_PIXELS]
+            in the range [-0.5, 0.5].
+          * labels is an int32 tensor with shape [batch_size] with the true label,
+            a number in the range [0, mnist.NUM_CLASSES).
+        Note that an tf.train.QueueRunner is added to the graph, which
+        must be run using e.g. tf.train.start_queue_runners().
+        """
+
+        # Set the filename pointing to the data file.
+        filename = os.path.join(FLAGS.data_dir, FLAGS.train_file)
+
+        # Create an input scope for the graph.
+        with tf.name_scope('input'):
+
+            # Produce a queue of files to read from.
+            filename_queue = tf.train.string_input_producer([filename],
+                                                            capacity=1)
+
+            # Even when reading in multiple threads, share the filename queue.
+            image, label = self.read_and_decode_mnist(filename_queue)
+
+            # Shuffle the examples and collect them into batch_size batches.
+            # (Internally uses a RandomShuffleQueue.)
+            # We run this in two threads to avoid being a bottleneck.
+            images, sparse_labels = tf.train.shuffle_batch(
+                [image, label],
+                batch_size=batch_size,
+                capacity=FLAGS.batch_size,
+                num_threads=FLAGS.enqueue_threads,
+                min_after_dequeue=100)
+
+        return images, sparse_labels
+
+    def get_val_batch_ops(self, batch_size):
+        """Reads input data num_epochs times.
+
+        Args:
+          batch_size: Number of examples per returned batch.
+
+        Returns:
+          A tuple (images, labels), where:
+          * images is a float tensor with shape [batch_size, mnist.IMAGE_PIXELS]
+            in the range [-0.5, 0.5].
+          * labels is an int32 tensor with shape [batch_size] with the true label,
+            a number in the range [0, mnist.NUM_CLASSES).
+        Note that an tf.train.QueueRunner is added to the graph, which
+        must be run using e.g. tf.train.start_queue_runners().
+        """
+
+        # Set the filename pointing to the data file.
+        filename = os.path.join(FLAGS.data_dir, FLAGS.validation_file)
+
+        # Create an input scope for the graph.
+        with tf.name_scope('val_input'):
+
+            # Produce a queue of files to read from.
+            filename_queue = tf.train.string_input_producer([filename],
+                                                            capacity=1)
+
+            # Even when reading in multiple threads, share the filename queue.
+            image, label = read_and_decode_image(filename_queue)
+
+            # Shuffle the examples and collect them into batch_size batches.
+            # (Internally uses a RandomShuffleQueue.)
+            # We run this in two threads to avoid being a bottleneck.
+            images, sparse_labels = tf.train.shuffle_batch(
+                [image, label],
+                batch_size=batch_size,
+                capacity=15000.0,
+                num_threads=4,
+                min_after_dequeue=100)
+
+        return images, sparse_labels
 
     @define_scope(initializer=tf.contrib.slim.xavier_initializer())
     def inference(self, input=None):
@@ -399,7 +493,8 @@ class Model(object):
 
         # Compute the cross entropy.
         xe = tf.nn.softmax_cross_entropy_with_logits(
-            labels=self.target_placeholder, logits=self.inference,
+            labels=self.target_placeholder,
+            logits=self.inference,
             name='xentropy')
 
         # Take the mean of the cross entropy.
@@ -408,18 +503,35 @@ class Model(object):
         return(loss)
 
     @define_scope
-    def optimize(self):
+    def training_loss(self, batch_size=1):
 
-        # Compute the cross entropy.
-        xe = tf.nn.softmax_cross_entropy_with_logits(
-            labels=self.target_placeholder, logits=self.inference,
-            name='xentropy')
+        self.stimulus_placeholder, self.target_placeholder = self.get_train_batch_ops(batch_size)
 
-        # Take the mean of the cross entropy.
-        loss = tf.reduce_mean(xe, name='xentropy_mean')
+        return(self.loss)
+
+    @define_scope
+    def val_loss(self, batch_size=1):
+
+        self.stimulus_placeholder, self.target_placeholder = self.get_val_batch_ops(batch_size)
+
+        return(self.loss)
+
+    @define_scope
+    def optimize(self, batch_size=1):
+
+        # self.stimulus_placeholder, self.target_placeholder = self.get_train_batch_ops(batch_size)
+
+        # # Compute the cross entropy.
+        # xe = tf.nn.softmax_cross_entropy_with_logits(
+        #     labels=self.target_placeholder,
+        #     logits=self.inference,
+        #     name='xentropy')
+
+        # # Take the mean of the cross entropy.
+        # loss = tf.reduce_mean(xe, name='xentropy_mean')
 
         # Minimize the loss by incrementally changing trainable variables.
-        return tf.train.AdamOptimizer(self.learning_rate).minimize(loss)
+        return tf.train.AdamOptimizer(self.learning_rate).minimize(self.training_loss)
 
     @define_scope
     def error(self):
@@ -429,6 +541,20 @@ class Model(object):
         error = tf.reduce_mean(tf.cast(mistakes, tf.float32))
         # tf.summary.scalar('error', error)
         return(error)
+
+    @define_scope
+    def training_error(self, batch_size=1):
+
+        self.stimulus_placeholder, self.target_placeholder = self.get_train_batch_ops(batch_size)
+
+        return(self.error)
+
+    @define_scope
+    def val_error(self, batch_size=1):
+
+        self.stimulus_placeholder, self.target_placeholder = self.get_val_batch_ops(batch_size)
+
+        return(self.error)
 
 
 def main(_):
@@ -480,10 +606,13 @@ def main(_):
                val_error | t | total_time')
 
         # Grab an inital batch by running the batch ops.
-        train_images, train_labels = sess.run([image_batch, label_batch])
+        # train_images, train_labels = sess.run([image_batch, label_batch])
 
-        # Grab an inital batch by running the batch ops.
-        val_images, val_labels = sess.run([val_image_batch, val_label_batch])
+        # # Grab an inital batch by running the batch ops.
+        # val_images, val_labels = sess.run([val_image_batch, val_label_batch])
+
+        # # Grab an inital batch by running the batch ops.
+        # train_images, train_labels = sess.run([image_batch, label_batch])
 
         # Iterate until max steps.
         for i in range(FLAGS.max_steps):
@@ -505,26 +634,26 @@ def main(_):
             # If we have reached a testing interval, test.
             if i % FLAGS.test_interval == 0:
 
-                # Grab the train dictionary.
-                train_dict = {model.stimulus_placeholder: train_images,
-                              model.target_placeholder: train_labels,
-                              model.keep_prob: 1.0}
+                # # Grab the train dictionary.
+                # train_dict = {model.stimulus_placeholder: train_images,
+                #               model.target_placeholder: train_labels,
+                #               model.keep_prob: 1.0}
 
                 # Compute error over the training set.
-                train_error = sess.run(model.error, train_dict)
+                train_error = sess.run(model.training_error)
 
                 # Compute error over the training set.
-                train_loss = sess.run(model.loss, train_dict)
+                train_loss = sess.run(model.training_loss)
 
-                val_dict = {model.stimulus_placeholder: val_images,
-                            model.target_placeholder: val_labels,
-                            model.keep_prob: 1.0}
-
-                # Compute error over the validation set.
-                val_error = sess.run(model.error, val_dict)
+                # val_dict = {model.stimulus_placeholder: val_images,
+                #             model.target_placeholder: val_labels,
+                #             model.keep_prob: 1.0}
 
                 # Compute error over the validation set.
-                val_loss = sess.run(model.loss, val_dict)
+                val_error = sess.run(model.val_error)
+
+                # Compute error over the validation set.
+                val_loss = sess.run(model.loss)
 
                 steps.append(i)
                 train_losses.append(train_loss)
@@ -540,11 +669,12 @@ def main(_):
 
                 # Grab a batch
                 # images, labels = mnist.train.next_batch(FLAGS.batch_size)
-                train_dict = {model.stimulus_placeholder: train_images,
-                              model.target_placeholder: train_labels,
-                              model.keep_prob: FLAGS.keep_prob}
+                # train_dict = {model.stimulus_placeholder: train_images,
+                #               model.target_placeholder: train_labels,
+                #               model.keep_prob: FLAGS.keep_prob}
 
-                sess.run(model.optimize, feed_dict=train_dict)
+                # sess.run(model.optimize, feed_dict=train_dict)
+                sess.run(model.optimize)
 
                 # train_writer.add_summary(summary, i)
 
