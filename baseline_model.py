@@ -7,132 +7,6 @@ import functools
 import tensorflow as tf
 
 
-def read_and_decode_image(filename_queue):
-
-    # Instantiate a TFRecord reader.
-    reader = tf.TFRecordReader()
-
-    # Read a single example from the input queue.
-    _, serialized_example = reader.read(filename_queue)
-
-    # Parse that example into features.
-    features = tf.parse_single_example(
-        serialized_example,
-        # Defaults are not specified since both keys are required.
-        features={
-            'image_raw': tf.FixedLenFeature([], tf.string),
-            'label': tf.FixedLenFeature([], tf.int64),
-        })
-
-    # Convert from a scalar string tensor (whose single string has
-    # length mnist.IMAGE_PIXELS) to a uint8 tensor with shape
-    # [mnist.IMAGE_PIXELS].
-    image = tf.decode_raw(features['image_raw'], tf.uint8)
-    image.set_shape([FLAGS.input_size])
-
-    # OPTIONAL: Could reshape into a 28x28 image and apply distortions
-    # here.  Since we are not applying any distortions in this
-    # example, and the next step expects the image to be flattened
-    # into a vector, we don't bother.
-
-    # Convert from [0, 255] -> [-0.5, 0.5] floats.
-    image = tf.cast(image, tf.float32) * (1. / 255) - 0.5
-
-    # Convert label from a scalar uint8 tensor to an int32 scalar.
-    label_batch = features['label']
-
-    label = tf.one_hot(label_batch,
-                       FLAGS.label_size,
-                       on_value=1.0,
-                       off_value=0.0)
-
-    return image, label
-
-
-def get_train_batch_ops(batch_size):
-    """Reads input data num_epochs times.
-
-    Args:
-      batch_size: Number of examples per returned batch.
-
-    Returns:
-      A tuple (images, labels), where:
-      * images is a float tensor with shape [batch_size, mnist.IMAGE_PIXELS]
-        in the range [-0.5, 0.5].
-      * labels is an int32 tensor with shape [batch_size] with the true label,
-        a number in the range [0, mnist.NUM_CLASSES).
-    Note that an tf.train.QueueRunner is added to the graph, which
-    must be run using e.g. tf.train.start_queue_runners().
-    """
-
-    # Set the filename pointing to the data file.
-    filename = os.path.join(FLAGS.data_dir, FLAGS.train_file)
-
-    # Create an input scope for the graph.
-    with tf.name_scope('input'):
-
-        # Produce a queue of files to read from.
-        filename_queue = tf.train.string_input_producer([filename],
-                                                        capacity=1)
-
-        # Even when reading in multiple threads, share the filename queue.
-        image, label = read_and_decode_image(filename_queue)
-
-        # Shuffle the examples and collect them into batch_size batches.
-        # (Internally uses a RandomShuffleQueue.)
-        # We run this in two threads to avoid being a bottleneck.
-        images, sparse_labels = tf.train.shuffle_batch(
-            [image, label],
-            batch_size=batch_size,
-            capacity=FLAGS.batch_size,
-            num_threads=FLAGS.val_enqueue_threads,
-            min_after_dequeue=10)
-
-    return images, sparse_labels
-
-
-def get_val_batch_ops(batch_size):
-    """Reads input data num_epochs times.
-
-    Args:
-      batch_size: Number of examples per returned batch.
-
-    Returns:
-      A tuple (images, labels), where:
-      * images is a float tensor with shape [batch_size, mnist.IMAGE_PIXELS]
-        in the range [-0.5, 0.5].
-      * labels is an int32 tensor with shape [batch_size] with the true label,
-        a number in the range [0, mnist.NUM_CLASSES).
-    Note that an tf.train.QueueRunner is added to the graph, which
-    must be run using e.g. tf.train.start_queue_runners().
-    """
-
-    # Set the filename pointing to the data file.
-    filename = os.path.join(FLAGS.data_dir, FLAGS.validation_file)
-
-    # Create an input scope for the graph.
-    with tf.name_scope('val_input'):
-
-        # Produce a queue of files to read from.
-        filename_queue = tf.train.string_input_producer([filename],
-                                                        capacity=1)
-
-        # Even when reading in multiple threads, share the filename queue.
-        image, label = read_and_decode_image(filename_queue)
-
-        # Shuffle the examples and collect them into batch_size batches.
-        # (Internally uses a RandomShuffleQueue.)
-        # We run this in two threads to avoid being a bottleneck.
-        images, sparse_labels = tf.train.shuffle_batch(
-            [image, label],
-            batch_size=batch_size,
-            capacity=15000.0,
-            num_threads=FLAGS.enqueue_threads,
-            min_after_dequeue=10)
-
-    return images, sparse_labels
-
-
 def doublewrap(function):
     """
     A decorator decorator, allowing to use the decorator to be used without
@@ -290,6 +164,59 @@ class Model(object):
 
         return image, label
 
+    def get_train_batch_ops(self, batch_size):
+
+        # Set the filename pointing to the data file.
+        filename = os.path.join(FLAGS.data_dir, FLAGS.train_file)
+
+        # Create an input scope for the graph.
+        with tf.name_scope('input'):
+
+            # Produce a queue of files to read from.
+            filename_queue = tf.train.string_input_producer([filename],
+                                                            capacity=1)
+
+            # Even when reading in multiple threads, share the filename queue.
+            image, label = self.read_and_decode_mnist(filename_queue)
+
+            # Shuffle the examples and collect them into batch_size batches.
+            # (Internally uses a RandomShuffleQueue.)
+            # We run this in two threads to avoid being a bottleneck.
+            images, sparse_labels = tf.train.shuffle_batch(
+                [image, label],
+                batch_size=batch_size,
+                capacity=FLAGS.batch_size,
+                num_threads=FLAGS.enqueue_threads,
+                min_after_dequeue=10)
+
+        return images, sparse_labels
+
+    def get_val_batch_ops(self, batch_size):
+
+        # Set the filename pointing to the data file.
+        filename = os.path.join(FLAGS.data_dir, FLAGS.validation_file)
+
+        # Create an input scope for the graph.
+        with tf.name_scope('val_input'):
+
+            # Produce a queue of files to read from.
+            filename_queue = tf.train.string_input_producer([filename],
+                                                            capacity=1)
+
+            # Even when reading in multiple threads, share the filename queue.
+            image, label = self.read_and_decode_mnist(filename_queue)
+
+            # Shuffle the examples and collect them into batch_size batches.
+            # (Internally uses a RandomShuffleQueue.)
+            # We run this in two threads to avoid being a bottleneck.
+            images, sparse_labels = tf.train.shuffle_batch(
+                [image, label],
+                batch_size=batch_size,
+                capacity=20000.0,
+                num_threads=FLAGS.val_enqueue_threads,
+                min_after_dequeue=10)
+
+        return images, sparse_labels
 
     @define_scope(initializer=tf.contrib.slim.xavier_initializer())
     def inference(self, input=None):
@@ -452,18 +379,15 @@ def main(_):
     model = Model(FLAGS.input_size, FLAGS.label_size)
 
     # Get input data.
-    image_batch, label_batch = get_train_batch_ops(batch_size=FLAGS.batch_size)
+    image_batch, label_batch = model.get_train_batch_ops(batch_size=FLAGS.batch_size)
 
     (val_image_batch,
-     val_label_batch) = get_val_batch_ops(batch_size=FLAGS.val_batch_size)
+     val_label_batch) = model.get_val_batch_ops(batch_size=FLAGS.val_batch_size)
 
     tf.summary.merge_all()
 
-    # init_op = [tf.global_variables_initializer()]
-
     # Instantiate a session and initialize it.
     sv = tf.train.Supervisor(logdir=FLAGS.log_dir, save_summaries_secs=10.0)
-    # sess = sv.managed_session()
 
     with sv.managed_session() as sess:
 
@@ -479,33 +403,24 @@ def main(_):
         print('step | train_loss | train_error | val_loss | \
                val_error | t | total_time')
 
-        # Grab an inital batch by running the batch ops.
-        train_images, train_labels = sess.run([image_batch, label_batch])
-
-        # Grab an inital batch by running the batch ops.
+        # Load the validation set batch into memory.
         val_images, val_labels = sess.run([val_image_batch, val_label_batch])
 
         # Iterate until max steps.
         for i in range(FLAGS.max_steps):
 
-            # Hack the start time.
-            i_start = time.time()
-
             # Check for break.
             if sv.should_stop():
                 break
 
-            # If it is a batch refresh interval, refresh the batch.
-            if(i % FLAGS.batch_interval == 0):
-
-                # Update the batch.
-                train_images, train_labels = sess.run([image_batch,
-                                                       label_batch])
-
             # If we have reached a testing interval, test.
             if i % FLAGS.test_interval == 0:
 
-                # Grab the train dictionary.
+                # Update the batch, so as to not underestimate the train error.
+                train_images, train_labels = sess.run([image_batch,
+                                                       label_batch])
+
+                # Make a dict to load the batch onto the placeholders.
                 train_dict = {model.stimulus_placeholder: train_images,
                               model.target_placeholder: train_labels,
                               model.keep_prob: 1.0}
@@ -513,9 +428,10 @@ def main(_):
                 # Compute error over the training set.
                 train_error = sess.run(model.error, train_dict)
 
-                # Compute error over the training set.
+                # Compute loss over the training set.
                 train_loss = sess.run(model.loss, train_dict)
 
+                # Make a dict to load the val batch onto the placeholders.
                 val_dict = {model.stimulus_placeholder: val_images,
                             model.target_placeholder: val_labels,
                             model.keep_prob: 1.0}
@@ -523,9 +439,10 @@ def main(_):
                 # Compute error over the validation set.
                 val_error = sess.run(model.error, val_dict)
 
-                # Compute error over the validation set.
+                # Compute loss over the validation set.
                 val_loss = sess.run(model.loss, val_dict)
 
+                # Store the data we wish to manually report.
                 steps.append(i)
                 train_losses.append(train_loss)
                 val_losses.append(val_loss)
@@ -535,18 +452,25 @@ def main(_):
 
                 print('%d | %.6f | %.2f | %.6f | %.2f | %.6f | %.2f' % print_tuple)
 
-            # Iterate, training the network.
-            else:
+            # Hack the start time.
+            i_start = time.time()
 
-                # Grab a batch
-                # images, labels = mnist.train.next_batch(FLAGS.batch_size)
-                train_dict = {model.stimulus_placeholder: train_images,
-                              model.target_placeholder: train_labels,
-                              model.keep_prob: FLAGS.keep_prob}
+            # If it is a batch refresh interval, refresh the batch.
+            if((i % FLAGS.batch_interval == 0) or (i == 0)):
 
-                sess.run(model.optimize, feed_dict=train_dict)
+                # Update the batch.
+                train_images, train_labels = sess.run([image_batch,
+                                                       label_batch])
 
-                # train_writer.add_summary(summary, i)
+            # Make a dict to load the batch onto the placeholders.
+            train_dict = {model.stimulus_placeholder: train_images,
+                          model.target_placeholder: train_labels,
+                          model.keep_prob: FLAGS.keep_prob}
+
+            # Run a single step of the model.
+            sess.run(model.optimize, feed_dict=train_dict)
+
+            # train_writer.add_summary(summary, i)
 
             i_stop = time.time()
             i_delta = i_stop - i_start
