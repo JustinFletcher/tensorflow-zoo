@@ -225,100 +225,100 @@ class Model(object):
         output: tensor of computed logits
         '''
         # ###############################
-        print_tensor_shape(self.stimulus_placeholder, 'images shape')
-        print_tensor_shape(self.target_placeholder, 'label shape')
-
-        # Fully-connected layer.
-        with tf.name_scope('fully_connected1'):
-
-            W_fc1 = self.weight_variable([FLAGS.input_size, 16])
-            b_fc1 = self.bias_variable([16])
-
-            h_fc1 = tf.nn.relu(tf.matmul(self.stimulus_placeholder, W_fc1) + b_fc1)
-            print_tensor_shape(h_fc1, 'FullyConnected1 shape')
-
-        # Dropout layer.
-        with tf.name_scope('dropout'):
-
-            h_fc1_drop = tf.nn.dropout(h_fc1, self.keep_prob)
-
-        # Output layer (will be transformed via stable softmax)
-        with tf.name_scope('readout'):
-
-            W_fc2 = self.weight_variable([16, FLAGS.label_size])
-            b_fc2 = self.bias_variable([FLAGS.label_size])
-
-            readout = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
-            print_tensor_shape(readout, 'readout shape')
-
-        return readout
-        ###############################
-
         # print_tensor_shape(self.stimulus_placeholder, 'images shape')
         # print_tensor_shape(self.target_placeholder, 'label shape')
 
-        # # resize the image tensors to add channels, 1 in this case
-        # # required to pass the images to various layers upcoming in the graph
-        # images_re = tf.reshape(self.stimulus_placeholder, [-1, 28, 28, 1])
-        # print_tensor_shape(images_re, 'reshaped images shape')
-
-        # # Convolution layer.
-        # with tf.name_scope('Conv1'):
-
-        #     # weight variable 4d tensor, first two dims are patch (kernel) size
-        #     # 3rd dim is number of input channels, 4th dim is output channels
-        #     W_conv1 = self.weight_variable([5, 5, 1, 32])
-        #     b_conv1 = self.bias_variable([32])
-        #     h_conv1 = tf.nn.relu(self.conv2d(images_re, W_conv1) + b_conv1)
-        #     print_tensor_shape(h_conv1, 'Conv1 shape')
-
-        # # Pooling layer.
-        # with tf.name_scope('Pool1'):
-
-        #     h_pool1 = self.max_pool_2x2(h_conv1)
-        #     print_tensor_shape(h_pool1, 'MaxPool1 shape')
-
-        # # Conv layer.
-        # with tf.name_scope('Conv2'):
-
-        #     W_conv2 = self.weight_variable([5, 5, 32, 64])
-        #     b_conv2 = self.bias_variable([64])
-        #     h_conv2 = tf.nn.relu(self.conv2d(h_pool1, W_conv2) + b_conv2)
-        #     print_tensor_shape(h_conv2, 'Conv2 shape')
-
-        # # Pooling layer.
-        # with tf.name_scope('Pool2'):
-
-        #     h_pool2 = self.max_pool_2x2(h_conv2)
-        #     print_tensor_shape(h_pool2, 'MaxPool2 shape')
-
-        # # Fully-connected layer.
+        # Fully-connected layer.
         # with tf.name_scope('fully_connected1'):
 
-        #     h_pool2_flat = tf.reshape(h_pool2, [-1, 7 * 7 * 64])
-        #     print_tensor_shape(h_pool2_flat, 'MaxPool2_flat shape')
+        #     W_fc1 = self.weight_variable([FLAGS.input_size, 16])
+        #     b_fc1 = self.bias_variable([16])
 
-        #     W_fc1 = self.weight_variable([7 * 7 * 64, 1024])
-        #     b_fc1 = self.bias_variable([1024])
-
-        #     h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
+        #     h_fc1 = tf.nn.relu(tf.matmul(self.stimulus_placeholder, W_fc1) + b_fc1)
         #     print_tensor_shape(h_fc1, 'FullyConnected1 shape')
 
         # # Dropout layer.
         # with tf.name_scope('dropout'):
 
-        #     h_fc1_drop = tf.nn.dropout(h_fc1, FLAGS.keep_prob)
+        #     h_fc1_drop = tf.nn.dropout(h_fc1, self.keep_prob)
 
         # # Output layer (will be transformed via stable softmax)
         # with tf.name_scope('readout'):
 
-        #     W_fc2 = self.weight_variable([1024, 10])
-        #     b_fc2 = self.bias_variable([10])
+        #     W_fc2 = self.weight_variable([16, FLAGS.label_size])
+        #     b_fc2 = self.bias_variable([FLAGS.label_size])
 
         #     readout = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
         #     print_tensor_shape(readout, 'readout shape')
 
         # return readout
+        ###############################
+
+        print_tensor_shape(self.stimulus_placeholder, 'images shape')
+        print_tensor_shape(self.target_placeholder, 'label shape')
+
+        # resize the image tensors to add channels, 1 in this case
+        # required to pass the images to various layers upcoming in the graph
+        images_re = tf.reshape(self.stimulus_placeholder, [-1, 28, 28, 1])
+        print_tensor_shape(images_re, 'reshaped images shape')
+
+        # Convolution layer.
+        with tf.name_scope('Conv1'):
+
+            # weight variable 4d tensor, first two dims are patch (kernel) size
+            # 3rd dim is number of input channels, 4th dim is output channels
+            W_conv1 = self.weight_variable([5, 5, 1, 32])
+            b_conv1 = self.bias_variable([32])
+            h_conv1 = tf.nn.relu(self.conv2d(images_re, W_conv1) + b_conv1)
+            print_tensor_shape(h_conv1, 'Conv1 shape')
+
+        # Pooling layer.
+        with tf.name_scope('Pool1'):
+
+            h_pool1 = self.max_pool_2x2(h_conv1)
+            print_tensor_shape(h_pool1, 'MaxPool1 shape')
+
+        # Conv layer.
+        with tf.name_scope('Conv2'):
+
+            W_conv2 = self.weight_variable([5, 5, 32, 64])
+            b_conv2 = self.bias_variable([64])
+            h_conv2 = tf.nn.relu(self.conv2d(h_pool1, W_conv2) + b_conv2)
+            print_tensor_shape(h_conv2, 'Conv2 shape')
+
+        # Pooling layer.
+        with tf.name_scope('Pool2'):
+
+            h_pool2 = self.max_pool_2x2(h_conv2)
+            print_tensor_shape(h_pool2, 'MaxPool2 shape')
+
+        # Fully-connected layer.
+        with tf.name_scope('fully_connected1'):
+
+            h_pool2_flat = tf.reshape(h_pool2, [-1, 7 * 7 * 64])
+            print_tensor_shape(h_pool2_flat, 'MaxPool2_flat shape')
+
+            W_fc1 = self.weight_variable([7 * 7 * 64, 1024])
+            b_fc1 = self.bias_variable([1024])
+
+            h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
+            print_tensor_shape(h_fc1, 'FullyConnected1 shape')
+
+        # Dropout layer.
+        with tf.name_scope('dropout'):
+
+            h_fc1_drop = tf.nn.dropout(h_fc1, FLAGS.keep_prob)
+
+        # Output layer (will be transformed via stable softmax)
+        with tf.name_scope('readout'):
+
+            W_fc2 = self.weight_variable([1024, 10])
+            b_fc2 = self.bias_variable([10])
+
+            readout = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
+            print_tensor_shape(readout, 'readout shape')
+
+        return readout
         ###############################
 
     @define_scope
@@ -507,7 +507,7 @@ if __name__ == '__main__':
                         help='Directory from which to pull data.')
 
     parser.add_argument('--log_dir', type=str,
-                        default='../log/standard_model/',
+                        default='../log/baseline_model/',
                         help='Summaries log directory.')
 
     parser.add_argument('--batch_size', type=int,
