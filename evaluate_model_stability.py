@@ -157,18 +157,19 @@ def main(_):
 
     reps = range(5)
     thread_counts = [16, 32, 64]
-    batch_sizes = [8, 16, 32, 64]
+    batch_sizes = [16, 32, 64]
     batch_intervals = [1, 2, 3, 4]
 
-    for exp_parameters in itertools.product(thread_counts,
-                                            batch_sizes,
-                                            batch_intervals):
+    experimental_configurations = itertools.product(thread_counts,
+                                                    batch_sizes,
+                                                    batch_intervals)
 
-        results = generalization_experiment(exp_parameters)
+    # Iterate over each experimental configu
+    for experimental_configuration in experimental_configurations:
 
-        experimental_outputs.append([exp_parameters, results])
+        results = generalization_experiment(experimental_configuration)
 
-        print(results)
+        experimental_outputs.append([experimental_configuration, results])
 
     # Accomodate Python 3+
     # with open(FLAGS.log_dir + '/sa_generalization_out.csv', 'w') as csvfile:
@@ -187,21 +188,26 @@ def main(_):
                             'val_loss',
                             'mean_running_time'])
 
+        # Iterate over each output.
         for o in experimental_outputs:
 
-            exp_parameters, results = o
+            experimental_configuration, results = o
 
-            thread_count, batch_size, batch_interval = exp_parameters
+            # Unpack the experimental configuration.
+            thread_count,
+            batch_size,
+            batch_interval = experimental_configuration
 
+            # Unpack the cooresponding results.
             steps, train_losses, val_losses, mean_running_times = results
 
-            print('entering step loop')
-
+            # Iterate over the results vectors for each config.
             for (step, tl, vl, mrt) in zip(steps,
                                            train_losses,
                                            val_losses,
                                            mean_running_times):
 
+                # Write the data to a csv.
                 csvwriter.writerow([thread_count,
                                     batch_size,
                                     batch_interval,
@@ -209,7 +215,6 @@ def main(_):
                                     tl,
                                     vl,
                                     mrt])
-    # Create a process pool, and run the each exeriment through it.
 
 
 if __name__ == '__main__':
