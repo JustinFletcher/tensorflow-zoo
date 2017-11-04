@@ -61,9 +61,21 @@ def print_tensor_shape(tensor, string):
 
 class Model(object):
 
-    def __init__(self, input_size, label_size):
+    def __init__(self, input_size, label_size, learning_rate,
+                 enqueue_threads, val_enqueue_threads, data_dir,
+                 train_file, validation_file):
 
-        # Build placeholders for the input and desired response.
+        # Internalize instantiation parameters
+        self.label_size = label_size
+        self.input_size = input_size
+        self.enqueue_threads = enqueue_threads
+        self.val_enqueue_threads = val_enqueue_threads
+        self.learning_rate = learning_rate
+        self.data_dir = data_dir
+        self.train_file = train_file
+        self.validation_file = validation_file
+
+        # Build placeholders values which change during execution.
         self.stimulus_placeholder = tf.placeholder(tf.float32,
                                                    [None, input_size])
 
@@ -72,7 +84,7 @@ class Model(object):
 
         self.keep_prob = tf.placeholder(tf.float32)
 
-        self.learning_rate = FLAGS.learning_rate
+        # Register instance methods, building the computational graph.
         self.inference
         self.loss
         self.optimize
@@ -144,7 +156,7 @@ class Model(object):
         # length mnist.IMAGE_PIXELS) to a uint8 tensor with shape
         # [mnist.IMAGE_PIXELS].
         image = tf.decode_raw(features['image_raw'], tf.uint8)
-        image.set_shape([FLAGS.input_size])
+        image.set_shape([self.input_size])
 
         # OPTIONAL: Could reshape into a 28x28 image and apply distortions
         # here.  Since we are not applying any distortions in this
@@ -158,7 +170,7 @@ class Model(object):
         label_batch = features['label']
 
         label = tf.one_hot(label_batch,
-                           FLAGS.label_size,
+                           self.label_size,
                            on_value=1.0,
                            off_value=0.0)
 
@@ -167,7 +179,7 @@ class Model(object):
     def get_train_batch_ops(self, batch_size):
 
         # Set the filename pointing to the data file.
-        filename = os.path.join(FLAGS.data_dir, FLAGS.train_file)
+        filename = os.path.join(self.data_dir, self.train_file)
 
         # Create an input scope for the graph.
         with tf.name_scope('input'):
@@ -185,8 +197,8 @@ class Model(object):
             images, sparse_labels = tf.train.shuffle_batch(
                 [image, label],
                 batch_size=batch_size,
-                capacity=FLAGS.batch_size,
-                num_threads=FLAGS.enqueue_threads,
+                capacity=10000.0,
+                num_threads=self.enqueue_threads,
                 min_after_dequeue=10)
 
         return images, sparse_labels
@@ -194,7 +206,7 @@ class Model(object):
     def get_val_batch_ops(self, batch_size):
 
         # Set the filename pointing to the data file.
-        filename = os.path.join(FLAGS.data_dir, FLAGS.validation_file)
+        filename = os.path.join(self.data_dir, self.validation_file)
 
         # Create an input scope for the graph.
         with tf.name_scope('val_input'):
@@ -213,7 +225,7 @@ class Model(object):
                 [image, label],
                 batch_size=batch_size,
                 capacity=20000.0,
-                num_threads=FLAGS.val_enqueue_threads,
+                num_threads=self.val_enqueue_threads,
                 min_after_dequeue=10)
 
         return images, sparse_labels
@@ -231,7 +243,7 @@ class Model(object):
         # Fully-connected layer.
         # with tf.name_scope('fully_connected1'):
 
-        #     W_fc1 = self.weight_variable([FLAGS.input_size, 16])
+        #     W_fc1 = self.weight_variable([self.input_size, 16])
         #     b_fc1 = self.bias_variable([16])
 
         #     h_fc1 = tf.nn.relu(tf.matmul(self.stimulus_placeholder, W_fc1) + b_fc1)
@@ -245,8 +257,8 @@ class Model(object):
         # # Output layer (will be transformed via stable softmax)
         # with tf.name_scope('readout'):
 
-        #     W_fc2 = self.weight_variable([16, FLAGS.label_size])
-        #     b_fc2 = self.bias_variable([FLAGS.label_size])
+        #     W_fc2 = self.weight_variable([16, self.label_size])
+        #     b_fc2 = self.bias_variable([self.label_size])
 
         #     readout = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
         #     print_tensor_shape(readout, 'readout shape')
@@ -307,7 +319,7 @@ class Model(object):
         # Dropout layer.
         with tf.name_scope('dropout'):
 
-            h_fc1_drop = tf.nn.dropout(h_fc1, FLAGS.keep_prob)
+            h_fc1_drop = tf.nn.dropout(h_fc1, self.keep_prob)
 
         # Output layer (will be transformed via stable softmax)
         with tf.name_scope('readout'):
@@ -376,7 +388,8 @@ def main(_):
     train_losses = []
 
     # Instantiate a model.
-    model = Model(FLAGS.input_size, FLAGS.label_size)
+    model = Model(FLAGS.input_size, FLAGS.label_size, FLAGS.learning_rate,
+                  FLAGS.enqueue_threads, FLAGS.val_enqueue_threads)
 
     # Get input data.
     image_batch, label_batch = model.get_train_batch_ops(batch_size=FLAGS.batch_size)
