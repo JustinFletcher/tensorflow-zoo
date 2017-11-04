@@ -22,7 +22,7 @@ outputs, and writes those outputs to a file.
 def generalization_experiment(exp_parameters):
 
     # Unpack the experimental parameters.
-    (thread_count, batch_size, batch_interval) = exp_parameters
+    (thread_count, batch_size, batch_interval, rep) = exp_parameters
 
     # Clear the log directory, if it exists.
     if tf.gfile.Exists(FLAGS.log_dir):
@@ -48,8 +48,8 @@ def generalization_experiment(exp_parameters):
     # Get input data.
     image_batch, label_batch = model.get_train_batch_ops(batch_size=batch_size)
 
-    (val_image_batch,
-     val_label_batch) = model.get_val_batch_ops(batch_size=FLAGS.val_batch_size)
+    (val_image_batch, val_label_batch) = model.get_val_batch_ops(
+        batch_size=FLAGS.val_batch_size)
 
     tf.summary.merge_all()
 
@@ -58,7 +58,7 @@ def generalization_experiment(exp_parameters):
 
     with sv.managed_session() as sess:
 
-        # train_writer = tf.summary.FileWriter(FLAGS.log_dir + 
+        # train_writer = tf.summary.FileWriter(FLAGS.log_dir +
         #                                      '/train', sess.graph)
         # test_writer = tf.summary.FileWriter(FLAGS.log_dir + '/test')
 
