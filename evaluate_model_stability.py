@@ -50,8 +50,8 @@ def generalization_experiment(exp_parameters):
 
     with sv.managed_session() as sess:
 
-        # train_writer = tf.summary.FileWriter(FLAGS.log_dir + '/train',
-                                             # sess.graph)
+        # train_writer = tf.summary.FileWriter(FLAGS.log_dir + 
+        #                                      '/train', sess.graph)
         # test_writer = tf.summary.FileWriter(FLAGS.log_dir + '/test')
 
         # Declare timekeeping vars.
@@ -73,7 +73,7 @@ def generalization_experiment(exp_parameters):
                 break
 
             # If we have reached a testing interval, test.
-            if i % FLAGS.test_interval == 0:
+            if i % FLAGS.test_interval == 1:
 
                 # Update the batch, so as to not underestimate the train error.
                 train_images, train_labels = sess.run([image_batch,
@@ -155,6 +155,7 @@ def main(_):
 
     experimental_outputs = []
 
+    reps = range(5)
     thread_counts = [16, 32, 64]
     batch_sizes = [8, 16, 32, 64]
     batch_intervals = [1, 2, 3, 4]
@@ -169,7 +170,45 @@ def main(_):
 
         print(results)
 
+    # Accomodate Python 3+
+    # with open(FLAGS.log_dir + '/sa_generalization_out.csv', 'w') as csvfile:
 
+    # Accomodate Python 2.7 on Hokulea.
+    with open(FLAGS.log_dir +
+              '/evaluate_model_stability.csv', 'wb') as csvfile:
+
+        csvwriter = csv.writer(csvfile)
+
+        csvwriter.writerow(['thread_count',
+                            'batch_size',
+                            'batch_interval',
+                            'step_num',
+                            'train_loss',
+                            'val_loss',
+                            'mean_running_time'])
+
+        for o in experimental_outputs:
+
+            exp_parameters, results = o
+
+            thread_count, batch_size, batch_interval = exp_parameters
+
+            steps, train_losses, val_losses, mean_running_times = results
+
+            print('entering step loop')
+
+            for (step, tl, vl, mrt) in zip(steps,
+                                           train_losses,
+                                           val_losses,
+                                           mean_running_times):
+
+                csvwriter.writerow([thread_count,
+                                    batch_size,
+                                    batch_interval,
+                                    step,
+                                    tl,
+                                    vl,
+                                    mrt])
     # Create a process pool, and run the each exeriment through it.
 
 
