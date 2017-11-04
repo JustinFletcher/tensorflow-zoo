@@ -10,9 +10,9 @@ sys.path.append("/.")
 from baseline_model import *
 
 
-def generalization_experiment(thread_count,
-                              batch_size,
-                              batch_interval):
+def generalization_experiment(exp_parameters):
+
+    (thread_count, batch_size, batch_interval) = exp_parameters
 
     # Clear the log directory, if it exists.
     if tf.gfile.Exists(FLAGS.log_dir):
@@ -153,7 +153,7 @@ def main(_):
 
     pool = ProcessPoolExecutor(max_workers=4)
 
-    results = list(pool.map(generalization_experiment, *exp_parameters))
+    results = list(pool.map(generalization_experiment, exp_parameters))
 
     print(results)
 
