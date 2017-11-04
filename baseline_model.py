@@ -78,10 +78,8 @@ class Model(object):
         # Build placeholders values which change during execution.
         self.stimulus_placeholder = tf.placeholder(tf.float32,
                                                    [None, input_size])
-
         self.target_placeholder = tf.placeholder(tf.int32,
                                                  [None, label_size])
-
         self.keep_prob = tf.placeholder(tf.float32)
 
         # Register instance methods, building the computational graph.
@@ -389,7 +387,8 @@ def main(_):
 
     # Instantiate a model.
     model = Model(FLAGS.input_size, FLAGS.label_size, FLAGS.learning_rate,
-                  FLAGS.enqueue_threads, FLAGS.val_enqueue_threads)
+                  FLAGS.enqueue_threads, FLAGS.val_enqueue_threads,
+                  FLAGS.data_dir, FLAGS.train_file, FLAGS.validation_file)
 
     # Get input data.
     image_batch, label_batch = model.get_train_batch_ops(batch_size=FLAGS.batch_size)
