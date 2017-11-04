@@ -153,7 +153,7 @@ def main(_):
 
     pool = ProcessPoolExecutor(max_workers=4)
 
-    results = list(pool.map(generalization_experiment, exp_parameters))
+    results = list(pool.map(generalization_experiment, *exp_parameters))
 
     print(results)
 
