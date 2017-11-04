@@ -165,15 +165,16 @@ def main(_):
     experimental_outputs = []
 
     # Establish the dependent variables of the experiment.
-    reps = range(1)
+    reps = range(2)
     thread_counts = [16, 32, 64]
     batch_sizes = [16, 32, 64]
-    batch_intervals = [1, 2, 3, 4]
+    batch_intervals = [1, 2, 4, 8]
 
     # Produce the Cartesian set of configurations.
     experimental_configurations = itertools.product(thread_counts,
                                                     batch_sizes,
-                                                    batch_intervals)
+                                                    batch_intervals,
+                                                    reps)
 
     # TODO: Create a distributed approach by parallizing over configs.
 
@@ -196,6 +197,7 @@ def main(_):
         csvwriter.writerow(['thread_count',
                             'batch_size',
                             'batch_interval',
+                            'rep_num',
                             'step_num',
                             'train_loss',
                             'val_loss',
@@ -209,7 +211,8 @@ def main(_):
             # Unpack the experimental configuration.
             thread_count,
             batch_size,
-            batch_interval = experimental_configuration
+            batch_interval,
+            rep = experimental_configuration
 
             # Unpack the cooresponding results.
             steps, train_losses, val_losses, mean_running_times = results
@@ -224,6 +227,7 @@ def main(_):
                 csvwriter.writerow([thread_count,
                                     batch_size,
                                     batch_interval,
+                                    rep,
                                     step,
                                     tl,
                                     vl,
