@@ -1,5 +1,6 @@
 
 import sys
+import csv
 import time
 import argparse
 import itertools
@@ -9,6 +10,13 @@ from concurrent.futures import *
 
 sys.path.append("/.")
 from baseline_model import *
+
+'''
+This file serves as a canonical example of how to perform a sequential
+experiment using object-based TensorFlow models on Hokulea. This
+example uses a single node, iterates over experimental parameters producing
+outputs, and writes those outputs to a file.
+'''
 
 
 def generalization_experiment(exp_parameters):
@@ -153,18 +161,23 @@ def generalization_experiment(exp_parameters):
 
 def main(_):
 
+    # Create a list to store result vectors.
     experimental_outputs = []
 
-    reps = range(5)
+    # Establish the dependent variables of the experiment.
+    reps = range(1)
     thread_counts = [16, 32, 64]
     batch_sizes = [16, 32, 64]
     batch_intervals = [1, 2, 3, 4]
 
+    # Produce the Cartesian set of configurations.
     experimental_configurations = itertools.product(thread_counts,
                                                     batch_sizes,
                                                     batch_intervals)
 
-    # Iterate over each experimental configu
+    # TODO: Create a distributed approach by parallizing over configs.
+
+    # Iterate over each experimental config.
     for experimental_configuration in experimental_configurations:
 
         results = generalization_experiment(experimental_configuration)
@@ -178,8 +191,8 @@ def main(_):
     with open(FLAGS.log_dir +
               '/evaluate_model_stability.csv', 'wb') as csvfile:
 
+        # Open a writer and write the header.
         csvwriter = csv.writer(csvfile)
-
         csvwriter.writerow(['thread_count',
                             'batch_size',
                             'batch_interval',
@@ -189,9 +202,9 @@ def main(_):
                             'mean_running_time'])
 
         # Iterate over each output.
-        for o in experimental_outputs:
+        for (experimental_configuration, results) in experimental_outputs:
 
-            experimental_configuration, results = o
+            # TODO: Generalize this pattern to not rely on var names.
 
             # Unpack the experimental configuration.
             thread_count,
@@ -223,7 +236,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     # Establish default arguements.
-    parser.add_argument('--max_steps', type=int, default=1000,
+    parser.add_argument('--max_steps', type=int, default=10000,
                         help='Number of steps to run trainer.')
 
     parser.add_argument('--test_interval', type=int, default=100,
