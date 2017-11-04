@@ -3,6 +3,7 @@ import sys
 import time
 import argparse
 import itertools
+import numpy as np
 import tensorflow as tf
 from concurrent.futures import *
 
@@ -29,6 +30,7 @@ def generalization_experiment(exp_parameters):
     steps = []
     val_losses = []
     train_losses = []
+    mean_running_times = []
 
     # Instantiate a model.
     model = Model(FLAGS.input_size, FLAGS.label_size, FLAGS.learning_rate,
@@ -103,11 +105,17 @@ def generalization_experiment(exp_parameters):
                 steps.append(i)
                 train_losses.append(train_loss)
                 val_losses.append(val_loss)
+                mean_running_times.append(np.mean(running_times))
 
                 # Print relevant values.
                 print('%d | %.6f | %.2f | %.6f | %.2f | %.6f | %.2f'
-                      % (i, train_loss, train_error, val_loss,
-                         val_error, mean(running_times), sum(running_times)))
+                      % (i,
+                         train_loss,
+                         train_error,
+                         val_loss,
+                         val_error,
+                         np.mean(running_times),
+                         np.sum(running_times)))
 
             # Hack the start time.
             start_time = time.time()
@@ -140,7 +148,7 @@ def generalization_experiment(exp_parameters):
         sv.stop()
         sess.close()
 
-    return(train_losses)
+    return(steps, train_losses, val_losses, mean_running_times)
 
 
 def main(_):
