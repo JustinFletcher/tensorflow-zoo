@@ -12,6 +12,7 @@ from baseline_model import *
 
 def generalization_experiment(exp_parameters):
 
+    # Unpack the experimental parameters.
     (thread_count, batch_size, batch_interval) = exp_parameters
 
     # Clear the log directory, if it exists.
@@ -52,8 +53,8 @@ def generalization_experiment(exp_parameters):
         # test_writer = tf.summary.FileWriter(FLAGS.log_dir + '/test')
 
         # Declare timekeeping vars.
-        total_time = 0
-        i_delta = 0
+        running_times = []
+        optimize_step_running_time = 0
 
         # Print a line for debug.
         print('step | train_loss | train_error | val_loss | \
@@ -103,13 +104,13 @@ def generalization_experiment(exp_parameters):
                 train_losses.append(train_loss)
                 val_losses.append(val_loss)
 
-                print_tuple = (i, train_loss, train_error, val_loss,
-                               val_error, i_delta, total_time)
-
-                print('%d | %.6f | %.2f | %.6f | %.2f | %.6f | %.2f' % print_tuple)
+                # Print relevant values.
+                print('%d | %.6f | %.2f | %.6f | %.2f | %.6f | %.2f'
+                      % (i, train_loss, train_error, val_loss,
+                         val_error, mean(running_times), sum(running_times)))
 
             # Hack the start time.
-            i_start = time.time()
+            start_time = time.time()
 
             # If it is a batch refresh interval, refresh the batch.
             if((i % batch_interval == 0) or (i == 0)):
@@ -128,9 +129,10 @@ def generalization_experiment(exp_parameters):
 
             # train_writer.add_summary(summary, i)
 
-            i_stop = time.time()
-            i_delta = i_stop - i_start
-            total_time = total_time + i_delta
+            # Update timekeeping variables.
+            stop_time = time.time()
+            optimize_step_running_time = stop_time - start_time
+            running_times.append(optimize_step_running_time)
 
         # Close the summary writers.
         # test_writer.close()
@@ -143,19 +145,21 @@ def generalization_experiment(exp_parameters):
 
 def main(_):
 
+    experimental_outputs = []
+
     thread_counts = [16, 32, 64]
     batch_sizes = [8, 16, 32, 64]
     batch_intervals = [1, 2, 3, 4]
 
-    exp_parameters = itertools.product(thread_counts,
-                                       batch_sizes,
-                                       batch_intervals)
+    for exp_parameters in itertools.product(thread_counts,
+                                            batch_sizes,
+                                            batch_intervals):
 
-    pool = ProcessPoolExecutor(max_workers=4)
+        results = generalization_experiment(exp_parameters)
 
-    results = list(pool.map(generalization_experiment, exp_parameters))
+        experimental_outputs.append([exp_parameters, results])
 
-    print(results)
+        print(results)
 
 
     # Create a process pool, and run the each exeriment through it.
@@ -184,18 +188,9 @@ if __name__ == '__main__':
                         default='../log/baseline_model/',
                         help='Summaries log directory.')
 
-    parser.add_argument('--batch_size', type=int,
-                        default=128,
-                        help='Training set batch size.')
-
     parser.add_argument('--val_batch_size', type=int,
                         default=10000,
                         help='Validation set batch size.')
-
-    parser.add_argument('--batch_interval', type=int,
-                        default=1,
-                        help='Interval of steps at which a new training ' +
-                             'batch is drawn.')
 
     parser.add_argument('--keep_prob', type=float,
                         default=1.0,
@@ -216,10 +211,6 @@ if __name__ == '__main__':
     parser.add_argument('--validation_file', type=str,
                         default='validation.tfrecords',
                         help='Validation dataset filename.')
-
-    parser.add_argument('--enqueue_threads', type=int,
-                        default=32,
-                        help='Number of threads to enqueue training examples.')
 
     parser.add_argument('--val_enqueue_threads', type=int,
                         default=32,
