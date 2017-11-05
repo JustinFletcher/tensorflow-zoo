@@ -368,7 +368,7 @@ class Model(object):
         return(error)
 
 
-def main(_):
+def example_usage(_):
 
     # Clear the log directory, if it exists.
     if tf.gfile.Exists(FLAGS.log_dir):
@@ -462,7 +462,8 @@ def main(_):
                 print_tuple = (i, train_loss, train_error, val_loss,
                                val_error, i_delta, total_time)
 
-                print('%d | %.6f | %.2f | %.6f | %.2f | %.6f | %.2f' % print_tuple)
+                print('%d | %.6f | %.2f | %.6f | %.2f | %.6f | %.2f' %
+                      print_tuple)
 
             # Hack the start time.
             i_start = time.time()
@@ -566,5 +567,5 @@ if __name__ == '__main__':
     # Parse known arguements.
     FLAGS, unparsed = parser.parse_known_args()
 
-    # Run the main function as TF app.
-    tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
+    # Run the example usage function as TF app.
+    tf.app.run(main=example_usage, argv=[sys.argv[0]] + unparsed)

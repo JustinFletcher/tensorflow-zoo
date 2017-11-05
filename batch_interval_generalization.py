@@ -446,9 +446,9 @@ def main(_):
 
     queue_performance = []
 
-    batch_sizes = [32, 48, 64, 96, 128]
+    batch_sizes = [32, 128]
 
-    thread_counts = [16, 32, 48, 64, 96, 128]
+    thread_counts = [16, 128]
 
     # Experimetnal Loop
     for batch_size in batch_sizes:
@@ -521,7 +521,7 @@ if __name__ == '__main__':
                         default=False,
                         help='If true, uses fake data for unit testing.')
 
-    parser.add_argument('--max_steps', type=int, default=800,
+    parser.add_argument('--max_steps', type=int, default=3000,
                         help='Number of steps to run trainer.')
 
     parser.add_argument('--test_interval', type=int, default=40,
