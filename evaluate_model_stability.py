@@ -165,10 +165,13 @@ def main(_):
     experimental_outputs = []
 
     # Establish the dependent variables of the experiment.
-    reps = range(2)
-    thread_counts = [16, 64]
-    batch_sizes = [16, 64]
-    batch_intervals = [1, 2]
+    reps = range(1)
+    # thread_counts = [16, 64]
+    # batch_sizes = [16, 64]
+    # batch_intervals = [1, 2]
+    thread_counts = [16]
+    batch_sizes = [16]
+    batch_intervals = [1]
 
     # Produce the Cartesian set of configurations.
     experimental_configurations = itertools.product(thread_counts,
@@ -198,40 +201,40 @@ def main(_):
                             'val_loss',
                             'mean_running_time'])
 
-        # # Iterate over each experimental config.
-        # for experimental_configuration in experimental_configurations:
+        # Iterate over each experimental config.
+        for experimental_configuration in experimental_configurations:
 
-        #     results = generalization_experiment(experimental_configuration)
+            results = generalization_experiment(experimental_configuration)
 
-        #     experimental_outputs.append([experimental_configuration, results])
+            experimental_outputs.append([experimental_configuration, results])
 
-        #     # TODO: Generalize this pattern to not rely on var names.
+            # TODO: Generalize this pattern to not rely on var names.
 
-        #     # Unpack the experimental configuration.
-        #     (thread_count,
-        #      batch_size,
-        #      batch_interval,
-        #      rep) = experimental_configuration
+            # Unpack the experimental configuration.
+            (thread_count,
+             batch_size,
+             batch_interval,
+             rep) = experimental_configuration
 
-        #     # Unpack the cooresponding results.git add
+            # Unpack the cooresponding results.git add
         
-        #     (steps, train_losses, val_losses, mean_running_times) = results
+            (steps, train_losses, val_losses, mean_running_times) = results
 
-        #     # Iterate over the results vectors for each config.
-        #     for (step, tl, vl, mrt) in zip(steps,
-        #                                    train_losses,
-        #                                    val_losses,
-        #                                    mean_running_times):
+            # Iterate over the results vectors for each config.
+            for (step, tl, vl, mrt) in zip(steps,
+                                           train_losses,
+                                           val_losses,
+                                           mean_running_times):
 
-        #         # Write the data to a csv.
-        #         csvwriter.writerow([thread_count,
-        #                             batch_size,
-        #                             batch_interval,
-        #                             rep,
-        #                             step,
-        #                             tl,
-        #                             vl,
-        #                             mrt])
+                # Write the data to a csv.
+                csvwriter.writerow([thread_count,
+                                    batch_size,
+                                    batch_interval,
+                                    rep,
+                                    step,
+                                    tl,
+                                    vl,
+                                    mrt])
 
     return(experimental_outputs)
 
