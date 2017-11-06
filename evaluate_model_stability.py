@@ -188,7 +188,7 @@ def main(_):
 
     # Accomodate Python 2.7 on Hokulea.
     with open(FLAGS.log_dir +
-              '/evaluate_model_stability.csv', 'wb') as csvfile:
+              'evaluate_model_stability.csv', 'wb') as csvfile:
 
         # Open a writer and write the header.
         csvwriter = csv.writer(csvfile)
