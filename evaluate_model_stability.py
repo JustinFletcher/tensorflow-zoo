@@ -236,14 +236,23 @@ def main(_):
                         mrt])
 
                 # Write the data to a csv.
-                csvwriter.writerow([thread_count,
-                                    batch_size,
-                                    batch_interval,
-                                    rep,
-                                    step,
-                                    tl,
-                                    vl,
-                                    mrt])
+                # csvwriter.writerow([thread_count,
+                #                     batch_size,
+                #                     batch_interval,
+                #                     rep,
+                #                     step,
+                #                     tl,
+                #                     vl,
+                #                     mrt])
+
+                csvwriter.writerow(['tthread_count',
+                                    'tbatch_size',
+                                    'tbatch_interval',
+                                    'trep_num',
+                                    'tstep_num',
+                                    'ttrain_loss',
+                                    'tval_loss',
+                                    'tmean_running_time'])
 
 
 if __name__ == '__main__':
