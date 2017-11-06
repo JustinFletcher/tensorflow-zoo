@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Walltime in hours:minutes:seconds
-#PBS -l walltime=08:00:00
+#PBS -l walltime=04:00:00
 ## -o specifies output file
 #PBS -o ~/tensorflow-zoo/evaluate_model_stability.out
 ## -e specifies error file
