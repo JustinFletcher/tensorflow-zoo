@@ -166,9 +166,9 @@ def main(_):
 
     # Establish the dependent variables of the experiment.
     reps = range(2)
-    thread_counts = [16, 32, 64]
-    batch_sizes = [16, 32, 64]
-    batch_intervals = [1, 2, 4, 8]
+    thread_counts = [16, 64]
+    batch_sizes = [16, 64]
+    batch_intervals = [1, 2]
 
     # Produce the Cartesian set of configurations.
     experimental_configurations = itertools.product(thread_counts,
@@ -178,12 +178,7 @@ def main(_):
 
     # TODO: Create a distributed approach by parallizing over configs.
 
-    # Iterate over each experimental config.
-    for experimental_configuration in experimental_configurations:
 
-        results = generalization_experiment(experimental_configuration)
-
-        experimental_outputs.append([experimental_configuration, results])
 
     # Accomodate Python 3+
     # with open(FLAGS.log_dir + '/sa_generalization_out.csv', 'w') as csvfile:
@@ -203,19 +198,23 @@ def main(_):
                             'val_loss',
                             'mean_running_time'])
 
-        # Iterate over each output.
-        for (experimental_configuration, results) in experimental_outputs:
+        # Iterate over each experimental config.
+        for experimental_configuration in experimental_configurations:
+
+            results = generalization_experiment(experimental_configuration)
+
+            experimental_outputs.append([experimental_configuration, results])
 
             # TODO: Generalize this pattern to not rely on var names.
 
             # Unpack the experimental configuration.
-            thread_count,
-            batch_size,
-            batch_interval,
-            rep = experimental_configuration
+            (thread_count,
+             batch_size,
+             batch_interval,
+             rep) = experimental_configuration
 
             # Unpack the cooresponding results.
-            steps, train_losses, val_losses, mean_running_times = results
+            (steps, train_losses, val_losses, mean_running_times) = results
 
             # Iterate over the results vectors for each config.
             for (step, tl, vl, mrt) in zip(steps,
@@ -232,6 +231,8 @@ def main(_):
                                     tl,
                                     vl,
                                     mrt])
+
+    return(experimental_outputs)
 
 
 if __name__ == '__main__':
