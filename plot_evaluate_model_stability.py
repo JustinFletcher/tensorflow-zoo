@@ -53,12 +53,12 @@ def bar_line_plot(ax1, time, data1, data2, c1, c2,
     ax1.bar(time, data2, color=c2, width=10)
 
     if show_xlabel:
-        ax1.set_xlabel('Training Step')
+        ax1.set_xlabel('Batch Interval')
     else:
         ax1.xaxis.set_ticklabels([])
 
     if show_ylabel_1:
-        ax1.set_ylabel('Queue Size')
+        ax2.set_ylabel('Mean Single \n Batch Inference \n Running Time')
     else:
         ax1.yaxis.set_ticklabels([])
 
@@ -68,7 +68,7 @@ def bar_line_plot(ax1, time, data1, data2, c1, c2,
     ax2.plot(time, data1, color=c1, alpha=0.75)
 
     if show_ylabel_2:
-        ax2.set_ylabel('Mean Single \n Batch Inference \n Running Time')
+        ax1.set_ylabel('Validation Error')
     else:
         ax2.yaxis.set_ticklabels([])
 
@@ -93,7 +93,7 @@ def bar_line_plot(ax1, time, data1, data2, c1, c2,
 
 plt.style.use('ggplot')
 
-df = pd.read_csv('C:/Users/Justi/Research/logs/queue_exhaustion_out.csv')
+df = pd.read_csv('C:/Users/Justi/Research/logs/evaluate_model_stability.csv')
 
 max_running_time = np.max(df.running_time)
 print(max_running_time)
@@ -126,11 +126,18 @@ for i, tc in enumerate(df.thread_count.unique()):
 
         run_df = df.loc[(df['batch_size'] == bs) & (df['thread_count'] == tc)]
 
-        # print(run_df)
-        # Create some mock data
-        t = run_df['step_num']
-        s1 = run_df['running_time']
-        s2 = run_df['queue_size']
+        print(run_df)
+
+        # We'll need a mean here...
+
+        # Get unique values of batch interval.
+        t = run_df['batch_interval']
+
+        # Get the mean val_loss over reps, binned by batch interval.
+        s1 = run_df['val_loss']
+
+        # Get the mean mean_running_time over reps, binned by batch interval.
+        s2 = run_df['mean_running_time']
 
         show_xlabel = len(df.thread_count.unique()) == (i + 1)
         show_label_1 = j == 0
@@ -143,7 +150,7 @@ for i, tc in enumerate(df.thread_count.unique()):
         row_annotation = 'Thread \n Count = %d' % tc
 
         # Create axes
-        
+
         ax = fig.add_subplot(len(df.thread_count.unique()),
                              len(df.batch_size.unique()),
                              plot_num)

@@ -217,7 +217,7 @@ def main(_):
              rep) = experimental_configuration
 
             # Unpack the cooresponding results.git add
-        
+
             (steps, train_losses, val_losses, mean_running_times) = results
 
             # Iterate over the results vectors for each config.
@@ -225,6 +225,15 @@ def main(_):
                                            train_losses,
                                            val_losses,
                                            mean_running_times):
+
+                print([thread_count,
+                        batch_size,
+                        batch_interval,
+                        rep,
+                        step,
+                        tl,
+                        vl,
+                        mrt])
 
                 # Write the data to a csv.
                 csvwriter.writerow([thread_count,
