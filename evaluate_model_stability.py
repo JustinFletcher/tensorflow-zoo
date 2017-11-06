@@ -171,10 +171,15 @@ def main(_):
     experimental_outputs = []
 
     # Establish the dependent variables of the experiment.
-    reps = range(4)
-    thread_counts = [16, 32, 64]
-    batch_sizes = [16, 32, 64]
-    batch_intervals = [1, 2, 4, 8, 16]
+    # reps = range(4)
+    # thread_counts = [16, 32, 64]
+    # batch_sizes = [16, 32, 64]
+    # batch_intervals = [1, 2, 4, 8, 16]
+
+    reps = range(1)
+    thread_counts = [16, 32]
+    batch_sizes = [16, 32]
+    batch_intervals = [1, 2]
 
     # Produce the Cartesian set of configurations.
     experimental_configurations = itertools.product(thread_counts,
@@ -185,7 +190,7 @@ def main(_):
     # TODO: Create a distributed approach by parallizing over configs.
 
     # Iterate over each experimental config.
-    for i, experimental_configuration in enumerate(experimental_configurations):
+    for experimental_configuration in experimental_configurations:
 
         results = generalization_experiment(experimental_configuration)
 
