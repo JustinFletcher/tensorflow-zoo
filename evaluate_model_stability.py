@@ -185,7 +185,9 @@ def main(_):
     # TODO: Create a distributed approach by parallizing over configs.
 
     # Iterate over each experimental config.
-    for experimental_configuration in experimental_configurations:
+    for i, experimental_configuration in enumerate(experimental_configurations):
+
+        print('%d of %d' % (i, experimental_configuration))
 
         results = generalization_experiment(experimental_configuration)
 
