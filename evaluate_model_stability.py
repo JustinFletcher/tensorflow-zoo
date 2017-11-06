@@ -24,13 +24,6 @@ def generalization_experiment(exp_parameters):
     # Unpack the experimental parameters.
     (thread_count, batch_size, batch_interval, rep) = exp_parameters
 
-    # Clear the log directory, if it exists.
-    if tf.gfile.Exists(FLAGS.log_dir):
-
-        tf.gfile.DeleteRecursively(FLAGS.log_dir)
-
-    tf.gfile.MakeDirs(FLAGS.log_dir)
-
     # Reset the default graph.
     tf.reset_default_graph()
 
@@ -176,7 +169,7 @@ def main(_):
     # batch_sizes = [16, 32, 64]
     # batch_intervals = [1, 2, 4, 8, 16]
 
-    reps = range(1)
+    reps = [0, 1]
     thread_counts = [16, 32]
     batch_sizes = [16, 32]
     batch_intervals = [1, 2]
