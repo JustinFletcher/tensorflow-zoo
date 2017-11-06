@@ -9,7 +9,7 @@ import pandas as pd
 from mpl_toolkits.axes_grid1 import Grid
 
 
-def bar_line_plot(ax1, time, data1, data2, c1, c2,
+def dual_scatter(ax1, time, data1, data2, c1, c2,
                   xmin, ymin1, ymin2,
                   xmax, ymax1, ymax2,
                   show_xlabel,
@@ -50,7 +50,7 @@ def bar_line_plot(ax1, time, data1, data2, c1, c2,
     """
     ax2 = ax1.twinx()
 
-    ax1.bar(time, data2, color=c2, width=10)
+    ax1.plot(time, data2, color=c2, alpha=0.75)
 
     if show_xlabel:
         ax1.set_xlabel('Batch Interval')
@@ -62,8 +62,8 @@ def bar_line_plot(ax1, time, data1, data2, c1, c2,
     else:
         ax1.yaxis.set_ticklabels([])
 
-    ax1.set_xlim(xmin, xmax)
-    ax1.set_ylim(ymin2, ymax2)
+    # ax1.set_xlim(xmin, xmax)
+    # ax1.set_ylim(ymin2, ymax2)
 
     ax2.plot(time, data1, color=c1, alpha=0.75)
 
@@ -72,8 +72,8 @@ def bar_line_plot(ax1, time, data1, data2, c1, c2,
     else:
         ax2.yaxis.set_ticklabels([])
 
-    ax2.set_xlim(xmin, xmax)
-    ax2.set_ylim(ymin1, ymax1)
+    # ax2.set_xlim(xmin, xmax)
+    # ax2.set_ylim(ymin1, ymax1)
 
     if annotate_col:
         pad = 10
@@ -93,19 +93,16 @@ def bar_line_plot(ax1, time, data1, data2, c1, c2,
 
 plt.style.use('ggplot')
 
-df = pd.read_csv('C:/Users/Justi/Research/logs/evaluate_model_stability.csv')
+df = pd.read_csv('C:/Users/Justi/Research/logs/baseline_model/evaluate_model_stability.csv')
 
-max_running_time = np.max(df.running_time)
-print(max_running_time)
-min_running_time = 0
+max_mean_running_time = np.max(df.mean_running_time)
+min_mean_running_time = 0
 
-max_queue_size = np.max(df.queue_size)
-print(max_queue_size)
-min_queue_size = 0
+max_min_val_loss = np.max(df.val_loss)
+min_min_val_loss = 0
 
-max_step_num = np.max(df.step_num)
-print(max_queue_size)
-min_step_num = np.min(df.step_num)
+max_batch_interval = np.max(df.batch_interval)
+min_batch_interval = np.min(df.batch_interval)
 
 subplot_x_str = str(len(df.thread_count.unique()))
 subplot_y_str = str(len(df.batch_size.unique()))
@@ -124,20 +121,31 @@ for i, tc in enumerate(df.thread_count.unique()):
 
         plot_num += 1
 
-        run_df = df.loc[(df['batch_size'] == bs) & (df['thread_count'] == tc)]
+        t = df.batch_interval.unique()
 
-        print(run_df)
+        s1 = []
 
-        # We'll need a mean here...
+        s2 = []
 
-        # Get unique values of batch interval.
-        t = run_df['batch_interval']
+        for k, bi in enumerate(df.batch_interval.unique()):
 
-        # Get the mean val_loss over reps, binned by batch interval.
-        s1 = run_df['val_loss']
+            run_df = df.loc[(df['batch_size'] == bs) &
+                            (df['thread_count'] == tc) &
+                            (df['batch_interval'] == bi)]
 
-        # Get the mean mean_running_time over reps, binned by batch interval.
-        s2 = run_df['mean_running_time']
+            print(run_df)
+
+            # We'll need a mean here...
+
+            # # Get the mean val_loss over reps, binned by batch interval.
+            # s1 = np.min(run_df['val_loss'])
+
+            # # Get the mean mean_running_time over reps, binned by batch interval.
+            # s2 = np.mean(run_df['mean_running_time'])
+
+            s1.append(np.min(run_df['val_loss']))
+
+            s2.append(np.mean(run_df['mean_running_time']))
 
         show_xlabel = len(df.thread_count.unique()) == (i + 1)
         show_label_1 = j == 0
@@ -149,26 +157,41 @@ for i, tc in enumerate(df.thread_count.unique()):
         annotate_row = j == 0
         row_annotation = 'Thread \n Count = %d' % tc
 
-        # Create axes
-
+        # Create axes.
         ax = fig.add_subplot(len(df.thread_count.unique()),
                              len(df.batch_size.unique()),
                              plot_num)
-        ax1, ax2 = bar_line_plot(ax, t, s1, s2, 'r', 'b',
-                                 min_step_num,
-                                 min_running_time,
-                                 min_queue_size,
-                                 max_step_num,
-                                 max_running_time,
-                                 max_queue_size,
-                                 show_xlabel,
-                                 show_label_1,
-                                 show_label_2,
-                                 annotate_col,
-                                 col_annotation,
-                                 annotate_row,
-                                 row_annotation)
 
-plt.suptitle("TensorFlow Queue Exhaustion on Hokule'a")
+        # print(len(train_loss))
+        # print(len(mean_val_loss))
+        # show_xlabel = len(df.thread_count.unique()) == (i + 1)
+        # show_label_1 = j == 0
+        # show_label_2 = len(df.batch_size.unique()) == (j + 1)
+
+        # annotate_col = i == 0
+        # col_annotation = 'Batch Size = %d' % bs
+
+        # annotate_row = j == 0
+        # row_annotation = 'Thread \n Count = %d' % tc
+
+        # Create axes
+        # ax.scatter(t, s1)
+
+        ax1, ax2 = dual_scatter(ax, t, s1, s2, 'r', 'b',
+                                min_batch_interval,
+                                min_mean_running_time,
+                                max_min_val_loss,
+                                max_batch_interval,
+                                max_mean_running_time,
+                                max_min_val_loss,
+                                show_xlabel,
+                                show_label_1,
+                                show_label_2,
+                                annotate_col,
+                                col_annotation,
+                                annotate_row,
+                                row_annotation)
+
+plt.suptitle("Validation Loss and Mean Optimization Running Time by Batch Interval")
 
 plt.show()
