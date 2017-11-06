@@ -161,7 +161,6 @@ def generalization_experiment(exp_parameters):
 
 def main(_):
 
-    
     if tf.gfile.Exists(FLAGS.log_dir):
 
         tf.gfile.DeleteRecursively(FLAGS.log_dir)
@@ -173,9 +172,9 @@ def main(_):
 
     # Establish the dependent variables of the experiment.
     reps = range(2)
-    thread_counts = [16]
-    batch_sizes = [16]
-    batch_intervals = [1]
+    thread_counts = [16, 32]
+    batch_sizes = [16, 32]
+    batch_intervals = [1, 2, 4]
 
     # Produce the Cartesian set of configurations.
     experimental_configurations = itertools.product(thread_counts,
