@@ -187,7 +187,7 @@ def main(_):
     # Iterate over each experimental config.
     for i, experimental_configuration in enumerate(experimental_configurations):
 
-        print('%d of %d' % (i, experimental_configuration))
+        print('%d of %d' % (i, len(experimental_configuration)))
 
         results = generalization_experiment(experimental_configuration)
 
