@@ -161,6 +161,13 @@ def generalization_experiment(exp_parameters):
 
 def main(_):
 
+    # Clear the log directory, if it exists.
+    if tf.gfile.Exists(FLAGS.log_dir):
+
+        tf.gfile.DeleteRecursively(FLAGS.log_dir)
+
+    tf.gfile.MakeDirs(FLAGS.log_dir)
+
     # Create a list to store result vectors.
     experimental_outputs = []
 
