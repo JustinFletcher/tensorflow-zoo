@@ -245,8 +245,6 @@ def main(_):
                                     vl,
                                     mrt])
 
-    return(experimental_outputs)
-
 
 if __name__ == '__main__':
 
