@@ -188,78 +188,76 @@ def main(_):
 
     # TODO: Create a distributed approach by parallizing over configs.
 
-
-
     # Accomodate Python 3+
     # with open(FLAGS.log_dir + '/sa_generalization_out.csv', 'w') as csvfile:
 
     # Accomodate Python 2.7 on Hokulea.
-    with open(FLAGS.log_dir +
-              'evaluate_model_stability.csv', 'wb') as csvfile:
+    csvfile = open(FLAGS.log_dir + 'evaluate_model_stability.csv', 'wb')
 
-        # Open a writer and write the header.
-        csvwriter = csv.writer(csvfile)
-        csvwriter.writerow(['thread_count',
-                            'batch_size',
-                            'batch_interval',
-                            'rep_num',
-                            'step_num',
-                            'train_loss',
-                            'val_loss',
-                            'mean_running_time'])
+    # Open a writer and write the header.
+    csvwriter = csv.writer(csvfile)
+    csvwriter.writerow(['thread_count',
+                        'batch_size',
+                        'batch_interval',
+                        'rep_num',
+                        'step_num',
+                        'train_loss',
+                        'val_loss',
+                        'mean_running_time'])
 
-        # Iterate over each experimental config.
-        for experimental_configuration in experimental_configurations:
+    # Iterate over each experimental config.
+    for experimental_configuration in experimental_configurations:
 
-            results = generalization_experiment(experimental_configuration)
+        results = generalization_experiment(experimental_configuration)
 
-            experimental_outputs.append([experimental_configuration, results])
+        experimental_outputs.append([experimental_configuration, results])
 
-            # TODO: Generalize this pattern to not rely on var names.
+        # TODO: Generalize this pattern to not rely on var names.
 
-            # Unpack the experimental configuration.
-            (thread_count,
-             batch_size,
-             batch_interval,
-             rep) = experimental_configuration
+        # Unpack the experimental configuration.
+        (thread_count,
+         batch_size,
+         batch_interval,
+         rep) = experimental_configuration
 
-            # Unpack the cooresponding results.git add
+        # Unpack the cooresponding results.git add
 
-            (steps, train_losses, val_losses, mean_running_times) = results
+        (steps, train_losses, val_losses, mean_running_times) = results
 
-            # Iterate over the results vectors for each config.
-            for (step, tl, vl, mrt) in zip(steps,
-                                           train_losses,
-                                           val_losses,
-                                           mean_running_times):
+        # Iterate over the results vectors for each config.
+        for (step, tl, vl, mrt) in zip(steps,
+                                       train_losses,
+                                       val_losses,
+                                       mean_running_times):
 
-                print([thread_count,
-                        batch_size,
-                        batch_interval,
-                        rep,
-                        step,
-                        tl,
-                        vl,
-                        mrt])
+            print([thread_count,
+                    batch_size,
+                    batch_interval,
+                    rep,
+                    step,
+                    tl,
+                    vl,
+                    mrt])
 
-                # Write the data to a csv.
-                # csvwriter.writerow([thread_count,
-                #                     batch_size,
-                #                     batch_interval,
-                #                     rep,
-                #                     step,
-                #                     tl,
-                #                     vl,
-                #                     mrt])
+            # Write the data to a csv.
+            # csvwriter.writerow([thread_count,
+            #                     batch_size,
+            #                     batch_interval,
+            #                     rep,
+            #                     step,
+            #                     tl,
+            #                     vl,
+            #                     mrt])
 
-                csvwriter.writerow(['tthread_count',
-                                    'tbatch_size',
-                                    'tbatch_interval',
-                                    'trep_num',
-                                    'tstep_num',
-                                    'ttrain_loss',
-                                    'tval_loss',
-                                    'tmean_running_time'])
+            csvwriter.writerow(['tthread_count',
+                                'tbatch_size',
+                                'tbatch_interval',
+                                'trep_num',
+                                'tstep_num',
+                                'ttrain_loss',
+                                'tval_loss',
+                                'tmean_running_time'])
+    csvfile.close()
 
 
 if __name__ == '__main__':
