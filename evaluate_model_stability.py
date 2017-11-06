@@ -249,14 +249,8 @@ def main(_):
             #                     vl,
             #                     mrt])
 
-            csvwriter.writerow(['tthread_count',
-                                'tbatch_size',
-                                'tbatch_interval',
-                                'trep_num',
-                                'tstep_num',
-                                'ttrain_loss',
-                                'tval_loss',
-                                'tmean_running_time'])
+            csvwriter.writerow(['tthread_count'])
+    csvwriter.close()
     csvfile.close()
 
 
