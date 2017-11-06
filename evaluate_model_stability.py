@@ -182,12 +182,14 @@ def main(_):
                                                     batch_intervals,
                                                     reps)
 
+    count = sum(1 for _ in experimental_configurations)
+
     # TODO: Create a distributed approach by parallizing over configs.
 
     # Iterate over each experimental config.
     for i, experimental_configuration in enumerate(experimental_configurations):
 
-        print('%d of %d' % (i, len(experimental_configurations)))
+        print('%d of %d' % (i, count))
 
         results = generalization_experiment(experimental_configuration)
 
