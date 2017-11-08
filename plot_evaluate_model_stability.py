@@ -1,24 +1,20 @@
 from __future__ import print_function
 
 import numpy as np
-import matplotlib.cm as cm
-import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from mpl_toolkits.axes_grid1 import Grid
-
 
 def dual_scatter(ax1, time, data1, data2, c1, c2,
-                  xmin, ymin1, ymin2,
-                  xmax, ymax1, ymax2,
-                  show_xlabel,
-                  show_ylabel_1,
-                  show_ylabel_2,
-                  annotate_col,
-                  col_annotation,
-                  annotate_row,
-                  row_annotation,):
+                 xmin, ymin1, ymin2,
+                 xmax, ymax1, ymax2,
+                 show_xlabel,
+                 show_ylabel_1,
+                 show_ylabel_2,
+                 annotate_col,
+                 col_annotation,
+                 annotate_row,
+                 row_annotation,):
     """
 
     Parameters
@@ -57,20 +53,20 @@ def dual_scatter(ax1, time, data1, data2, c1, c2,
     else:
         ax1.xaxis.set_ticklabels([])
 
-    if show_ylabel_1:
-        ax2.set_ylabel('Mean Single \n Batch Inference \n Running Time')
+    if show_ylabel_2:
+        ax2.set_ylabel('Min Achieved \n Validation Loss')
     else:
-        ax1.yaxis.set_ticklabels([])
+        ax2.yaxis.set_ticklabels([])
 
     # ax1.set_xlim(xmin, xmax)
     # ax1.set_ylim(ymin2, ymax2)
 
     ax2.plot(time, data1, color=c1, alpha=0.75)
 
-    if show_ylabel_2:
-        ax1.set_ylabel('Validation Error')
+    if show_ylabel_1:
+        ax1.set_ylabel('Mean Single \n Batch Inference \n Running Time')
     else:
-        ax2.yaxis.set_ticklabels([])
+        ax1.yaxis.set_ticklabels([])
 
     # ax2.set_xlim(xmin, xmax)
     # ax2.set_ylim(ymin1, ymax1)
@@ -93,7 +89,7 @@ def dual_scatter(ax1, time, data1, data2, c1, c2,
 
 plt.style.use('ggplot')
 
-df = pd.read_csv('C:/Users/Justi/Research/logs/baseline_model/evaluate_model_stability.csv')
+df = pd.read_csv('C:/Users/Justi/Research/log/evaluate_model_stability/evaluate_model_stability.csv')
 
 max_mean_running_time = np.max(df.mean_running_time)
 min_mean_running_time = 0
@@ -133,8 +129,6 @@ for i, tc in enumerate(df.thread_count.unique()):
                             (df['thread_count'] == tc) &
                             (df['batch_interval'] == bi)]
 
-            print(run_df)
-
             # We'll need a mean here...
 
             # # Get the mean val_loss over reps, binned by batch interval.
@@ -161,21 +155,6 @@ for i, tc in enumerate(df.thread_count.unique()):
         ax = fig.add_subplot(len(df.thread_count.unique()),
                              len(df.batch_size.unique()),
                              plot_num)
-
-        # print(len(train_loss))
-        # print(len(mean_val_loss))
-        # show_xlabel = len(df.thread_count.unique()) == (i + 1)
-        # show_label_1 = j == 0
-        # show_label_2 = len(df.batch_size.unique()) == (j + 1)
-
-        # annotate_col = i == 0
-        # col_annotation = 'Batch Size = %d' % bs
-
-        # annotate_row = j == 0
-        # row_annotation = 'Thread \n Count = %d' % tc
-
-        # Create axes
-        # ax.scatter(t, s1)
 
         ax1, ax2 = dual_scatter(ax, t, s1, s2, 'r', 'b',
                                 min_batch_interval,

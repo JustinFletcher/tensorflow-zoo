@@ -164,10 +164,10 @@ def main(_):
     experimental_outputs = []
 
     # Establish the dependent variables of the experiment.
-    reps = range(4)
+    reps = range(2)
     thread_counts = [16, 32, 64]
-    batch_sizes = [16, 32, 64]
-    batch_intervals = [1, 2, 4, 8, 16]
+    batch_sizes = [16, 32, 64, 128, 256, 512, 1024]
+    batch_intervals = [1, 2, 4, 8, 16, 32, 64, 128, 256]
 
     # Produce the Cartesian set of configurations.
     experimental_configurations = itertools.product(thread_counts,
