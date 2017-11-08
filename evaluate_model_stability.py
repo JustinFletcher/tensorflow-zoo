@@ -165,9 +165,9 @@ def main(_):
 
     # Establish the dependent variables of the experiment.
     reps = range(2)
-    thread_counts = [16, 32, 64]
-    batch_sizes = [16, 32, 64, 128, 256, 512, 1024]
-    batch_intervals = [1, 2, 4, 8, 16, 32, 64, 128, 256]
+    thread_counts = [16, 32]
+    batch_sizes = [32, 64, 128, 256, 512]
+    batch_intervals = [1, 2, 4, 8, 16, 32, 64, 128]
 
     # Produce the Cartesian set of configurations.
     experimental_configurations = itertools.product(thread_counts,
@@ -239,7 +239,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     # Establish default arguements.
-    parser.add_argument('--max_steps', type=int, default=5000,
+    parser.add_argument('--max_steps', type=int, default=2000,
                         help='Number of steps to run trainer.')
 
     parser.add_argument('--test_interval', type=int, default=100,
