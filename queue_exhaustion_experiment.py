@@ -36,7 +36,7 @@ def queue_exhaustion_experiment(exp_parameters):
     queue_sizes = []
 
     # Instantiate a model.
-    model = Model(FLAGS.input_size, FLAGS.label_size, FLAGS.label_size,
+    model = Model(FLAGS.input_size, FLAGS.label_size,
                   FLAGS.learning_rate,
                   thread_count, FLAGS.val_enqueue_threads,
                   FLAGS.data_dir, FLAGS.train_file, FLAGS.validation_file)
