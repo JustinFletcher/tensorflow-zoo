@@ -143,7 +143,7 @@ for i, tc in enumerate(df.thread_count.unique()):
         row_annotation = 'Thread \n Count = %d' % tc
 
         # Create axes
-        
+
         ax = fig.add_subplot(len(df.thread_count.unique()),
                              len(df.batch_size.unique()),
                              plot_num)

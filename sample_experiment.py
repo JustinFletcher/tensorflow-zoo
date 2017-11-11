@@ -8,8 +8,9 @@ import numpy as np
 import tensorflow as tf
 from concurrent.futures import *
 
+# Import the baseline model.
 sys.path.append("/.")
-from baseline_model import *
+from baseline_mlp_model import *
 
 '''
 This file serves as a canonical example of how to perform a sequential
@@ -19,7 +20,7 @@ outputs, and writes those outputs to a file.
 '''
 
 
-def generalization_experiment(exp_parameters):
+def sample_experiment(exp_parameters):
 
     # Unpack the experimental parameters.
     (thread_count, batch_size, batch_interval, rep) = exp_parameters
@@ -34,7 +35,8 @@ def generalization_experiment(exp_parameters):
     mean_running_times = []
 
     # Instantiate a model.
-    model = Model(FLAGS.input_size, FLAGS.label_size, FLAGS.learning_rate,
+    model = Model(FLAGS.input_size, FLAGS.label_size, FLAGS.label_size,
+                  FLAGS.learning_rate,
                   thread_count, FLAGS.val_enqueue_threads,
                   FLAGS.data_dir, FLAGS.train_file, FLAGS.validation_file)
 
@@ -61,7 +63,7 @@ def generalization_experiment(exp_parameters):
 
         # Print a line for debug.
         print('step | train_loss | train_error | val_loss | \
-               val_error | t | total_time')
+               val_error | mean_running_time | total_time')
 
         # Load the validation set batch into memory.
         val_images, val_labels = sess.run([val_image_batch, val_label_batch])
@@ -164,10 +166,18 @@ def main(_):
     experimental_outputs = []
 
     # Establish the dependent variables of the experiment.
-    reps = range(5)
-    thread_counts = [8, 16, 32]
-    batch_sizes = [8, 16, 32, 64, 128, 256, 512]
-    batch_intervals = [1, 2, 4, 8, 16, 32, 64, 128]
+    parameter_labels = ['thread_count',
+                        'batch_size',
+                        'batch_interval',
+                        'rep_num',
+                        'step_num',
+                        'train_loss',
+                        'val_loss',
+                        'mean_running_time']
+    reps = range(1)
+    thread_counts = [16, 32]
+    batch_sizes = [32, 64]
+    batch_intervals = [1, 2]
 
     # Produce the Cartesian set of configurations.
     experimental_configurations = itertools.product(thread_counts,
@@ -180,27 +190,19 @@ def main(_):
     # Iterate over each experimental config.
     for experimental_configuration in experimental_configurations:
 
-        results = generalization_experiment(experimental_configuration)
+        results = sample_experiment(experimental_configuration)
 
         experimental_outputs.append([experimental_configuration, results])
 
     # Accomodate Python 3+
-    # with open(FLAGS.log_dir + '/sa_generalization_out.csv', 'w') as csvfile:
+    # with open(FLAGS.log_dir '/' + FLAGS.log_filename, 'w') as csvfile:
 
     # Accomodate Python 2.7 on Hokulea.
-    with open(FLAGS.log_dir +
-              '/evaluate_model_stability.csv', 'wb') as csvfile:
+    with open(FLAGS.log_dir + '/' + FLAGS.log_filename, 'wb') as csvfile:
 
         # Open a writer and write the header.
         csvwriter = csv.writer(csvfile)
-        csvwriter.writerow(['thread_count',
-                            'batch_size',
-                            'batch_interval',
-                            'rep_num',
-                            'step_num',
-                            'train_loss',
-                            'val_loss',
-                            'mean_running_time'])
+        csvwriter.writerow(parameter_labels)
 
         # Iterate over each output.
         for (experimental_configuration, results) in experimental_outputs:
@@ -238,11 +240,11 @@ if __name__ == '__main__':
     # Instantiate an arg parser.
     parser = argparse.ArgumentParser()
 
-    # Establish default arguements.
-    parser.add_argument('--max_steps', type=int, default=2000,
+    # Set default arguements, these should not be experimental parameters.
+    parser.add_argument('--max_steps', type=int, default=100,
                         help='Number of steps to run trainer.')
 
-    parser.add_argument('--test_interval', type=int, default=100,
+    parser.add_argument('--test_interval', type=int, default=50,
                         help='Number of steps between test set evaluations.')
 
     parser.add_argument('--learning_rate', type=float, default=1e-4,
@@ -253,7 +255,11 @@ if __name__ == '__main__':
                         help='Directory from which to pull data.')
 
     parser.add_argument('--log_dir', type=str,
-                        default='../log/evaluate_model_stability_large/',
+                        default='../log/sample_experiment/',
+                        help='Summaries log directory.')
+
+    parser.add_argument('--log_filename', type=str,
+                        default='../log/sample_experiment.csv',
                         help='Summaries log directory.')
 
     parser.add_argument('--val_batch_size', type=int,
@@ -271,6 +277,10 @@ if __name__ == '__main__':
     parser.add_argument('--label_size', type=int,
                         default=10,
                         help='Dimensinoality of the output space.')
+
+    parser.add_argument('--hl_size', type=int,
+                        default=16,
+                        help='Size of the hidden layer.')
 
     parser.add_argument('--train_file', type=str,
                         default='train.tfrecords',

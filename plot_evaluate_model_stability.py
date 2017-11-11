@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.lines as mlines
 import pandas as pd
 
 
@@ -15,38 +16,26 @@ def dual_scatter(ax1, time, data1, data2, c1, c2,
                  col_annotation,
                  annotate_row,
                  row_annotation,):
-    """
 
-    Parameters
-    ----------
-    ax : axis
-        Axis to put two scales on
-
-    time : array-like
-        x-axis values for both datasets
-
-    data1: array-like
-        Data for left hand scale
-
-    data2 : array-like
-        Data for right hand scale
-
-    c1 : color
-        Color for line 1
-
-    c2 : color
-        Color for line 2
-
-    Returns
-    -------
-    ax : axis
-        Original axis
-    ax2 : axis
-        New twin axis
-    """
     ax2 = ax1.twinx()
 
-    ax1.plot(time, data2, color=c2, alpha=0.75)
+    ax1.plot(time, data1, color=c1, alpha=0.2)
+    ax2.plot(time, data2, color=c2, alpha=0.2)
+
+    ax1.scatter(time, data1, color=c1, alpha=0.8, marker='^')
+    ax2.scatter(time, data2, color=c2, alpha=0.8)
+
+    # ax1.set_xlim(xmin, xmax)
+    # ax2.set_xlim(xmin, xmax)
+
+    ax2.set_ylim(ymin2, ymax2)
+    ax1.set_ylim(ymin1, ymax1)
+
+    ax1.set_xscale("log", nonposx='clip')
+    ax2.set_xscale("log", nonposx='clip')
+
+    ax1.set_yscale("log", nonposy='clip')
+    ax2.set_yscale("log", nonposy='clip')
 
     if show_xlabel:
         ax1.set_xlabel('Batch Interval')
@@ -54,22 +43,14 @@ def dual_scatter(ax1, time, data1, data2, c1, c2,
         ax1.xaxis.set_ticklabels([])
 
     if show_ylabel_2:
-        ax2.set_ylabel('Min Achieved \n Validation Loss')
+        ax2.set_ylabel('Min Achieved \nValidation Loss')
     else:
         ax2.yaxis.set_ticklabels([])
 
-    # ax1.set_xlim(xmin, xmax)
-    # ax1.set_ylim(ymin2, ymax2)
-
-    ax2.plot(time, data1, color=c1, alpha=0.75)
-
     if show_ylabel_1:
-        ax1.set_ylabel('Mean Single \n Batch Inference \n Running Time')
+        ax1.set_ylabel('Mean Single \nBatch Inference \nRunning Time')
     else:
         ax1.yaxis.set_ticklabels([])
-
-    # ax2.set_xlim(xmin, xmax)
-    # ax2.set_ylim(ymin1, ymax1)
 
     if annotate_col:
         pad = 10
@@ -78,8 +59,8 @@ def dual_scatter(ax1, time, data1, data2, c1, c2,
                      size='large', ha='center', va='baseline')
 
     if annotate_row:
-        pad = -70
-        ax1.annotate(row_annotation, xy=(0, 0.75), xytext=(pad, 0),
+        pad = -100
+        ax1.annotate(row_annotation, xy=(0, 0.55), xytext=(pad, 0),
                      rotation=90,
                      xycoords='axes fraction', textcoords='offset points',
                      size='large', ha='center', va='baseline')
@@ -90,12 +71,6 @@ def dual_scatter(ax1, time, data1, data2, c1, c2,
 plt.style.use('ggplot')
 
 df = pd.read_csv('C:/Users/Justi/Research/log/evaluate_model_stability/evaluate_model_stability.csv')
-
-max_mean_running_time = np.max(df.mean_running_time)
-min_mean_running_time = 0
-
-max_min_val_loss = np.max(df.val_loss)
-min_min_val_loss = 0
 
 max_batch_interval = np.max(df.batch_interval)
 min_batch_interval = np.min(df.batch_interval)
@@ -108,6 +83,13 @@ fig = plt.figure()
 
 plot_num = 0
 
+# matshow: x is batch interval, y is batch size, c is val_loss
+# matshow: x is batch interval, y is batch sizen_time
+# matshow: x is batch interval, y is batch size, c is re, c is meal_val_loss * rel_mean_time
+
+# A given HPC node is a line trading along num_workers and num_threads
+
+# Choose number of workers, gross batch size, and batch_int to drive the optimal c, 
 
 for i, tc in enumerate(df.thread_count.unique()):
 
@@ -151,6 +133,18 @@ for i, tc in enumerate(df.thread_count.unique()):
         annotate_row = j == 0
         row_annotation = 'Thread \n Count = %d' % tc
 
+        # min_s2 = 0
+        # max_s2 = 0.04
+
+        # min_s1 = 0
+        # max_s1 = 0.2
+
+        min_s2 = 0.001
+        max_s2 = 1
+
+        min_s1 = 0.001
+        max_s1 = 1
+
         # Create axes.
         ax = fig.add_subplot(len(df.thread_count.unique()),
                              len(df.batch_size.unique()),
@@ -158,11 +152,11 @@ for i, tc in enumerate(df.thread_count.unique()):
 
         ax1, ax2 = dual_scatter(ax, t, s1, s2, 'r', 'b',
                                 min_batch_interval,
-                                min_mean_running_time,
-                                max_min_val_loss,
+                                min_s1,
+                                min_s2,
                                 max_batch_interval,
-                                max_mean_running_time,
-                                max_min_val_loss,
+                                max_s1,
+                                max_s2,
                                 show_xlabel,
                                 show_label_1,
                                 show_label_2,
@@ -170,6 +164,16 @@ for i, tc in enumerate(df.thread_count.unique()):
                                 col_annotation,
                                 annotate_row,
                                 row_annotation)
+
+        s1_label = mlines.Line2D([], [], color='r', marker='^',
+                                 markersize=7,
+                                 label='Min Achieved \nValidation Loss')
+
+        s2_label = mlines.Line2D([], [], color='b', marker='o',
+                                 markersize=7,
+                                 label='Mean Single Batch \nInference Running Time')
+
+        plt.legend(handles=[s1_label, s2_label], loc=4)
 
 plt.suptitle("Validation Loss and Mean Optimization Running Time by Batch Interval")
 
