@@ -15,4 +15,4 @@ cp -R ~/data $WORKDIR
 module load anaconda2
 module load tensorflow
 cd ~/tensorflow-zoo
-python evaluate_model_stability.py
+python queue_exhaustion.py
