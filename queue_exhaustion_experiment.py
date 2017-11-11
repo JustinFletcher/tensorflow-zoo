@@ -130,7 +130,7 @@ def queue_exhaustion_experiment(exp_parameters):
             start_time = time.time()
 
             # If it is a batch refresh interval, refresh the batch.
-            if((i % batch_interval == 0) or (i == 0)):
+            if((i % FLAGS.batch_interval == 0) or (i == 0)):
 
                 # Update the batch.
                 train_images, train_labels = sess.run([image_batch,
@@ -288,6 +288,10 @@ if __name__ == '__main__':
     parser.add_argument('--train_file', type=str,
                         default='train.tfrecords',
                         help='Training dataset filename.')
+
+    parser.add_argument('--batch_interval', type=int,
+                        default=1,
+                        help='Interval at which to refresh batch.')
 
     parser.add_argument('--validation_file', type=str,
                         default='validation.tfrecords',
