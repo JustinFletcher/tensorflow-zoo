@@ -46,6 +46,8 @@ def sample_experiment(exp_parameters):
     (val_image_batch, val_label_batch) = model.get_val_batch_ops(
         batch_size=FLAGS.val_batch_size)
 
+    qr = tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)[1]
+
     tf.summary.merge_all()
 
     # Instantiate a session and initialize it.
@@ -140,10 +142,7 @@ def sample_experiment(exp_parameters):
 
             # train_writer.add_summary(summary, i)
 
-            # Update timekeeping variables.
-            stop_time = time.time()
-            optimize_step_running_time = stop_time - start_time
-            running_times.append(optimize_step_running_time)
+            # Update timekeeping variables. 
 
         # Close the summary writers.
         # test_writer.close()

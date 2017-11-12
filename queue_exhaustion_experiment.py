@@ -60,7 +60,6 @@ def queue_exhaustion_experiment(exp_parameters):
 
         # Declare timekeeping vars.
         running_times = []
-        optimize_step_running_time = 0
 
         # Print a line for debug.
         print('step | train_loss | train_error | val_loss | ' +
@@ -144,9 +143,12 @@ def queue_exhaustion_experiment(exp_parameters):
             # Run a single step of the model.
             sess.run(model.optimize, feed_dict=train_dict)
 
-            # train_writer.add_summary(summary, i)
+            # Update timekeeping variables.
+            stop_time = time.time()
+            optimize_step_running_time = stop_time - start_time
+            running_times.append(optimize_step_running_time)
 
-            # Update timekeeping variables. 
+            # train_writer.add_summary(summary, i)
 
         # Close the summary writers.
         # test_writer.close()
@@ -179,8 +181,10 @@ def main(_):
                         'queue_size']
 
     reps = range(1)
-    batch_sizes = [16, 32, 48, 64, 96, 128]
-    thread_counts = [16, 32, 48, 64, 96, 128]
+    # batch_sizes = [16, 32, 48, 64, 96, 128]
+    # thread_counts = [16, 32, 48, 64, 96, 128]
+    batch_sizes = [16, 32]
+    thread_counts = [16, 32]
 
     # Produce the Cartesian set of configurations.
     experimental_configurations = itertools.product(thread_counts,
