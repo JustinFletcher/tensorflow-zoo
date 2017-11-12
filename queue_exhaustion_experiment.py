@@ -42,7 +42,8 @@ def queue_exhaustion_experiment(exp_parameters):
                   FLAGS.data_dir, FLAGS.train_file, FLAGS.validation_file)
 
     # Get queue size Op.
-    qr = tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)[1]
+    print(tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS))
+    qr = tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)[0]
 
     # Get input data.
     image_batch, label_batch = model.get_train_batch_ops(batch_size=batch_size)
@@ -63,7 +64,6 @@ def queue_exhaustion_experiment(exp_parameters):
 
         # Declare timekeeping vars.
         running_times = []
-
 
         # Print a line for debug.
         print('step | train_loss | train_error | val_loss | ' +
@@ -161,6 +161,9 @@ def queue_exhaustion_experiment(exp_parameters):
         sess.close()
 
     return(steps, train_losses, val_losses, mean_running_times, queue_sizes)
+
+# TODO: Update to use tf.Estimator
+# TODO: Update to use tf.Experiment
 
 
 def main(_):
