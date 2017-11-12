@@ -84,7 +84,7 @@ def queue_exhaustion_experiment(exp_parameters):
             if i % FLAGS.test_interval == 1:
 
                 # Measure the pre-optimize queue size and store it.
-                current_queue_size = sess.run(qr.queue)
+                current_queue_size = sess.run(qr.queue.size())
                 #.queue.size()
                 print("hi")
                 print(current_queue_size)
