@@ -42,8 +42,7 @@ def queue_exhaustion_experiment(exp_parameters):
                   FLAGS.data_dir, FLAGS.train_file, FLAGS.validation_file)
 
     # Get queue size Op.
-    print(tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS))
-    qr = tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)[0]
+    qr = tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)
 
     # Get input data.
     image_batch, label_batch = model.get_train_batch_ops(batch_size=batch_size)
