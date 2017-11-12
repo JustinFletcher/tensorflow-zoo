@@ -53,7 +53,7 @@ def queue_exhaustion_experiment(exp_parameters):
     sv = tf.train.Supervisor(logdir=FLAGS.log_dir, save_summaries_secs=10.0)
 
     # Get queue size Op.
-    qr = tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)[1]
+    qr = tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)[1].queue.size()
 
     print(qr)
 
@@ -84,7 +84,7 @@ def queue_exhaustion_experiment(exp_parameters):
             if i % FLAGS.test_interval == 1:
 
                 # Measure the pre-optimize queue size and store it.
-                current_queue_size = sess.run(qr.queue.size())
+                current_queue_size = sess.run(qr)
                 #.queue.size()
                 print("hi")
                 print(current_queue_size)
