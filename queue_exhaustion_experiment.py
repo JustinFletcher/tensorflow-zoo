@@ -82,7 +82,7 @@ def queue_exhaustion_experiment(exp_parameters):
             if i % FLAGS.test_interval == 1:
 
                 # Measure the pre-optimize queue size and store it.
-                current_queue_size = sess.run(qr.queue.size())
+                current_queue_size = sess.run(qr[1].queue.size())
 
                 # Update the batch, so as to not underestimate the train error.
                 train_images, train_labels = sess.run([image_batch,
