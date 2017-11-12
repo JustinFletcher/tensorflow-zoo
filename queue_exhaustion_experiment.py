@@ -41,6 +41,9 @@ def queue_exhaustion_experiment(exp_parameters):
                   thread_count, FLAGS.val_enqueue_threads,
                   FLAGS.data_dir, FLAGS.train_file, FLAGS.validation_file)
 
+    # Get queue size Op.
+    qr = tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)[1]
+
     # Get input data.
     image_batch, label_batch = model.get_train_batch_ops(batch_size=batch_size)
 
@@ -48,11 +51,6 @@ def queue_exhaustion_experiment(exp_parameters):
         batch_size=FLAGS.val_batch_size)
 
     tf.summary.merge_all()
-
-
-        
-    # Get queue size Op.
-    qr = tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)[1]
 
     # Instantiate a session and initialize it.
     sv = tf.train.Supervisor(logdir=FLAGS.log_dir, save_summaries_secs=10.0)
