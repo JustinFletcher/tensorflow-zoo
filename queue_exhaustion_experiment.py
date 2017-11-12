@@ -52,9 +52,10 @@ def queue_exhaustion_experiment(exp_parameters):
     # Instantiate a session and initialize it.
     sv = tf.train.Supervisor(logdir=FLAGS.log_dir, save_summaries_secs=10.0)
 
-
     # Get queue size Op.
     qr = tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)[1]
+
+    print(qr)
 
     with sv.managed_session() as sess:
 
