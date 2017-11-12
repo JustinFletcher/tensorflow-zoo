@@ -41,9 +41,6 @@ def queue_exhaustion_experiment(exp_parameters):
                   thread_count, FLAGS.val_enqueue_threads,
                   FLAGS.data_dir, FLAGS.train_file, FLAGS.validation_file)
 
-    # Get queue size Op.
-    qr = tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)
-
     # Get input data.
     image_batch, label_batch = model.get_train_batch_ops(batch_size=batch_size)
 
@@ -54,6 +51,10 @@ def queue_exhaustion_experiment(exp_parameters):
 
     # Instantiate a session and initialize it.
     sv = tf.train.Supervisor(logdir=FLAGS.log_dir, save_summaries_secs=10.0)
+
+
+    # Get queue size Op.
+    qr = tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)[1]
 
     with sv.managed_session() as sess:
 
@@ -82,8 +83,7 @@ def queue_exhaustion_experiment(exp_parameters):
             if i % FLAGS.test_interval == 1:
 
                 # Measure the pre-optimize queue size and store it.
-                print(sess.run(qr))
-                current_queue_size = sess.run(qr)[0].queue.size()
+                current_queue_size = sess.run(qr.queue.size())
 
                 # Update the batch, so as to not underestimate the train error.
                 train_images, train_labels = sess.run([image_batch,
