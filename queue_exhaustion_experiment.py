@@ -61,6 +61,11 @@ def queue_exhaustion_experiment(exp_parameters):
         # Declare timekeeping vars.
         running_times = []
 
+        
+        # Get queue size Op.
+        qr = tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)[1]
+
+
         # Print a line for debug.
         print('step | train_loss | train_error | val_loss | ' +
               'val_error | mean_running_time | total_time | qsize')
