@@ -115,7 +115,7 @@ def queue_exhaustion_experiment(exp_parameters):
                 steps.append(i)
                 train_losses.append(train_loss)
                 val_losses.append(val_loss)
-                mean_running_times.append(np.mean(running_times))
+                mean_running_times.append(np.mean(running_times[-FLAGS.test_interval:]))
                 queue_sizes.append(current_queue_size)
 
                 # Print relevant values.
