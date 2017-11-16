@@ -34,7 +34,7 @@ def queue_exhaustion_experiment(exp_parameters):
     steps = []
     val_losses = []
     train_losses = []
-    mean_running_times = []
+    running_times = []
     queue_sizes = []
 
     # Instantiate a model.
