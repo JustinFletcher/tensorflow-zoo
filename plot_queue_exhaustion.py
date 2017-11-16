@@ -93,9 +93,9 @@ def bar_line_plot(ax1, time, data1, data2, c1, c2,
 
 plt.style.use('ggplot')
 
-df = pd.read_csv('C:/Users/Justi/Research/logs/queue_exhaustion_out.csv')
+df = pd.read_csv('C:/Users/Justi/Research/log/queue_exhaustion_experiment/queue_exhaustion_experiment.csv')
 
-max_running_time = np.max(df.running_time)
+max_running_time = np.max(df.mean_running_time)
 print(max_running_time)
 min_running_time = 0
 
@@ -129,7 +129,7 @@ for i, tc in enumerate(df.thread_count.unique()):
         # print(run_df)
         # Create some mock data
         t = run_df['step_num']
-        s1 = run_df['running_time']
+        s1 = run_df['mean_running_time']
         s2 = run_df['queue_size']
 
         show_xlabel = len(df.thread_count.unique()) == (i + 1)

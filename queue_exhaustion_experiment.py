@@ -22,6 +22,8 @@ outputs, and writes those outputs to a file.
 
 def queue_exhaustion_experiment(exp_parameters):
 
+    print(exp_parameters)
+
     # Unpack the experimental parameters.
     (thread_count, batch_size, rep) = exp_parameters
 
@@ -123,7 +125,7 @@ def queue_exhaustion_experiment(exp_parameters):
                          train_error,
                          val_loss,
                          val_error,
-                         np.mean(running_times),
+                         np.mean(running_times[-FLAGS.test_interval:]),
                          np.sum(running_times),
                          current_queue_size))
 
