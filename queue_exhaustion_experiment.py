@@ -34,7 +34,7 @@ def queue_exhaustion_experiment(exp_parameters):
     steps = []
     val_losses = []
     train_losses = []
-    running_times = []
+    mean_running_times = []
     queue_sizes = []
 
     # Instantiate a model.
@@ -65,6 +65,8 @@ def queue_exhaustion_experiment(exp_parameters):
         # Print a line for debug.
         print('step | train_loss | train_error | val_loss | ' +
               'val_error | mean_running_time | total_time | qsize')
+
+        running_times = []
 
         # Load the validation set batch into memory.
         val_images, val_labels = sess.run([val_image_batch, val_label_batch])
