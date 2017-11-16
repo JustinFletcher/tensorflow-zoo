@@ -222,7 +222,7 @@ class Model(object):
             images, sparse_labels = tf.train.shuffle_batch(
                 [image, label],
                 batch_size=batch_size,
-                capacity=20000.0,
+                capacity=10000.0,
                 num_threads=self.val_enqueue_threads,
                 min_after_dequeue=10)
 
