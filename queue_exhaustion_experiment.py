@@ -62,9 +62,6 @@ def queue_exhaustion_experiment(exp_parameters):
         #                                      '/train', sess.graph)
         # test_writer = tf.summary.FileWriter(FLAGS.log_dir + '/test')
 
-        # Declare timekeeping vars.
-        running_times = []
-
         # Print a line for debug.
         print('step | train_loss | train_error | val_loss | ' +
               'val_error | mean_running_time | total_time | qsize')
@@ -115,7 +112,9 @@ def queue_exhaustion_experiment(exp_parameters):
                 steps.append(i)
                 train_losses.append(train_loss)
                 val_losses.append(val_loss)
-                mean_running_times.append(np.mean(running_times[-FLAGS.test_interval:]))
+                mean_running_time = np.mean(
+                    running_times[-FLAGS.test_interval:])
+                mean_running_times.append(mean_running_time)
                 queue_sizes.append(current_queue_size)
 
                 # Print relevant values.
@@ -125,7 +124,7 @@ def queue_exhaustion_experiment(exp_parameters):
                          train_error,
                          val_loss,
                          val_error,
-                         np.mean(running_times[-FLAGS.test_interval:]),
+                         mean_running_time,
                          np.sum(running_times),
                          current_queue_size))
 
@@ -308,7 +307,7 @@ if __name__ == '__main__':
                         help='Validation dataset filename.')
 
     parser.add_argument('--val_enqueue_threads', type=int,
-                        default=32,
+                        default=4,
                         help='Number of threads to enqueue val examples.')
 
     # Parse known arguements.
