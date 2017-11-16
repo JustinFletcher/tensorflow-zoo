@@ -189,8 +189,8 @@ def main(_):
                         'queue_size']
 
     reps = range(1)
-    batch_sizes = [16, 32, 48, 64, 96, 128]
-    thread_counts = [16, 32, 48, 64, 96, 128]
+    batch_sizes = [32, 64, 128, 256, 512, 1024]
+    thread_counts = [8, 16, 32, 48, 64]
 
     # Produce the Cartesian set of configurations.
     experimental_configurations = itertools.product(thread_counts,
