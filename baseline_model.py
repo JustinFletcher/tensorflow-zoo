@@ -197,7 +197,7 @@ class Model(object):
                 batch_size=batch_size,
                 capacity=10000.0,
                 num_threads=self.enqueue_threads,
-                min_after_dequeue=10)
+                min_after_dequeue=batch_size)
 
         return images, sparse_labels
 
