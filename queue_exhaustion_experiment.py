@@ -114,11 +114,10 @@ def queue_exhaustion_experiment(exp_parameters):
                 train_losses.append(train_loss)
                 val_losses.append(val_loss)
                 mean_running_times.append(np.mean(running_times))
-                queue_sizes.append(1)
-                # queue_sizes.append(current_queue_size)
+                queue_sizes.append(current_queue_size)
 
                 # Print relevant values.
-                print('%d | %.6f | %.2f | %.6f | %.2f | %.6f | %.2f'
+                print('%d | %.6f | %.2f | %.6f | %.2f | %.6f | %.2f | %d'
                       % (i,
                          train_loss,
                          train_error,
