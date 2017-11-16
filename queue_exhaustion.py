@@ -490,7 +490,7 @@ def main(_):
 
     # thread_counts = [1, 2, 4, 8, 16, 32, 64, 128]
 
-    batch_sizes = [32, 48, 64, 96, 128]
+    batch_sizes = [16, 32, 48, 64, 96, 128]
 
     thread_counts = [16, 32, 48, 64, 96, 128]
 
@@ -528,7 +528,7 @@ def main(_):
 
         print('%4d        | %4d        | %5.6f   | %8.6f      | %8.6f ' % print_tuple)
 
-    with open(FLAGS.log_dir + '/queue_exhaustion_out.csv', 'wb') as csvfile:
+    with open(FLAGS.log_dir + 'queue_exhaustion_out.csv', 'wb') as csvfile:
 
         csvwriter = csv.writer(csvfile)
 
@@ -565,17 +565,18 @@ if __name__ == '__main__':
                         default=False,
                         help='If true, uses fake data for unit testing.')
 
-    parser.add_argument('--max_steps', type=int, default=800,
+    parser.add_argument('--max_steps', type=int, default=1000,
                         help='Number of steps to run trainer.')
 
-    parser.add_argument('--test_interval', type=int, default=40,
+    parser.add_argument('--test_interval', type=int, default=50,
                         help='Number of steps between test set evaluations.')
 
     parser.add_argument('--learning_rate', type=float, default=1e-4,
                         help='Initial learning rate')
 
+    # default=os.environ['WORKDIR'] + '/data',
     parser.add_argument('--data_dir', type=str,
-                        default=os.environ['WORKDIR'] + '/data',
+                        default='../data',
                         help='Directory for storing input data')
 
     parser.add_argument('--log_dir', type=str,

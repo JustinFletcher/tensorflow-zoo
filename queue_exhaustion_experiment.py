@@ -54,9 +54,6 @@ def queue_exhaustion_experiment(exp_parameters):
     # Instantiate a session and initialize it.
     sv = tf.train.Supervisor(logdir=FLAGS.log_dir, save_summaries_secs=10.0)
 
-
-    print(qr)
-
     with sv.managed_session() as sess:
 
         # train_writer = tf.summary.FileWriter(FLAGS.log_dir +
@@ -85,9 +82,6 @@ def queue_exhaustion_experiment(exp_parameters):
 
                 # Measure the pre-optimize queue size and store it.
                 current_queue_size = sess.run(qr)
-                #.queue.size()
-                print("hi")
-                print(current_queue_size)
 
                 # Update the batch, so as to not underestimate the train error.
                 train_images, train_labels = sess.run([image_batch,
@@ -120,7 +114,8 @@ def queue_exhaustion_experiment(exp_parameters):
                 train_losses.append(train_loss)
                 val_losses.append(val_loss)
                 mean_running_times.append(np.mean(running_times))
-                queue_sizes.append(current_queue_size)
+                queue_sizes.append(1)
+                # queue_sizes.append(current_queue_size)
 
                 # Print relevant values.
                 print('%d | %.6f | %.2f | %.6f | %.2f | %.6f | %.2f'
