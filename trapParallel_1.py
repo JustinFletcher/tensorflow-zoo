@@ -60,5 +60,8 @@ else:
 
 # root process prints results
 if comm.rank == 0:
-        print "With n =", n, "trapezoids, our estimate of the integral from"\
-        , a, "to", b, "is", total
+       print "hi from 0"
+       f = open('~/log/mpilog.txt', 'w')
+       f.write("With n =" + str(n) + "trapezoids, our estimate of the integral from" +
+               str(a) + "to" + str(b) + "is" + str(total))
+       f.close()
