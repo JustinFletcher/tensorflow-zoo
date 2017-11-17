@@ -15,4 +15,4 @@ cp -R ~/data $WORKDIR
 module load anaconda2
 module load tensorflow
 cd ~/tensorflow-zoo
-mpiexec -n 4 python sample_mpi_experiment.py
+mpiexec -n 4 python trapParallel_1.py 0.0 1.0 10000
