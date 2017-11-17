@@ -46,8 +46,6 @@ def sample_experiment(exp_parameters):
     (val_image_batch, val_label_batch) = model.get_val_batch_ops(
         batch_size=FLAGS.val_batch_size)
 
-    qr = tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)[1]
-
     tf.summary.merge_all()
 
     # Instantiate a session and initialize it.
@@ -260,7 +258,7 @@ if __name__ == '__main__':
                         help='Summaries log directory.')
 
     parser.add_argument('--log_filename', type=str,
-                        default='../log/sample_experiment.csv',
+                        default='sample_experiment.csv',
                         help='Summaries log directory.')
 
     parser.add_argument('--val_batch_size', type=int,
