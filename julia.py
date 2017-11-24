@@ -1,3 +1,5 @@
+print("hello?")
+
 from mpi4py.futures import MPIPoolExecutor
 
 x0, x1, w = -2.0, +2.0, 640*2
