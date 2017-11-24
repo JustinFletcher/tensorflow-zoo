@@ -32,11 +32,13 @@ def say_hi(k):
 
     print("Hello, world! You gave me" + str(k))
 
+
+    return(k**2)
+
 if __name__ == '__main__':
 
     print("Starting main.")
 
-    return(k**2)
 
     with MPIPoolExecutor() as executor:
 
@@ -52,5 +54,3 @@ if __name__ == '__main__':
         #     f.write(b'P5 %d %d %d\n' % (w, h, 255))
         #     for line in image:
         #         f.write(line)
-
-    return(0)
