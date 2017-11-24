@@ -3,16 +3,16 @@
 import numpy
 import sys
 
-f = open('~/log/mpilog.txt', 'a')
-f.write("Hello, world.")
-f.close()
+# f = open('~/log/mpilog.txt', 'a')
+# f.write("Hello, world.")
+# f.close()
 
 from mpi4py import MPI
 from mpi4py.MPI import ANY_SOURCE
 
-f = open('~/log/mpilog.txt', 'a')
-f.write("Got past MPI import")
-f.close()
+# f = open('~/log/mpilog.txt', 'a')
+# f.write("Got past MPI import")
+# f.close()
 
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
