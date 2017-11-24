@@ -47,6 +47,8 @@ if __name__ == '__main__':
 
         output = executor.map(say_hi, range(4))
 
+        print("Do I ever get here?????")
+
         for thing in output:
             print("The output is: ", thing)
 
