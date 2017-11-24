@@ -65,7 +65,8 @@ if rank == 0:
                 total += recv_buffer[0]
 else:
         # all other process send their result
-        comm.Send(integral)
+        comm.Send(integral, dest=0add
+          )
 
 # root process prints results
 if comm.rank == 0:
