@@ -32,4 +32,3 @@ if __name__ == '__main__':
         for thing in output:
             print("The output is: ", thing)
 
-    return()
