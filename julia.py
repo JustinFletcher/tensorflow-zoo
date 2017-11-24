@@ -46,10 +46,12 @@ if __name__ == '__main__':
         print("About to map")
 
         output = executor.map(say_hi, range(4))
-        # image = executor.map(julia_line, range(h))
 
-        print("The output is: ", output)
-        # print("h")
+        for thing in output:
+            print("The output is: ", thing)
+
+
+        # image = executor.map(julia_line, range(h))
         # with open('julia.pgm', 'wb') as f:
         #     f.write(b'P5 %d %d %d\n' % (w, h, 255))
         #     for line in image:
