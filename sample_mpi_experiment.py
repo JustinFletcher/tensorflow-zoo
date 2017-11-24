@@ -198,7 +198,7 @@ def main(_):
             experimental_configurations = None
 
     # Initialize the local experimental config.
-    experimental_configurations_local = np.zeros(LENGTH)
+    experimental_configurations_local = [[] for _ in range(LENGTH)]
 
     # Exectucute the scatter MPI command, loading a conifg.
     comm.Scatter(experimental_configurations,
