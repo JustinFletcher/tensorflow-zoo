@@ -2,9 +2,9 @@
 ## Walltime in hours:minutes:seconds
 #PBS -l walltime=48:00:00
 ## -o specifies output file
-#PBS -o ~/log/queue_exhaustion.out
+#PBS -o /log/queue_exhaustion.out
 ## -e specifies error file
-#PBS -e ~/log/queue_exhaustion.error
+#PBS -e /log/queue_exhaustion.error
 ## Nodes, Processors, CPUs (processors and CPUs should always match)
 #PBS -l select=4:mpiprocs=20:ncpus=20
 ## Enter the proper queue
