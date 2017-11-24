@@ -25,15 +25,30 @@ def julia_line(k):
         line[j] = julia(x, y)
     return line
 
+
+def say_hi(k):
+
+    print("Hello, world! You gave me" + str(k))
+
 if __name__ == '__main__':
 
-    with MPIPoolExecutor() as executor:
-        image = executor.map(julia_line, range(h))
+    print("Starting main.")
 
-        print("hi!")
-        with open('julia.pgm', 'wb') as f:
-            f.write(b'P5 %d %d %d\n' % (w, h, 255))
-            for line in image:
-                f.write(line)
+    return(k**2)
+
+    with MPIPoolExecutor() as executor:
+
+
+        print("About to map")
+
+        output = executor.map(say_hi, range(4))
+        # image = executor.map(julia_line, range(h))
+
+        print("The output is: " + output)
+        # print("h")
+        # with open('julia.pgm', 'wb') as f:
+        #     f.write(b'P5 %d %d %d\n' % (w, h, 255))
+        #     for line in image:
+        #         f.write(line)
 
     return(0)
