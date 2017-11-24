@@ -234,34 +234,7 @@ class Model(object):
         input: tensor of input image. if none, uses instantiation input
         output: tensor of computed logits
         '''
-        # ###############################
-        # print_tensor_shape(self.stimulus_placeholder, 'images shape')
-        # print_tensor_shape(self.target_placeholder, 'label shape')
 
-        # Fully-connected layer.
-        # with tf.name_scope('fully_connected1'):
-
-        #     W_fc1 = self.weight_variable([self.input_size, 16])
-        #     b_fc1 = self.bias_variable([16])
-
-        #     h_fc1 = tf.nn.relu(tf.matmul(self.stimulus_placeholder, W_fc1) + b_fc1)
-        #     print_tensor_shape(h_fc1, 'FullyConnected1 shape')
-
-        # # Dropout layer.
-        # with tf.name_scope('dropout'):
-
-        #     h_fc1_drop = tf.nn.dropout(h_fc1, self.keep_prob)
-
-        # # Output layer (will be transformed via stable softmax)
-        # with tf.name_scope('readout'):
-
-        #     W_fc2 = self.weight_variable([16, self.label_size])
-        #     b_fc2 = self.bias_variable([self.label_size])
-
-        #     readout = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
-        #     print_tensor_shape(readout, 'readout shape')
-
-        # return readout
         ###############################
 
         print_tensor_shape(self.stimulus_placeholder, 'images shape')

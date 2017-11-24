@@ -5,7 +5,6 @@ import time
 import argparse
 import itertools
 from mpi4py import MPI
-from mpi4py.MPI import ANY_SOURCE
 import numpy as np
 import tensorflow as tf
 from concurrent.futures import *
@@ -213,7 +212,6 @@ def main(_):
     results_local = sample_experiment(experimental_configuration_local)
 
     print("process " + str(rank) + " computed:" + str(results_local))
-
     print("process " + str(rank) + " sending:" + str(results_local))
     comm.Send(results_local, dest=0)
 

@@ -22,6 +22,10 @@ outputs, and writes those outputs to a file.
 
 def sample_experiment(exp_parameters):
 
+        print("-------------------------")
+    print(exp_parameters)
+    print("-------------------------")
+
     # Unpack the experimental parameters.
     (thread_count, batch_size, batch_interval, rep) = exp_parameters
 
@@ -35,10 +39,15 @@ def sample_experiment(exp_parameters):
     mean_running_times = []
 
     # Instantiate a model.
-    model = Model(FLAGS.input_size, FLAGS.label_size, FLAGS.label_size,
+    model = Model(FLAGS.input_size,
+                  FLAGS.label_size,
+                  FLAGS.label_size,
                   FLAGS.learning_rate,
-                  thread_count, FLAGS.val_enqueue_threads,
-                  FLAGS.data_dir, FLAGS.train_file, FLAGS.validation_file)
+                  thread_count,
+                  FLAGS.val_enqueue_threads,
+                  FLAGS.data_dir,
+                  FLAGS.train_file,
+                  FLAGS.validation_file)
 
     # Get input data.
     image_batch, label_batch = model.get_train_batch_ops(batch_size=batch_size)
@@ -61,8 +70,8 @@ def sample_experiment(exp_parameters):
         running_times = []
 
         # Print a line for debug.
-        print('step | train_loss | train_error | val_loss | \
-               val_error | mean_running_time | total_time')
+        print('step | train_loss | train_error | val_loss |' +
+              ' val_error | mean_running_time | total_time')
 
         # Load the validation set batch into memory.
         val_images, val_labels = sess.run([val_image_batch, val_label_batch])
