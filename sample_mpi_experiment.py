@@ -211,40 +211,40 @@ def main(_):
         # Accomodate Python 3+
         # with open(FLAGS.log_dir '/' + FLAGS.log_filename, 'w') as csvfile:
 
-        # Accomodate Python 2.7 on Hokulea.
-        with open(FLAGS.log_dir + '/' + FLAGS.log_filename, 'wb') as csvfile:
+        # # Accomodate Python 2.7 on Hokulea.
+        # with open(FLAGS.log_dir + '/' + FLAGS.log_filename, 'wb') as csvfile:
 
-            # Open a writer and write the header.
-            csvwriter = csv.writer(csvfile)
-            csvwriter.writerow(parameter_labels)
+        #     # Open a writer and write the header.
+        #     csvwriter = csv.writer(csvfile)
+        #     csvwriter.writerow(parameter_labels)
 
-            # Iterate over each output.
-            for (experimental_configuration, results) in experimental_outputs:
+        #     # Iterate over each output.
+        #     for (experimental_configuration, results) in experimental_outputs:
 
-                # TODO: Generalize this pattern to not rely on var names.
+        #         # TODO: Generalize this pattern to not rely on var names.
 
-                # Unpack the experimental configuration.
-                (thread_count,
-                 batch_size,
-                 rep) = experimental_configuration
+        #         # Unpack the experimental configuration.
+        #         (thread_count,
+        #          batch_size,
+        #          rep) = experimental_configuration
 
-                # Unpack the cooresponding results.
-                (steps, train_losses, val_losses, mean_running_times) = results
+        #         # Unpack the cooresponding results.
+        #         (steps, train_losses, val_losses, mean_running_times) = results
 
-                # Iterate over the results vectors for each config.
-                for (step, tl, vl, mrt) in zip(steps,
-                                               train_losses,
-                                               val_losses,
-                                               mean_running_times):
+        #         # Iterate over the results vectors for each config.
+        #         for (step, tl, vl, mrt) in zip(steps,
+        #                                        train_losses,
+        #                                        val_losses,
+        #                                        mean_running_times):
 
-                    # Write the data to a csv.
-                    csvwriter.writerow([thread_count,
-                                        batch_size,
-                                        rep,
-                                        step,
-                                        tl,
-                                        vl,
-                                        mrt])
+        #             # Write the data to a csv.
+        #             csvwriter.writerow([thread_count,
+        #                                 batch_size,
+        #                                 rep,
+        #                                 step,
+        #                                 tl,
+        #                                 vl,
+        #                                 mrt])
 
 
 # Instantiate an arg parser.
