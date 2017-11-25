@@ -21,7 +21,7 @@ outputs, and writes those outputs to a file.
 '''
 
 
-def sample_experiment(exp_parameters, FLAGS):
+def sample_experiment(exp_parameters):
 
     print("-------------------------")
     print(exp_parameters)
@@ -58,7 +58,6 @@ def sample_experiment(exp_parameters, FLAGS):
     print("Launching supervisor...")
     # Instantiate a session and initialize it.
     sv = tf.train.Supervisor(logdir=FLAGS.log_dir, save_summaries_secs=10.0)
-
 
     print("Launching sess...")
     with sv.managed_session() as sess:
@@ -310,4 +309,4 @@ FLAGS, unparsed = parser.parse_known_args()
 if __name__ == '__main__':
 
     # # Run the main function as TF app.
-    tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
+    main()
