@@ -21,7 +21,7 @@ outputs, and writes those outputs to a file.
 '''
 
 
-def sample_experiment(exp_parameters):
+def sample_experiment(exp_parameters, FLAGS):
 
     print("-------------------------")
     print(exp_parameters)
@@ -207,7 +207,6 @@ def main(_):
         experimental_outputs = executor.map(sample_experiment,
                                             experimental_configurations)
 
-
         print("Done with map, writing file...")
         # Accomodate Python 3+
         # with open(FLAGS.log_dir '/' + FLAGS.log_filename, 'w') as csvfile:
@@ -247,154 +246,68 @@ def main(_):
                                         vl,
                                         mrt])
 
-        # Potentially could do a send loop here.
-        # for experimental_configuration in experimental_configurations:
 
-        #     comm.send
-    # else:
-    #         # All processes must have a value for experimental_configurations
-    #         experimental_configurations = None
+# Instantiate an arg parser.
+parser = argparse.ArgumentParser()
 
-    # Initialize the local experimental config.
-    # experimental_configurations_local = [range(LENGTH)]
-    # experimental_configurations_local = [0, 0, 0, 0]
+# Set default arguements, these should not be experimental parameters.
+parser.add_argument('--max_steps', type=int, default=100,
+                    help='Number of steps to run trainer.')
 
-    # Exectucute the scatter MPI command, loading a conifg.
-    # experimental_configurations_local = comm.Scatter(experimental_configurations, root=0)
-    # comm.Scatter(experimental_configurations,
-    #              experimental_configurations_local,
-    #              root=0)
+parser.add_argument('--test_interval', type=int, default=50,
+                    help='Number of steps between test set evaluations.')
 
-    # print("process " + str(rank) + ", x:" + str(experimental_configurations))
-    # print("process " + str(rank) + ", x_local:" +
-    #       str(experimental_configurations_local))
+parser.add_argument('--learning_rate', type=float, default=1e-4,
+                    help='Initial learning rate')
 
-    # results_local = sample_experiment(experimental_configuration_local)
+parser.add_argument('--data_dir', type=str,
+                    default='../data/mnist',
+                    help='Directory from which to pull data.')
 
-    # print("process " + str(rank) + " computed:" + str(results_local))
-    # print("process " + str(rank) + " sending:" + str(results_local))
-    # comm.Send(results_local, dest=0)
+parser.add_argument('--log_dir', type=str,
+                    default='../log/sample_experiment/',
+                    help='Summaries log directory.')
 
-    # TODO: Create a distributed approach by parallizing over configs.
+parser.add_argument('--log_filename', type=str,
+                    default='sample_experiment.csv',
+                    help='Summaries log directory.')
 
-    # Iterate over each experimental config.
-    # for experimental_configuration in experimental_configurations:
+parser.add_argument('--val_batch_size', type=int,
+                    default=10000,
+                    help='Validation set batch size.')
 
-    #     results = sample_experiment(experimental_configuration)
+parser.add_argument('--keep_prob', type=float,
+                    default=1.0,
+                    help='Keep probability for output layer dropout.')
 
-    #     experimental_outputs.append([experimental_configuration, results])
+parser.add_argument('--input_size', type=int,
+                    default=28 * 28,
+                    help='Dimensionality of the input space.')
 
-    # if (rank == 0):
+parser.add_argument('--label_size', type=int,
+                    default=10,
+                    help='Dimensinoality of the output space.')
 
-    #     # TODO: Adjust this to dynamically use rank to set log_dir.
-    #     if tf.gfile.Exists(FLAGS.log_dir):
+parser.add_argument('--hl_size', type=int,
+                    default=16,
+                    help='Size of the hidden layer.')
 
-    #         tf.gfile.DeleteRecursively(FLAGS.log_dir + '_' + str(rank))
+parser.add_argument('--train_file', type=str,
+                    default='train.tfrecords',
+                    help='Training dataset filename.')
 
-    #     tf.gfile.MakeDirs(FLAGS.log_dir)
+parser.add_argument('--validation_file', type=str,
+                    default='validation.tfrecords',
+                    help='Validation dataset filename.')
 
-    #     # Accomodate Python 3+
-    #     # with open(FLAGS.log_dir '/' + FLAGS.log_filename, 'w') as csvfile:
+parser.add_argument('--val_enqueue_threads', type=int,
+                    default=32,
+                    help='Number of threads to enqueue val examples.')
 
-    #     # Accomodate Python 2.7 on Hokulea.
-    #     with open(FLAGS.log_dir + '/' + FLAGS.log_filename, 'wb') as csvfile:
-
-    #         # Open a writer and write the header.
-    #         csvwriter = csv.writer(csvfile)
-    #         csvwriter.writerow(parameter_labels)
-
-    #         # Iterate over each output.
-    #         for (experimental_configuration, results) in experimental_outputs:
-
-    #             # TODO: Generalize this pattern to not rely on var names.
-
-    #             # Unpack the experimental configuration.
-    #             (thread_count,
-    #              batch_size,
-    #              batch_interval,
-    #              rep) = experimental_configuration
-
-    #             # Unpack the cooresponding results.
-    #             (steps, train_losses, val_losses, mean_running_times) = results
-
-    #             # Iterate over the results vectors for each config.
-    #             for (step, tl, vl, mrt) in zip(steps,
-    #                                            train_losses,
-    #                                            val_losses,
-    #                                            mean_running_times):
-
-    #                 # Write the data to a csv.
-    #                 csvwriter.writerow([thread_count,
-    #                                     batch_size,
-    #                                     batch_interval,
-    #                                     rep,
-    #                                     step,
-    #                                     tl,
-    #                                     vl,
-    #                                     mrt])
-
+# Parse known arguements.
+FLAGS, unparsed = parser.parse_known_args()
 
 if __name__ == '__main__':
-
-    # Instantiate an arg parser.
-    parser = argparse.ArgumentParser()
-
-    # Set default arguements, these should not be experimental parameters.
-    parser.add_argument('--max_steps', type=int, default=100,
-                        help='Number of steps to run trainer.')
-
-    parser.add_argument('--test_interval', type=int, default=50,
-                        help='Number of steps between test set evaluations.')
-
-    parser.add_argument('--learning_rate', type=float, default=1e-4,
-                        help='Initial learning rate')
-
-    parser.add_argument('--data_dir', type=str,
-                        default='../data/mnist',
-                        help='Directory from which to pull data.')
-
-    parser.add_argument('--log_dir', type=str,
-                        default='../log/sample_experiment/',
-                        help='Summaries log directory.')
-
-    parser.add_argument('--log_filename', type=str,
-                        default='sample_experiment.csv',
-                        help='Summaries log directory.')
-
-    parser.add_argument('--val_batch_size', type=int,
-                        default=10000,
-                        help='Validation set batch size.')
-
-    parser.add_argument('--keep_prob', type=float,
-                        default=1.0,
-                        help='Keep probability for output layer dropout.')
-
-    parser.add_argument('--input_size', type=int,
-                        default=28 * 28,
-                        help='Dimensionality of the input space.')
-
-    parser.add_argument('--label_size', type=int,
-                        default=10,
-                        help='Dimensinoality of the output space.')
-
-    parser.add_argument('--hl_size', type=int,
-                        default=16,
-                        help='Size of the hidden layer.')
-
-    parser.add_argument('--train_file', type=str,
-                        default='train.tfrecords',
-                        help='Training dataset filename.')
-
-    parser.add_argument('--validation_file', type=str,
-                        default='validation.tfrecords',
-                        help='Validation dataset filename.')
-
-    parser.add_argument('--val_enqueue_threads', type=int,
-                        default=32,
-                        help='Number of threads to enqueue val examples.')
-
-    # Parse known arguements.
-    FLAGS, unparsed = parser.parse_known_args()
 
     # # Run the main function as TF app.
     tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
