@@ -23,6 +23,9 @@ outputs, and writes those outputs to a file.
 
 def sample_experiment(exp_parameters):
 
+
+    import tensorflow as tf
+
     print("-------------------------")
     print(exp_parameters)
     print("-------------------------")
