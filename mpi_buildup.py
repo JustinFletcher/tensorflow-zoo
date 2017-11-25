@@ -1,7 +1,15 @@
 
 import itertools
+from mpi4py import MPI
 from mpi4py.futures import MPIPoolExecutor
 
+
+
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+
+print(comm)
+print(rank)
 
 def say_hi(stuff):
 
@@ -19,7 +27,7 @@ if __name__ == '__main__':
         thread_counts = [16, 32]
         batch_sizes = [32, 64]
         reps = range(1)
-        
+
         # Produce the Cartesian set of configurations.
         experimental_configurations = itertools.product(thread_counts,
                                                         batch_sizes,
