@@ -23,9 +23,14 @@ outputs, and writes those outputs to a file.
 
 def sample_experiment(exp_parameters):
 
+    print("-------------------------")
+    print(exp_parameters)
+    print("-------------------------")
+
     # Unpack the experimental parameters.
     (thread_count, batch_size, batch_interval, rep) = exp_parameters
 
+    print("Resetting graph...")
     # Reset the default graph.
     tf.reset_default_graph()
 
@@ -35,6 +40,7 @@ def sample_experiment(exp_parameters):
     train_losses = []
     mean_running_times = []
 
+    print("Building model...")
     # Instantiate a model.
     model = Model(FLAGS.input_size, FLAGS.label_size, FLAGS.label_size,
                   FLAGS.learning_rate,
@@ -49,9 +55,12 @@ def sample_experiment(exp_parameters):
 
     tf.summary.merge_all()
 
+    print("Launching supervisor...")
     # Instantiate a session and initialize it.
     sv = tf.train.Supervisor(logdir=FLAGS.log_dir, save_summaries_secs=10.0)
 
+
+    print("Launching sess...")
     with sv.managed_session() as sess:
 
         # train_writer = tf.summary.FileWriter(FLAGS.log_dir +
