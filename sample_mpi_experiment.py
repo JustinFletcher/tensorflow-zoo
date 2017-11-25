@@ -23,9 +23,6 @@ outputs, and writes those outputs to a file.
 
 def sample_experiment(exp_parameters):
 
-
-    import tensorflow as tf
-
     print("-------------------------")
     print(exp_parameters)
     print("-------------------------")
@@ -163,7 +160,7 @@ def sample_experiment(exp_parameters):
         sv.stop()
         sess.close()
 
-    return(steps, train_losses, val_losses, mean_running_times)
+    return((steps, train_losses, val_losses, mean_running_times))
 
 
 def main(_):

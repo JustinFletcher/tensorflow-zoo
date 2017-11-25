@@ -16,18 +16,19 @@ if __name__ == '__main__':
 
     with MPIPoolExecutor() as executor:
 
-        a = range(1)
-        b = [16, 32]
-        c = [32, 64]
-        d = [1, 2]
-
+        thread_counts = [16, 32]
+        batch_sizes = [32, 64]
+        reps = range(1)
+        
         # Produce the Cartesian set of configurations.
-        some_stuff = itertools.product(a, b, c, d)
+        experimental_configurations = itertools.product(thread_counts,
+                                                        batch_sizes,
+                                                        reps)
 
         print("About to map")
 
         # output = executor.map(say_hi, [[] for _ in range(10)])
-        output = executor.map(say_hi, some_stuff)
+        output = executor.map(say_hi, experimental_configurations)
 
         for thing in output:
             print("The output is: ", thing)
