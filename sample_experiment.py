@@ -22,7 +22,7 @@ outputs, and writes those outputs to a file.
 
 def sample_experiment(exp_parameters):
 
-        print("-------------------------")
+    print("-------------------------")
     print(exp_parameters)
     print("-------------------------")
 
@@ -89,7 +89,7 @@ def sample_experiment(exp_parameters):
                 # Update the batch, so as to not underestimate the train error.
                 (train_images_val,
                  train_labels_val) = sess.run([image_batch,
-                                             label_batch])
+                                               label_batch])
 
                 # Make a dict to load the batch onto the placeholders.
                 train_dict_val = {model.stimulus_placeholder: train_images_val,
