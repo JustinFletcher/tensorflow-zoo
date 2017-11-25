@@ -157,6 +157,8 @@ def sample_experiment(exp_parameters):
 
 def main(_):
 
+    print("Entering Main...")
+
     if tf.gfile.Exists(FLAGS.log_dir):
 
         tf.gfile.DeleteRecursively(FLAGS.log_dir + '_' + str(rank))
@@ -188,12 +190,16 @@ def main(_):
                                                     batch_sizes,
                                                     reps)
 
+    print("Launching executor...")
     with MPIPoolExecutor() as executor:
 
+        print("About to map...")
         # output = executor.map(say_hi, [[] for _ in range(10)])
         experimental_outputs = executor.map(sample_experiment,
                                             experimental_configurations)
 
+
+        print("Done with map, writing file...")
         # Accomodate Python 3+
         # with open(FLAGS.log_dir '/' + FLAGS.log_filename, 'w') as csvfile:
 
