@@ -8,6 +8,7 @@ from mpi4py import MPI
 import numpy as np
 import tensorflow as tf
 from concurrent.futures import *
+from mpi4py.futures import MPIPoolExecutor
 
 # Import the baseline model.
 sys.path.append("/.")
