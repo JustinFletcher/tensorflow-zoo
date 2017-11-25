@@ -62,8 +62,8 @@ def sample_experiment(exp_parameters):
         running_times = []
 
         # Print a line for debug.
-        print('step | train_loss | train_error | val_loss | \
-               val_error | mean_running_time | total_time')
+        print('step | train_loss | train_error | val_loss | ' +
+              'val_error | mean_running_time | total_time')
 
         # Load the validation set batch into memory.
         val_images, val_labels = sess.run([val_image_batch, val_label_batch])
@@ -79,19 +79,20 @@ def sample_experiment(exp_parameters):
             if i % FLAGS.test_interval == 1:
 
                 # Update the batch, so as to not underestimate the train error.
-                train_images, train_labels = sess.run([image_batch,
-                                                       label_batch])
+                (train_images_val,
+                 train_labels_val) = sess.run([image_batch,
+                                               label_batch])
 
                 # Make a dict to load the batch onto the placeholders.
-                train_dict = {model.stimulus_placeholder: train_images,
-                              model.target_placeholder: train_labels,
-                              model.keep_prob: 1.0}
+                train_dict_val = {model.stimulus_placeholder: train_images_val,
+                                  model.target_placeholder: train_labels_val,
+                                  model.keep_prob: 1.0}
 
                 # Compute error over the training set.
-                train_error = sess.run(model.error, train_dict)
+                train_error = sess.run(model.error, train_dict_val)
 
                 # Compute loss over the training set.
-                train_loss = sess.run(model.loss, train_dict)
+                train_loss = sess.run(model.loss, train_dict_val)
 
                 # Make a dict to load the val batch onto the placeholders.
                 val_dict = {model.stimulus_placeholder: val_images,
@@ -156,65 +157,108 @@ def sample_experiment(exp_parameters):
 
 def main(_):
 
+    if tf.gfile.Exists(FLAGS.log_dir):
+
+        tf.gfile.DeleteRecursively(FLAGS.log_dir + '_' + str(rank))
+
+    tf.gfile.MakeDirs(FLAGS.log_dir)
+
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
     size = comm.Get_size()
 
-    # Length should be the size of the comm buffer.
-    LENGTH = 4
+    # Create a list to store result vectors.
+    # experimental_outputs = []
 
-    # If this is the rank 0 process, scatter the configs.
-    if rank == 0:
+    # Establish the dependent variables of the experiment.
+    parameter_labels = ['thread_count',
+                        'batch_size',
+                        'rep_num',
+                        'step_num',
+                        'train_loss',
+                        'val_loss',
+                        'mean_running_time']
 
-        # Create a list to store result vectors.
-        experimental_outputs = []
+    reps = range(1)
+    thread_counts = [16, 32]
+    batch_sizes = [32, 64]
 
-        # Establish the dependent variables of the experiment.
-        parameter_labels = ['thread_count',
-                            'batch_size',
-                            'batch_interval',
-                            'rep_num',
-                            'step_num',
-                            'train_loss',
-                            'val_loss',
-                            'mean_running_time']
-        reps = range(1)
-        thread_counts = [16, 32]
-        batch_sizes = [32, 64]
-        batch_intervals = [1, 2]
+    # Produce the Cartesian set of configurations.
+    experimental_configurations = itertools.product(thread_counts,
+                                                    batch_sizes,
+                                                    reps)
 
-        # Produce the Cartesian set of configurations.
-        experimental_configurations = itertools.product(thread_counts,
-                                                        batch_sizes,
-                                                        batch_intervals,
-                                                        reps)
+    with MPIPoolExecutor() as executor:
+
+        # output = executor.map(say_hi, [[] for _ in range(10)])
+        experimental_outputs = executor.map(sample_experiment,
+                                            experimental_configurations)
+
+        # Accomodate Python 3+
+        # with open(FLAGS.log_dir '/' + FLAGS.log_filename, 'w') as csvfile:
+
+        # Accomodate Python 2.7 on Hokulea.
+        with open(FLAGS.log_dir + '/' + FLAGS.log_filename, 'wb') as csvfile:
+
+            # Open a writer and write the header.
+            csvwriter = csv.writer(csvfile)
+            csvwriter.writerow(parameter_labels)
+
+            # Iterate over each output.
+            for (experimental_configuration, results) in experimental_outputs:
+
+                # TODO: Generalize this pattern to not rely on var names.
+
+                # Unpack the experimental configuration.
+                (thread_count,
+                 batch_size,
+                 rep) = experimental_configuration
+
+                # Unpack the cooresponding results.
+                (steps, train_losses, val_losses, mean_running_times) = results
+
+                # Iterate over the results vectors for each config.
+                for (step, tl, vl, mrt) in zip(steps,
+                                               train_losses,
+                                               val_losses,
+                                               mean_running_times):
+
+                    # Write the data to a csv.
+                    csvwriter.writerow([thread_count,
+                                        batch_size,
+                                        rep,
+                                        step,
+                                        tl,
+                                        vl,
+                                        mrt])
 
         # Potentially could do a send loop here.
         # for experimental_configuration in experimental_configurations:
 
         #     comm.send
-    else:
-            # All processes must have a value for experimental_configurations
-            experimental_configurations = None
+    # else:
+    #         # All processes must have a value for experimental_configurations
+    #         experimental_configurations = None
 
     # Initialize the local experimental config.
     # experimental_configurations_local = [range(LENGTH)]
-    experimental_configurations_local = [0, 0, 0, 0]
+    # experimental_configurations_local = [0, 0, 0, 0]
 
     # Exectucute the scatter MPI command, loading a conifg.
-    comm.Scatter(experimental_configurations,
-                 experimental_configurations_local,
-                 root=0)
+    # experimental_configurations_local = comm.Scatter(experimental_configurations, root=0)
+    # comm.Scatter(experimental_configurations,
+    #              experimental_configurations_local,
+    #              root=0)
 
-    print("process " + str(rank) + ", x:" + str(experimental_configurations))
-    print("process " + str(rank) + ", x_local:" +
-          str(experimental_configurations_local))
+    # print("process " + str(rank) + ", x:" + str(experimental_configurations))
+    # print("process " + str(rank) + ", x_local:" +
+    #       str(experimental_configurations_local))
 
-    results_local = sample_experiment(experimental_configuration_local)
+    # results_local = sample_experiment(experimental_configuration_local)
 
-    print("process " + str(rank) + " computed:" + str(results_local))
-    print("process " + str(rank) + " sending:" + str(results_local))
-    comm.Send(results_local, dest=0)
+    # print("process " + str(rank) + " computed:" + str(results_local))
+    # print("process " + str(rank) + " sending:" + str(results_local))
+    # comm.Send(results_local, dest=0)
 
     # TODO: Create a distributed approach by parallizing over configs.
 
@@ -228,11 +272,11 @@ def main(_):
     # if (rank == 0):
 
     #     # TODO: Adjust this to dynamically use rank to set log_dir.
-    #     if tf.gfile.Exists(FLAGS.log_dir + '_' + str(rank)):
+    #     if tf.gfile.Exists(FLAGS.log_dir):
 
     #         tf.gfile.DeleteRecursively(FLAGS.log_dir + '_' + str(rank))
 
-    #     tf.gfile.MakeDirs(FLAGS.log_dir + '_' + str(rank))
+    #     tf.gfile.MakeDirs(FLAGS.log_dir)
 
     #     # Accomodate Python 3+
     #     # with open(FLAGS.log_dir '/' + FLAGS.log_filename, 'w') as csvfile:

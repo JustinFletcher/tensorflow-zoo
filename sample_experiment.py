@@ -87,19 +87,20 @@ def sample_experiment(exp_parameters):
             if i % FLAGS.test_interval == 1:
 
                 # Update the batch, so as to not underestimate the train error.
-                train_images, train_labels = sess.run([image_batch,
-                                                       label_batch])
+                (train_images_val,
+                 train_labels_val) = sess.run([image_batch,
+                                             label_batch])
 
                 # Make a dict to load the batch onto the placeholders.
-                train_dict = {model.stimulus_placeholder: train_images,
-                              model.target_placeholder: train_labels,
-                              model.keep_prob: 1.0}
+                train_dict_val = {model.stimulus_placeholder: train_images_val,
+                                  model.target_placeholder: train_labels_val,
+                                  model.keep_prob: 1.0}
 
                 # Compute error over the training set.
-                train_error = sess.run(model.error, train_dict)
+                train_error = sess.run(model.error, train_dict_val)
 
                 # Compute loss over the training set.
-                train_loss = sess.run(model.loss, train_dict)
+                train_loss = sess.run(model.loss, train_dict_val)
 
                 # Make a dict to load the val batch onto the placeholders.
                 val_dict = {model.stimulus_placeholder: val_images,
