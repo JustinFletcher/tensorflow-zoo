@@ -29,7 +29,7 @@ def sample_experiment(exp_parameters):
     print("-------------------------")
 
     # Unpack the experimental parameters.
-    (thread_count, batch_size, batch_interval, rep) = exp_parameters
+    (thread_count, batch_size, rep) = exp_parameters
 
     print("Resetting graph...")
     # Reset the default graph.
