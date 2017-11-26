@@ -3,7 +3,7 @@
 # Example PBS cluster job submission in Python
 
 import csv
-# from popen2 import popen2
+from popen2 import popen2
 import time
 import argparse
 import itertools
@@ -35,6 +35,8 @@ def main(FLAGS):
     # Produce the Cartesian set of configurations.
     experimental_configs = itertools.product(*exp_flag_strings)
 
+    qsub_outputs = []
+
     # Iterate over each experimental configuration.
     for i, experimental_config in enumerate(experimental_configs):
 
@@ -43,7 +45,7 @@ def main(FLAGS):
         print("-----------------")
 
         # Open a pipe to the qsub command.
-        # output, input = popen2('qsub')
+        qsub_output, qsub_input = popen2('qsub')
 
         # Customize your options here
         job_name = "my_job_%d" % i
@@ -69,17 +71,25 @@ def main(FLAGS):
         cd $PBS_O_WORKDIR
         %s""" % (job_name, walltime, select, job_name, job_name, command)
 
-        # Send job_string to qsub
-        # input.write(job_string)
-        # input.close()
-
-        # Print your job and the system response to the screen as it's submitted
+        # Print your job string.
         print(job_string)
-        # print(output.read())
 
-        time.sleep(0.1)
+        # Send job_string to qsub
+        qsub_input.write(job_string)
+        qsub_input.close()
+
+        qsub_outputs.append(qsub_output)
 
         print("-----------------")
+
+    for _ in range(100):
+
+        time.sleep(1)
+
+        for qsub_output in qsub_outputs:
+
+            print(qsub_output.read())
+
 
 
     # parameter_labels = ['thread_count',
