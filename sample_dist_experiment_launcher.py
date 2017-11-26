@@ -49,8 +49,8 @@ def main(FLAGS):
         # qsub_output, qsub_input = popen2('qsub')
 
         p = subprocess.Popen('qsub',
-                             stdin=PIPE,
-                             stdout=PIPE,
+                             stdin=subprocess.PIPE,
+                             stdout=subprocess.PIPE,
                              shell=True)
 
         # Customize your options here.
