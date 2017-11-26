@@ -50,8 +50,7 @@ def main(FLAGS):
 
         p = subprocess.Popen('qsub',
                              stdin=subprocess.PIPE,
-                             stdout=subprocess.PIPE,
-                             shell=True)
+                             stdout=subprocess.PIPE)
 
         # Customize your options here.
         job_name = "dist_ex_%d" % i
