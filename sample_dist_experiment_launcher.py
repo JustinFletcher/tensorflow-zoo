@@ -84,7 +84,7 @@ def main(FLAGS):
         print(job_string)
 
         # Send job_string to qsub
-        p.communicate(job_string)
+        output = p.communicate(job_string)
         # qsub_input.write(job_string)
         # qsub_input.close()
 
@@ -92,20 +92,22 @@ def main(FLAGS):
 
         qsub_processes.append(p)
 
-        print("-----------------")
-
-    for i in range(60):
+        print(output)
 
         print("-----------------")
 
-        print(i)
+    # for i in range(60):
 
-        time.sleep(1)
+    #     print("-----------------")
 
-        for p in qsub_processes:
+    #     print(i)
 
-            print(p)
-            print(p.stdout.read())
+    #     time.sleep(1)
+
+    #     for p in qsub_processes:
+
+    #         print(p)
+    #         print(p.stdout)
 
 
 
