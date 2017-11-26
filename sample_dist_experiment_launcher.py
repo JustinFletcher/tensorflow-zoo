@@ -92,7 +92,7 @@ def main(FLAGS):
 
         print("-----------------")
 
-        print(i)
+        print('Time elapsed: ' + str(i) + ' seconde')
 
         time.sleep(1)
 
@@ -109,7 +109,8 @@ def main(FLAGS):
             job_complete = p.communicate()[0].split()[-2] == 'E'
 
             # Print a diagnostic.
-            print('Job ' + job_id + ' complete? ' + str(job_complete) + '.')
+            print('Job ' + job_id[:-2] + ' complete? ' +
+                  str(job_complete) + '.')
 
         print("-----------------")
 
