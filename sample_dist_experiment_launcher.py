@@ -35,19 +35,17 @@ def main(FLAGS):
     # Produce the Cartesian set of configurations.
     experimental_configs = itertools.product(*exp_flag_strings)
 
+    # Make a list to store job id strings.
     job_ids = []
 
-    # Iterate over each experimental configuration.
+    # Iterate over each experimental configuration, launching a job for each.
     for i, experimental_config in enumerate(experimental_configs):
 
         print("-----------------")
         print(experimental_config)
         print("-----------------")
 
-        # Use subproces instead!
-        # Open a pipe to the qsub command.
-        # qsub_output, qsub_input = popen2('qsub')
-
+        # Use subproces to command qsub to submit a job.
         p = subprocess.Popen('qsub',
                              stdin=subprocess.PIPE,
                              stdout=subprocess.PIPE,
@@ -64,9 +62,10 @@ def main(FLAGS):
 
             command += ' ' + flag
 
-        # #PBS -o ~/log/output/%s.out
-        # #PBS -e ~/log/error/%s.err
+        # Add a final flag modifying the log filename to be unique.
+        command += ' --log_filename=templog' + str(i)
 
+        # Build the job sting.
         job_string = """#!/bin/bash
         #PBS -N %s
         #PBS -l walltime=%s
@@ -83,20 +82,12 @@ def main(FLAGS):
         # Print your job string.
         print(job_string)
 
-        # Send job_string to qsub
-        # qsub_process =
+        # Send job_string to qsub.
         job_ids.append(p.communicate(job_string)[0])
-        # qsub_input.write(job_string)
-        # qsub_input.close()
-
-        # print(qsub_output.read())
-
-        # qsub_processes.append(p)
-
-        # print(output)
 
         print("-----------------")
 
+    # Loop until timeout or all jobs complete.
     for i in range(60):
 
         print("-----------------")
@@ -105,16 +96,26 @@ def main(FLAGS):
 
         time.sleep(1)
 
+        # Iterate over each job id string.
         for job_id in job_ids:
 
+            # Issue qstat command to get job status.
             p = subprocess.Popen('qstat -r ' + job_id,
                                  stdin=subprocess.PIPE,
                                  stdout=subprocess.PIPE,
                                  shell=True)
-            print('Job ' + job_id +
-                  ' status:' + p.communicate()[0].split()[-2])
+
+            # Read the qstat stdout, parse the state, and conv to Boolean.
+            job_complete = p.communicate()[0].split()[-2] == 'E'
+
+            # Print a diagnostic.
+            print('Job ' + job_id + ' complete? ' + job_complete + '.')
 
         print("-----------------")
+
+    # Once all jobs are complete, merge thier outputs.
+    # for i, experimental_config in enumerate(experimental_configs):
+
 
     # parameter_labels = ['thread_count',
     #                     'batch_size',
