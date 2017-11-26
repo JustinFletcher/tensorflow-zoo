@@ -152,6 +152,31 @@ def sample_experiment():
         sv.stop()
         sess.close()
 
+    # Accomodate Python 3+
+    # with open(FLAGS.log_dir '/' + FLAGS.log_filename, 'w') as csvfile:
+
+    # Accomodate Python 2.7 on Hokulea.
+    with open(FLAGS.log_dir + '/' + FLAGS.log_filename, 'wb') as csvfile:
+
+        # Open a writer and write the header.
+        csvwriter = csv.writer(csvfile)
+
+        # Iterate over the results vectors for each config.
+        for (step, tl, vl, mrt) in zip(steps,
+                                       train_losses,
+                                       val_losses,
+                                       mean_running_times):
+
+            # Write the data to a csv.
+            csvwriter.writerow([FLAGS.train_enqueue_threads,
+                                FLAGS.train_batch_size,
+                                FLAGS.batch_interval,
+                                rep,
+                                step,
+                                tl,
+                                vl,
+                                mrt])
+
     return([steps, train_losses, val_losses, mean_running_times])
 
 

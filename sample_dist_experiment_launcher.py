@@ -134,20 +134,38 @@ def main(FLAGS):
 
     print("All jobs complete. Merging results.")
 
-    # Once all jobs are complete, merge thier outputs.
-    for i, log_filename in enumerate(log_filenames):
+    # # Accomodate Python 3+
+    # with open(FLAGS.log_dir '/' + FLAGS.log_filename, 'w') as csvfile:
 
+    # Accomodate Python 2.7 on Hokulea.
+    with open(FLAGS.log_dir + '/' + FLAGS.log_filename, 'wb') as csvfile:
 
-        print(log_filename)
+        parameter_labels = ['thread_count',
+                            'batch_size',
+                            'batch_interval',
+                            'rep_num',
+                            'step_num',
+                            'train_loss',
+                            'val_loss',
+                            'mean_running_time']
 
-    # parameter_labels = ['thread_count',
-    #                     'batch_size',
-    #                     'batch_interval',
-    #                     'rep_num',
-    #                     'step_num',
-    #                     'train_loss',
-    #                     'val_loss',
-    #                     'mean_running_time']
+        # Open a writer and write the header.
+        csvwriter = csv.writer(csvfile)
+        csvwriter.writerow(parameter_labels)
+
+        # Once all jobs are complete, merge thier outputs.
+        for i, log_filename in enumerate(log_filenames):
+
+            print(log_filename)
+
+            with open(FLAGS.log_dir + '/' + log_filename, 'rb') as f:
+
+                reader = csv.reader(f)
+
+                for row in reader:
+
+                    csvwriter.writerow(row)
+
 
     # Accomodate Python 3+
     # with open(FLAGS.log_dir '/' + FLAGS.log_filename, 'w') as csvfile:
