@@ -89,15 +89,18 @@ def main(FLAGS):
 
     jobs_complete = False
     timeout = False
+    elapsed_time = 0
 
     # Loop until timeout or all jobs complete.
     while not(jobs_complete) and not(timeout):
 
         print("-----------------")
 
-        print('Time elapsed: ' + str(i) + ' seconds.')
+        print('Time elapsed: ' + str(elapsed_time) + ' seconds.')
 
         time.sleep(1)
+
+        elapsed_time += 1
 
         # Create a list to hold the Bool job complete flags
         job_complete_flags = []
@@ -120,13 +123,13 @@ def main(FLAGS):
 
             job_complete_flags.append(job_complete)
 
-        timeout = (i > FLAGS.max_runtime)
+        timeout = (elapsed_time > FLAGS.max_runtime)
 
         jobs_complete = (all(job_complete_flags))
 
         print("-----------------")
 
-    print("All jobs complete. Merging results")
+    print("All jobs complete. Merging results.")
     # Once all jobs are complete, merge thier outputs.
     # for i, experimental_config in enumerate(experimental_configs):
 
