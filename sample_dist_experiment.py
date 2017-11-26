@@ -241,4 +241,4 @@ if __name__ == '__main__':
     # # Run the main function as TF app.
     output = tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
 
-    return(output)
+    sys.stdout.write(output)
