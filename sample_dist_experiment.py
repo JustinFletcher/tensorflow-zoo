@@ -239,4 +239,6 @@ if __name__ == '__main__':
     FLAGS, unparsed = parser.parse_known_args()
 
     # # Run the main function as TF app.
-    tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
+    output = tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
+
+    print(output)
