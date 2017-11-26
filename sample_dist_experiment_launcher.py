@@ -107,7 +107,7 @@ def main(FLAGS):
 
         for job_id in job_ids:
 
-            p = subprocess.Popen('qstat ' + job_id,
+            p = subprocess.Popen('qstat -r ' + job_id,
                                  stdin=subprocess.PIPE,
                                  stdout=subprocess.PIPE,
                                  shell=True)
