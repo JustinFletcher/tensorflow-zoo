@@ -18,4 +18,4 @@ module load anaconda2
 module load tensorflow
 cd ~/tensorflow-zoo
 
-pbsdsh sample_dist_experiment.py
+pbsdsh python ~/tensorflow-zoo/sample_dist_experiment.py

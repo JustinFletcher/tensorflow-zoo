@@ -4,8 +4,6 @@ from mpi4py import MPI
 from mpi4py.futures import MPIPoolExecutor
 
 
-
-comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 
 print(comm)
