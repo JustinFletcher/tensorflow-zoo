@@ -87,14 +87,20 @@ def main(FLAGS):
 
         print("-----------------")
 
+    jobs_complete = False
+    timeout = False
+
     # Loop until timeout or all jobs complete.
-    for i in range(60):
+    while not(jobs_complete) and not(timeout):
 
         print("-----------------")
 
-        print('Time elapsed: ' + str(i) + ' seconde')
+        print('Time elapsed: ' + str(i) + ' seconds.')
 
         time.sleep(1)
+
+        # Create a list to hold the Bool job complete flags
+        job_complete_flags = []
 
         # Iterate over each job id string.
         for job_id in job_ids:
@@ -109,11 +115,18 @@ def main(FLAGS):
             job_complete = p.communicate()[0].split()[-2] == 'E'
 
             # Print a diagnostic.
-            print('Job ' + job_id[:-2] + ' complete? ' +
+            print('Job ' + job_id[:-1] + ' complete? ' +
                   str(job_complete) + '.')
+
+            job_complete_flags.append(job_complete)
+
+        timeout = (i > FLAGS.timeout)
+
+        jobs_complete = (all(job_complete_flags))
 
         print("-----------------")
 
+    print("All jobs complete. Merging results")
     # Once all jobs are complete, merge thier outputs.
     # for i, experimental_config in enumerate(experimental_configs):
 
@@ -176,6 +189,14 @@ if __name__ == '__main__':
     parser.add_argument('--log_dir', type=str,
                         default='../log/sample_dist_experiment/',
                         help='Summaries log directory.')
+
+    parser.add_argument('--log_filename', type=str,
+                        default='sample_dist_experiment.csv',
+                        help='Merged output filename.')
+
+    parser.add_argument('--max_runtime', type=int,
+                        default=360000,
+                        help='Number of seconds to run before giving up.')
 
     # Parse known arguements.
     FLAGS, unparsed = parser.parse_known_args()
