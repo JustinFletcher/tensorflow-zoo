@@ -70,7 +70,7 @@ def main(FLAGS):
         #PBS -A MHPCC96670DA1
         #PBS -q standard
         cd $PBS_O_WORKDIR
-        %s""" % (job_name, walltime, select, command)
+        %s""" % (job_name, walltime, select, job_name, job_name, command)
 
         # Print your job string.
         print(job_string)
