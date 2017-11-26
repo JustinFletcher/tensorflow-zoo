@@ -165,6 +165,7 @@ def main(FLAGS):
                 reader = csv.reader(f)
 
                 for row in reader:
+                    print(row)
 
                     csvwriter.writerow(row)
 
