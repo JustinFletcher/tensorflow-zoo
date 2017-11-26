@@ -77,13 +77,13 @@ def main(FLAGS):
         qsub_input.write(job_string)
         qsub_input.close()
 
-        print(qsub_output.read())
+        # print(qsub_output.read())
 
         qsub_outputs.append(qsub_output)
 
         print("-----------------")
 
-    for _ in range(100):
+    for _ in range(15):
 
         time.sleep(1)
 
