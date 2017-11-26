@@ -48,7 +48,7 @@ def main(FLAGS):
         qsub_output, qsub_input = popen2('qsub')
 
         # Customize your options here
-        job_name = "sample_dist_ex_%d" % i
+        job_name = "dist_ex_%d" % i
         walltime = "1:00:00"
         select = "1:ncpus=20:mpiprocs=20"
 
@@ -77,6 +77,8 @@ def main(FLAGS):
         # Send job_string to qsub
         qsub_input.write(job_string)
         qsub_input.close()
+
+        print(qsub_output.read())
 
         qsub_outputs.append(qsub_output)
 
