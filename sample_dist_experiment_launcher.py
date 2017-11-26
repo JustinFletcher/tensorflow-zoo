@@ -49,7 +49,9 @@ def main(FLAGS):
         # Open a pipe to the qsub command.
         # qsub_output, qsub_input = popen2('qsub')
 
-        p = subprocess.Popen('qsub')
+        p = subprocess.Popen('qsub',
+                             stdin=subprocess.PIPE,
+                             shell=True)
 
         # Customize your options here.
         job_name = "dist_ex_%d" % i
