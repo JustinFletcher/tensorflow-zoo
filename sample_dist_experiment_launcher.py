@@ -120,7 +120,7 @@ def main(FLAGS):
 
             job_complete_flags.append(job_complete)
 
-        timeout = (i > FLAGS.timeout)
+        timeout = (i > FLAGS.max_runtime)
 
         jobs_complete = (all(job_complete_flags))
 
