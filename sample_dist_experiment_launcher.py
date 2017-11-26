@@ -37,6 +37,7 @@ def main(FLAGS):
 
     # Make a list to store job id strings.
     job_ids = []
+    log_filenames = []
 
     # Iterate over each experimental configuration, launching a job for each.
     for i, experimental_config in enumerate(experimental_configs):
@@ -63,7 +64,9 @@ def main(FLAGS):
             command += ' ' + flag
 
         # Add a final flag modifying the log filename to be unique.
-        command += ' --log_filename=templog' + str(i)
+        log_filename = 'templog' + str(i)
+        command += ' --log_filename=' + log_filename
+        log_filenames.append(log_filename)
 
         # Build the job sting.
         job_string = """#!/bin/bash
@@ -130,9 +133,12 @@ def main(FLAGS):
         print("-----------------")
 
     print("All jobs complete. Merging results.")
-    # Once all jobs are complete, merge thier outputs.
-    # for i, experimental_config in enumerate(experimental_configs):
 
+    # Once all jobs are complete, merge thier outputs.
+    for i, log_filename in enumerate(log_filenames):
+
+
+        print(log_filename)
 
     # parameter_labels = ['thread_count',
     #                     'batch_size',
