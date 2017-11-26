@@ -29,7 +29,7 @@ def main(FLAGS):
                   ('train_batch_size', [16, 32])]
 
     # Translate the design structure into flag strings.
-    exp_flag_strings = [['--' + f + ' ' + str(v) for v in r]
+    exp_flag_strings = [['--' + f + '=' + str(v) for v in r]
                         for (f, r) in exp_design]
 
     # Produce the Cartesian set of configurations.
@@ -56,7 +56,7 @@ def main(FLAGS):
         # Iterate over flag strings, building the command.
         for flag in experimental_config:
 
-            command += '=' + flag
+            command += ' ' + flag
 
         # #PBS -o ~/log/output/%s.out
         # #PBS -e ~/log/error/%s.err
