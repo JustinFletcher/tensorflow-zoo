@@ -44,14 +44,12 @@ def main(FLAGS):
         print(experimental_config)
         print("-----------------")
 
-
         # Use subproces instead!
         # Open a pipe to the qsub command.
         # qsub_output, qsub_input = popen2('qsub')
 
         p = subprocess.Popen('qsub',
                              stdin=subprocess.PIPE,
-                             stdout=subprocess.PIPE,
                              shell=True)
 
         # Customize your options here.
