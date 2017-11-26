@@ -50,7 +50,8 @@ def main(FLAGS):
 
         p = subprocess.Popen('qsub',
                              stdin=subprocess.PIPE,
-                             stdout=subprocess.PIPE)
+                             stdout=subprocess.PIPE,
+                             shell=True)
 
         # Customize your options here.
         job_name = "dist_ex_%d" % i
@@ -93,7 +94,9 @@ def main(FLAGS):
 
         print("-----------------")
 
-    for _ in range(60):
+    for i in range(60):
+
+        print(i)
 
         time.sleep(1)
 
