@@ -87,7 +87,7 @@ def main(FLAGS):
 
         print("-----------------")
 
-    for _ in range(15):
+    for _ in range(120):
 
         time.sleep(1)
 
