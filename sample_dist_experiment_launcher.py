@@ -105,7 +105,7 @@ def main(FLAGS):
         for p in qsub_processes:
 
             print(p)
-            print(p.stdout)
+            print(p.stdout.read())
 
 
 
