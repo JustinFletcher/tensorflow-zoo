@@ -100,7 +100,7 @@ def main(FLAGS):
 
         for p in qsub_processes:
 
-            print(p.communicate)
+            print(p.communicate())
 
 
 
