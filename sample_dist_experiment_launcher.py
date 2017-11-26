@@ -49,8 +49,8 @@ def main(FLAGS):
         # qsub_output, qsub_input = popen2('qsub')
 
         p = subprocess.Popen('qsub',
-                             stdin=subprocess.PIPE,
-                             stdout=subprocess.PIPE,
+                             stdin=PIPE,
+                             stdout=PIPE,
                              shell=True)
 
         # Customize your options here.
@@ -96,12 +96,15 @@ def main(FLAGS):
 
     for i in range(60):
 
+        print("-----------------")
+
         print(i)
 
         time.sleep(1)
 
         for p in qsub_processes:
 
+            print(p)
             print(p.communicate())
 
 
