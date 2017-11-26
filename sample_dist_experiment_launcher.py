@@ -65,6 +65,8 @@ def main(FLAGS):
         #PBS -N %s
         #PBS -l walltime=%s
         #PBS -l select=%s
+        #PBS -o ~/log/output/%s.out
+        #PBS -e ~/log/error/%s.err
         #PBS -A MHPCC96670DA1
         #PBS -q standard
         cd $PBS_O_WORKDIR
