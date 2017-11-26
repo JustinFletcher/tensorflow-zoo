@@ -84,7 +84,8 @@ def main(FLAGS):
         print(job_string)
 
         # Send job_string to qsub
-        job_ids.append(p.communicate()[0])
+        qsub_process = p.communicate(job_string)[0]
+        job_ids.append(qsub_process.communicate()[0])
         # qsub_input.write(job_string)
         # qsub_input.close()
 
