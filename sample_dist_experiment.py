@@ -125,7 +125,7 @@ def sample_experiment():
             start_time = time.time()
 
             # If it is a batch refresh interval, refresh the batch.
-            if((i % batch_interval == 0) or (i == 0)):
+            if((i % FLAGS.batch_interval == 0) or (i == 0)):
 
                 # Update the batch.
                 train_images, train_labels = sess.run([image_batch,
@@ -230,6 +230,10 @@ if __name__ == '__main__':
     parser.add_argument('--train_batch_size', type=int,
                         default=128,
                         help='Training set batch size.')
+
+    parser.add_argument('--batch_interval', type=int,
+                        default=1,
+                        help='Interval between training batch refresh.')
 
     # Parse known arguements.
     FLAGS, unparsed = parser.parse_known_args()

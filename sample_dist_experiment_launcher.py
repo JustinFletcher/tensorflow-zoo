@@ -24,12 +24,13 @@ def main(FLAGS):
     tf.gfile.MakeDirs(FLAGS.log_dir)
 
     # Declare experimental flags.
-    exp_design = [('--rep_num', range(1)),
-                  ('--train_enqueue_threads', [16]),
-                  ('--train_batch_size', [16])]
+    exp_design = [('rep_num', range(1)),
+                  ('train_enqueue_threads', [16]),
+                  ('train_batch_size', [16, 32])]
 
     # Translate the design structure into flag strings.
-    exp_flag_strings = [[f + ' ' + str(v) for v in r] for (f, r) in exp_design]
+    exp_flag_strings = [['--' + f + ' ' + str(v) for v in r]
+                        for (f, r) in exp_design]
 
     # Produce the Cartesian set of configurations.
     experimental_configs = itertools.product(*exp_flag_strings)
