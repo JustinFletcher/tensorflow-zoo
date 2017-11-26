@@ -35,7 +35,7 @@ def main(FLAGS):
     # Produce the Cartesian set of configurations.
     experimental_configs = itertools.product(*exp_flag_strings)
 
-    qsub_processes = []
+    job_ids = []
 
     # Iterate over each experimental configuration.
     for i, experimental_config in enumerate(experimental_configs):
@@ -84,31 +84,32 @@ def main(FLAGS):
         print(job_string)
 
         # Send job_string to qsub
-        output = p.communicate(job_string)
+        job_ids.append(p.communicate(job_string)[0])
         # qsub_input.write(job_string)
         # qsub_input.close()
 
         # print(qsub_output.read())
 
-        qsub_processes.append(p)
+        # qsub_processes.append(p)
 
-        print(output)
+        # print(output)
 
         print("-----------------")
 
-    # for i in range(60):
+    for i in range(60):
 
-    #     print("-----------------")
+        print("-----------------")
 
-    #     print(i)
+        print(i)
 
-    #     time.sleep(1)
+        time.sleep(1)
 
-    #     for p in qsub_processes:
+        for job_id in job_ids:
 
-    #         print(p)
-    #         print(p.stdout)
-
+            p = subprocess.Popen('checkjob -v ' + job_id,
+                                 stdin=subprocess.PIPE,
+                                 stdout=subprocess.PIPE,
+                                 shell=True)
 
 
     # parameter_labels = ['thread_count',
