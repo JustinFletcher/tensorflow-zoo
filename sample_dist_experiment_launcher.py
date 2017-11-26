@@ -48,12 +48,12 @@ def main(FLAGS):
         qsub_output, qsub_input = popen2('qsub')
 
         # Customize your options here
-        job_name = "my_job_%d" % i
+        job_name = "sample_dist_ex_%d" % i
         walltime = "1:00:00"
         select = "1:ncpus=20:mpiprocs=20"
 
         # Generate command for flags.
-        command = "python ./sample_dist_experiment"
+        command = "python ~/tensorflow-zoo/sample_dist_experiment.py"
 
         for flag in experimental_config:
 
