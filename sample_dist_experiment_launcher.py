@@ -7,7 +7,7 @@ from popen2 import popen2
 import time
 import argparse
 import itertools
-
+import subprocess
 import tensorflow as tf
 
 # If you want to be emailed by the system, include these in job_string:
@@ -35,7 +35,7 @@ def main(FLAGS):
     # Produce the Cartesian set of configurations.
     experimental_configs = itertools.product(*exp_flag_strings)
 
-    qsub_outputs = []
+    qsub_processes = []
 
     # Iterate over each experimental configuration.
     for i, experimental_config in enumerate(experimental_configs):
@@ -44,8 +44,12 @@ def main(FLAGS):
         print(experimental_config)
         print("-----------------")
 
+
+        # Use subproces instead!
         # Open a pipe to the qsub command.
-        qsub_output, qsub_input = popen2('qsub')
+        # qsub_output, qsub_input = popen2('qsub')
+
+        p = subprocess.Popen('qsub')
 
         # Customize your options here.
         job_name = "dist_ex_%d" % i
@@ -78,12 +82,13 @@ def main(FLAGS):
         print(job_string)
 
         # Send job_string to qsub
-        qsub_input.write(job_string)
-        qsub_input.close()
+        p.communicate(job_string)
+        # qsub_input.write(job_string)
+        # qsub_input.close()
 
         # print(qsub_output.read())
 
-        qsub_outputs.append(qsub_output)
+        qsub_processes.append(p)
 
         print("-----------------")
 
@@ -91,9 +96,9 @@ def main(FLAGS):
 
         time.sleep(1)
 
-        for qsub_output in qsub_outputs:
+        for p in qsub_processes:
 
-            print(qsub_output.read())
+            print(p.communicate)
 
 
 
