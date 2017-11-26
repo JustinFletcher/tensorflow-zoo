@@ -62,7 +62,7 @@ def main(FLAGS):
         job_string = """#!/bin/bash
         #PBS -N %s
         #PBS -l walltime=%s
-        #PBS -l %s
+        #PBS -l select=%s
         #PBS -o ./output/%s.out
         #PBS -e ./error/%s.err
         #PBS -l place=scatter:excl
