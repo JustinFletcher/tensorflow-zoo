@@ -51,6 +51,7 @@ def main(FLAGS):
 
         p = subprocess.Popen('qsub',
                              stdin=subprocess.PIPE,
+                             stdout=subprocess.PIPE,
                              shell=True)
 
         # Customize your options here.
