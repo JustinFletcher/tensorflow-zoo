@@ -109,7 +109,7 @@ def main(FLAGS):
             job_complete = p.communicate()[0].split()[-2] == 'E'
 
             # Print a diagnostic.
-            print('Job ' + job_id + ' complete? ' + job_complete + '.')
+            print('Job ' + job_id + ' complete? ' + str(job_complete) + '.')
 
         print("-----------------")
 
