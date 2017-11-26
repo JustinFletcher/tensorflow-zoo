@@ -47,25 +47,24 @@ def main(FLAGS):
         # Open a pipe to the qsub command.
         qsub_output, qsub_input = popen2('qsub')
 
-        # Customize your options here
+        # Customize your options here.
         job_name = "dist_ex_%d" % i
         walltime = "1:00:00"
         select = "1:ncpus=20:mpiprocs=20"
-
-        # Generate command for flags.
         command = "python ~/tensorflow-zoo/sample_dist_experiment.py"
 
+        # Iterate over flag strings, building the command.
         for flag in experimental_config:
 
-            command += ' ' + flag
+            command += '=' + flag
+
+        # #PBS -o ~/log/output/%s.out
+        # #PBS -e ~/log/error/%s.err
 
         job_string = """#!/bin/bash
         #PBS -N %s
         #PBS -l walltime=%s
         #PBS -l select=%s
-        #PBS -o ./output/%s.out
-        #PBS -e ./error/%s.err
-        #PBS -l place=scatter:excl
         #PBS -A MHPCC96670DA1
         #PBS -q standard
         cd $PBS_O_WORKDIR
