@@ -50,6 +50,7 @@ def main(FLAGS):
 
         p = subprocess.Popen('qsub',
                              stdin=subprocess.PIPE,
+                             stdout=subprocess.PIPE,
                              shell=True)
 
         # Customize your options here.
@@ -93,7 +94,7 @@ def main(FLAGS):
 
         print("-----------------")
 
-    for _ in range(120):
+    for _ in range(60):
 
         time.sleep(1)
 
