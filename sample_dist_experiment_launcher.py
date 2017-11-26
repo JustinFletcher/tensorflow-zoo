@@ -84,7 +84,7 @@ def main(FLAGS):
         print(job_string)
 
         # Send job_string to qsub
-        job_ids.append(p.communicate(job_string)[0])
+        job_ids.append(p.communicate()[0])
         # qsub_input.write(job_string)
         # qsub_input.close()
 
@@ -105,6 +105,7 @@ def main(FLAGS):
         time.sleep(1)
 
         for job_id in job_ids:
+
 
             p = subprocess.Popen('checkjob -v ' + job_id,
                                  stdin=subprocess.PIPE,
