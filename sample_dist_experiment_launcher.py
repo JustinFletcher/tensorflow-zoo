@@ -111,8 +111,9 @@ def main(FLAGS):
                                  stdin=subprocess.PIPE,
                                  stdout=subprocess.PIPE,
                                  shell=True)
-            print(p.communicate())
+            print(p.communicate()[0].split())
 
+        print("-----------------")
 
     # parameter_labels = ['thread_count',
     #                     'batch_size',
