@@ -68,6 +68,8 @@ def main(FLAGS):
         command += ' --log_filename=' + log_filename
         log_filenames.append(log_filename)
 
+        command += ' --log_dir=' + FLAGS.log_dir
+
         # Build the job sting.
         job_string = """#!/bin/bash
         #PBS -N %s
