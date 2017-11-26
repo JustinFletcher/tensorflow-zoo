@@ -171,7 +171,7 @@ def sample_experiment():
             csvwriter.writerow([FLAGS.train_enqueue_threads,
                                 FLAGS.train_batch_size,
                                 FLAGS.batch_interval,
-                                rep,
+                                FLAGS.rep_num,
                                 step,
                                 tl,
                                 vl,
