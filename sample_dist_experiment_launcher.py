@@ -111,7 +111,7 @@ def main(FLAGS):
                                  stdin=subprocess.PIPE,
                                  stdout=subprocess.PIPE,
                                  shell=True)
-            print(p.communicate()[0].split())
+            print('Job ' + ' status:' + p.communicate()[0].split()[-2])
 
         print("-----------------")
 
