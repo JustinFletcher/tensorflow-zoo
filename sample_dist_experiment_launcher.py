@@ -169,7 +169,7 @@ def main(FLAGS):
             # Process the flags into output values.
             for flag in input_flags:
 
-                flag_val = flag.split(' ')
+                flag_val = flag.split('=')[1]
                 print(flag)
                 print(flag_val)
 
@@ -182,6 +182,9 @@ def main(FLAGS):
                 for output_row in reader:
 
                     print(output_row)
+
+                    print('heres whats printed')
+                    print(nput_row + output_row)
 
                     csvwriter.writerow(input_row + output_row)
 
