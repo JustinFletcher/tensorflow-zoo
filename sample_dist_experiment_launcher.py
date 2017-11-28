@@ -184,7 +184,7 @@ def main(FLAGS):
                     print(output_row)
 
                     print('heres whats printed')
-                    print(nput_row + output_row)
+                    print(input_row + output_row)
 
                     csvwriter.writerow(input_row + output_row)
 
