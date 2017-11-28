@@ -169,7 +169,7 @@ def main(FLAGS):
             # Process the flags into output values.
             for flag in input_flags:
 
-                flag_val = flag.split()[1]
+                flag_val = flag.split(' ')[1]
 
                 input_row.append(flag_val)
 
