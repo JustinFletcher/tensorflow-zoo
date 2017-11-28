@@ -3,7 +3,6 @@
 # Example PBS cluster job submission in Python
 
 import csv
-from popen2 import popen2
 import time
 import argparse
 import itertools
@@ -38,6 +37,7 @@ def main(FLAGS):
     # Make a list to store job id strings.
     job_ids = []
     log_filenames = []
+    input_output_maps = []
 
     # Iterate over each experimental configuration, launching a job for each.
     for i, experimental_config in enumerate(experimental_configs):
@@ -56,7 +56,7 @@ def main(FLAGS):
         job_name = "dist_ex_%d" % i
         walltime = "1:00:00"
         select = "1:ncpus=20:mpiprocs=20"
-        command = "python ~/tensorflow-zoo/sample_dist_experiment.py"
+        command = "python " + FLAGS.experiment_py_file
 
         # Iterate over flag strings, building the command.
         for flag in experimental_config:
@@ -65,8 +65,15 @@ def main(FLAGS):
 
         # Add a final flag modifying the log filename to be unique.
         log_filename = 'templog' + str(i)
+
+        # Add the logfile to the command.
         command += ' --log_filename=' + log_filename
-        log_filenames.append(log_filename)
+
+        # log_filenames.append(log_filename)
+
+        # Build IO maps.
+        input_output_map = (experimental_config, log_filename)
+        input_output_maps.append(input_output_map)
 
         command += ' --log_dir=' + FLAGS.log_dir
 
@@ -142,9 +149,9 @@ def main(FLAGS):
     # Accomodate Python 2.7 on Hokulea.
     with open(FLAGS.log_dir + '/' + FLAGS.log_filename, 'wb') as csvfile:
 
+        # TODO: automatically populate this var.
         parameter_labels = ['thread_count',
                             'batch_size',
-                            'batch_interval',
                             'rep_num',
                             'step_num',
                             'train_loss',
@@ -155,60 +162,42 @@ def main(FLAGS):
         csvwriter = csv.writer(csvfile)
         csvwriter.writerow(parameter_labels)
 
-        # Once all jobs are complete, merge thier outputs.
-        for i, log_filename in enumerate(log_filenames):
+        for (input_flags, output_filename) in input_output_maps:
 
-            print(log_filename)
+            input_row = []
+
+            # Process the flags into output values.
+            for flag in input_flags:
+
+                flag_val = flag.split()[1]
+
+                input_row.append(flag_val)
 
             with open(FLAGS.log_dir + '/' + log_filename, 'rb') as f:
 
                 reader = csv.reader(f)
 
-                for row in reader:
-                    print(row)
+                for output_row in reader:
 
-                    csvwriter.writerow(row)
+                    print(output_row)
+
+                    csvwriter.writerow(input_row + output_row)
 
 
-    # Accomodate Python 3+
-    # with open(FLAGS.log_dir '/' + FLAGS.log_filename, 'w') as csvfile:
+        # # Once all jobs are complete, merge thier outputs.
+        # for i, log_filename in enumerate(log_filenames):
 
-    # # Accomodate Python 2.7 on Hokulea.
-    # with open(FLAGS.log_dir + '/' + FLAGS.log_filename, 'wb') as csvfile:
+        #     print(log_filename)
+        #     # Each one of these should have unique parameters.
 
-    #     # Open a writer and write the header.
-    #     csvwriter = csv.writer(csvfile)
-    #     csvwriter.writerow(parameter_labels)
+        #     with open(FLAGS.log_dir + '/' + log_filename, 'rb') as f:
 
-    #     # Iterate over each output.
-    #     for (experimental_configuration, results) in experimental_outputs:
+        #         reader = csv.reader(f)
 
-    #         # TODO: Generalize this pattern to not rely on var names.
+        #         for row in reader:
+        #             print(row)
 
-    #         # Unpack the experimental configuration.
-    #         (thread_count,
-    #          batch_size,
-    #          batch_interval,
-    #          rep) = experimental_configuration
-
-    #         # Unpack the cooresponding results.
-    #         (steps, train_losses, val_losses, mean_running_times) = results
-
-    #         # Iterate over the results vectors for each config.
-    #         for (step, tl, vl, mrt) in zip(steps,
-    #                                        train_losses,
-    #                                        val_losses,
-    #                                        mean_running_times):
-
-    #             # Write the data to a csv.
-    #             csvwriter.writerow([thread_count,
-    #                                 batch_size,
-    #                                 batch_interval,
-    #                                 rep,
-    #                                 step,
-    #                                 tl,
-    #                                 vl,
-    #                                 mrt])
+        #             csvwriter.writerow(row)
 
 
 if __name__ == '__main__':
@@ -226,6 +215,10 @@ if __name__ == '__main__':
 
     parser.add_argument('--max_runtime', type=int,
                         default=360000,
+                        help='Number of seconds to run before giving up.')
+
+    parser.add_argument('--experiment_py_file', type=str,
+                        default='~/tensorflow-zoo/sample_dist_experiment.py',
                         help='Number of seconds to run before giving up.')
 
     # Parse known arguements.
