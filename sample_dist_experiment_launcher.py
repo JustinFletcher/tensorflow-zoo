@@ -148,19 +148,23 @@ def main(FLAGS):
     # Accomodate Python 2.7 on Hokulea.
     with open(FLAGS.log_dir + '/' + FLAGS.log_filename, 'wb') as csvfile:
 
-        # TODO: automatically populate this var.
-        parameter_labels = ['thread_count',
-                            'batch_size',
-                            'rep_num',
-                            'step_num',
-                            'train_loss',
-                            'val_loss',
-                            'mean_running_time']
+        # Parse out experiment parameter headers.
+        parameter_labels = [flag_string for (flag_string, _) in exp_design]
+
+        # Manually note response varaibles (MUST: Couple with experiment).
+        response_labels = ['step_num',
+                           'train_loss',
+                           'val_loss',
+                           'mean_running_time']
+
+        # Join lists.
+        headers = parameter_labels + response_labels
 
         # Open a writer and write the header.
         csvwriter = csv.writer(csvfile)
-        csvwriter.writerow(parameter_labels)
+        csvwriter.writerow(headers)
 
+        # Iterate over each eperimental mapping and write out.
         for (input_flags, output_filename) in input_output_maps:
 
             input_row = []
@@ -178,26 +182,7 @@ def main(FLAGS):
 
                 for output_row in reader:
 
-                    print('heres whats printed')
-                    print(input_row + output_row)
-
                     csvwriter.writerow(input_row + output_row)
-
-
-        # # Once all jobs are complete, merge thier outputs.
-        # for i, log_filename in enumerate(log_filenames):
-
-        #     print(log_filename)
-        #     # Each one of these should have unique parameters.
-
-        #     with open(FLAGS.log_dir + '/' + log_filename, 'rb') as f:
-
-        #         reader = csv.reader(f)
-
-        #         for row in reader:
-        #             print(row)
-
-        #             csvwriter.writerow(row)
 
 
 if __name__ == '__main__':
