@@ -169,11 +169,7 @@ def sample_experiment():
                                        mean_running_times):
 
             # Write the data to a csv.
-            csvwriter.writerow([FLAGS.train_enqueue_threads,
-                                FLAGS.train_batch_size,
-                                FLAGS.batch_interval,
-                                FLAGS.rep_num,
-                                step,
+            csvwriter.writerow([step,
                                 tl,
                                 vl,
                                 mrt])
