@@ -36,7 +36,6 @@ def main(FLAGS):
 
     # Make a list to store job id strings.
     job_ids = []
-    log_filenames = []
     input_output_maps = []
 
     # Iterate over each experimental configuration, launching a job for each.
@@ -173,7 +172,7 @@ def main(FLAGS):
 
                 input_row.append(flag_val)
 
-            with open(FLAGS.log_dir + '/' + log_filename, 'rb') as f:
+            with open(FLAGS.log_dir + '/' + output_filename, 'rb') as f:
 
                 reader = csv.reader(f)
 
