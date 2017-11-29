@@ -170,8 +170,6 @@ def main(FLAGS):
             for flag in input_flags:
 
                 flag_val = flag.split('=')[1]
-                print(flag)
-                print(flag_val)
 
                 input_row.append(flag_val)
 
@@ -180,8 +178,6 @@ def main(FLAGS):
                 reader = csv.reader(f)
 
                 for output_row in reader:
-
-                    print(output_row)
 
                     print('heres whats printed')
                     print(input_row + output_row)
