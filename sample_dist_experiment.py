@@ -9,7 +9,7 @@ from concurrent.futures import *
 
 # Import the baseline model.
 sys.path.append("/.")
-from baseline_mlp_model import *
+from baseline_model import *
 
 '''
 This file serves as a canonical example of how to perform a sequential

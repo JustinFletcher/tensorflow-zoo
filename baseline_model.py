@@ -475,11 +475,13 @@ def example_usage(_):
 
 if __name__ == '__main__':
 
+    print("Hello from Main!")
+
     # Instantiate an arg parser.
     parser = argparse.ArgumentParser()
 
     # Establish default arguements.
-    parser.add_argument('--max_steps', type=int, default=1000,
+    parser.add_argument('--max_steps', type=int, default=0,
                         help='Number of steps to run trainer.')
 
     parser.add_argument('--test_interval', type=int, default=100,
